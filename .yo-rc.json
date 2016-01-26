@@ -1,0 +1,8 @@
+{
+  "generator-android-basic": {
+    "appName": "Poisondartfrog",
+    "appPackage": "de.interoberlin.poisondartfrog",
+    "androidTargetSdkVersion": 23,
+    "androidMinSdkVersion": 17
+  }
+}
