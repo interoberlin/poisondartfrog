@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">Poisondartfrog</string>
+    <string name="app_name">Poison Dart Frog</string>
+    <string name="title_activity_devices">Devices</string>
+    <string name="sensor_scanning_error">Scanning error</string>
+    <string name="found">found</string>
+    <string name="scanning_for_ble_devices">Scanning for BLE scannedDevices</string>
+    <string name="bt_not_supported">Bluetooth not supported</string>
+    <string name="okay">Okay</string>
+    <string name="cancel">Cancel</string>
+    <string name="address">address</string>
+    <string name="name">name</string>
+    <string name="scan_result_icon">scan result icon</string>
+    <string name="scannedDevices">Devices</string>
+    <string name="devices">Devices</string>
 </resources>
