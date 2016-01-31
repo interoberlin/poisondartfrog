@@ -77,7 +77,7 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
      * @param types types to scan for
      * @throws Exception
      */
-    public static void scan(final BleDeviceType[] types) throws Exception {
+    public void scan(final BleDeviceType[] types) throws Exception {
         RelayrSdkInitializer.initSdk(App.getContext());
         RelayrSdk.getRelayrBleSdk()
                 .scan(Arrays.asList(types))
@@ -92,7 +92,7 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                                 // Add found device to list
                                 if (!devicesController.getScannedDevices().contains(device)) {
                                     devicesController.getScannedDevices().add(device);
-                                    Log.d(TAG, "Added " + device.getAddress() + " " + device.getAddress());
+                                    Log.i(TAG, "Found " + device.getAddress() + " " + device.getAddress());
                                 }
                             }
                         }
@@ -121,6 +121,7 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage());
                     }
 
                     @Override

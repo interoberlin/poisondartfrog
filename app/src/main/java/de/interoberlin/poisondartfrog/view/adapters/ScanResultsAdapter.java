@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +15,16 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.SubscribeTask;
 import io.relayr.android.ble.BleDevice;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
+    public static final String TAG = ScanResultFilter.class.getCanonicalName();
+
     // Context
     private Context context;
     private Activity activity;
@@ -105,6 +110,23 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
                 break;
             }
         }
+
+        // Add actions
+        rlScanResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity instanceof SubscribeTask.OnCompleteListener) {
+                    Log.i(TAG, "Coolio");
+                    try {
+                        new SubscribeTask((SubscribeTask.OnCompleteListener) activity).execute(bleDevice).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.i(TAG, "Coolio");
+                }
+            }
+        });
 
         return rlScanResult;
     }

@@ -19,11 +19,13 @@ import android.widget.Toast;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.ScanTask;
+import de.interoberlin.poisondartfrog.model.SubscribeTask;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 import io.relayr.android.RelayrSdk;
 import io.relayr.java.ble.BleDeviceType;
+import io.relayr.java.model.action.Reading;
 
-public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener, SubscribeTask.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
@@ -117,6 +119,11 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
             Snackbar.make(rlContent, getResources().getString(R.string.no_devices_found), Snackbar.LENGTH_LONG)
                     .show();
         }
+    }
+
+    @Override
+    public void onReceivedReading(Reading reading) {
+
     }
 
     // --------------------
