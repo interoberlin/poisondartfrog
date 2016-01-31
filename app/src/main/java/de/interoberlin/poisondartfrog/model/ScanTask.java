@@ -1,6 +1,5 @@
 package de.interoberlin.poisondartfrog.model;
 
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -46,10 +45,8 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
 
     @Override
     protected Void doInBackground(BleDeviceType... params) {
-        Log.i(TAG, "Start ScanTask");
         try {
-            int scanPeriod = Configuration.getIntProperty(context, context.getResources().getString(R.string.scan_period));
-            scan(params, scanPeriod);
+            scan(params);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,31 +74,25 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
     /**
      * Scans for BLE devices of specific types
      *
-     * @param types      types to scan for
-     * @param scanPeriod scanPeriod in seconds
+     * @param types types to scan for
      * @throws Exception
      */
-    public static void scan(final BleDeviceType[] types, int scanPeriod) throws Exception {
-        Log.i(TAG, "Started Scanning ... (scanPeriod " + scanPeriod + ")");
-
+    public static void scan(final BleDeviceType[] types) throws Exception {
         RelayrSdkInitializer.initSdk(App.getContext());
-
         RelayrSdk.getRelayrBleSdk()
-                .scan(Arrays.asList(types), scanPeriod)
+                .scan(Arrays.asList(types))
                 .filter(new Func1<List<BleDevice>, Boolean>() {
                     @Override
                     public Boolean call(List<BleDevice> bleDevices) {
-                        Log.i(TAG, "call");
                         DevicesController devicesController = DevicesController.getInstance(null);
                         devicesController.getScannedDevices().clear();
 
                         for (BleDevice device : bleDevices) {
-                            if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION ) {
-
+                            if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION) {
                                 // Add found device to list
-                                if (!devicesController.getScannedDevices().contains(device))
-                                {
+                                if (!devicesController.getScannedDevices().contains(device)) {
                                     devicesController.getScannedDevices().add(device);
+                                    Log.d(TAG, "Added " + device.getAddress() + " " + device.getAddress());
                                 }
                             }
                         }
@@ -114,7 +105,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                          public BleDevice call(List<BleDevice> bleDevices) {
                              for (BleDevice device : bleDevices) {
                                  if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION) {
-                                     Log.i(TAG, "mapped " + device.getType() + " " + device.getAddress());
                                      return device;
                                  }
                              }
@@ -122,7 +112,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                          }
                      }
                 )
-                // .take(100)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<BleDevice>() {
@@ -136,7 +125,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
 
                     @Override
                     public void onNext(BleDevice device) {
-                        Log.i(TAG, "next " + device.getType() + " " + device.getAddress());
                     }
                 });
 

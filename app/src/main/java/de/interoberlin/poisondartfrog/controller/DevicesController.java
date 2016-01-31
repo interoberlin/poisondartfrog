@@ -4,11 +4,8 @@ import android.app.Activity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import de.interoberlin.poisondartfrog.model.ScanTask;
 import io.relayr.android.ble.BleDevice;
-import io.relayr.java.ble.BleDeviceType;
 
 public class DevicesController {
     public static final String TAG = DevicesController.class.getCanonicalName();
@@ -34,22 +31,6 @@ public class DevicesController {
         }
 
         return instance;
-    }
-
-    // --------------------
-    // Methods
-    // --------------------
-
-    /**
-     * Scans for BLE scannedDevices
-     * @param ocListener callback interface
-     */
-    public void scan(ScanTask.OnCompleteListener ocListener) {
-        try {
-            new ScanTask(ocListener).execute(BleDeviceType.WunderbarLIGHT, BleDeviceType.WunderbarGYRO, BleDeviceType.WunderbarHTU, BleDeviceType.WunderbarMIC).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
     }
 
     // --------------------

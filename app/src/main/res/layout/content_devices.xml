@@ -13,4 +13,13 @@
     tools:context=".view.activities.DevicesActivity"
     tools:showIn="@layout/activity_devices">
 
+    <ProgressBar
+        android:id="@+id/pb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
 </RelativeLayout>

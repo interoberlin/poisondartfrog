@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.ScanTask;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 import io.relayr.android.RelayrSdk;
+import io.relayr.java.ble.BleDeviceType;
 
 public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
@@ -29,6 +31,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
     private RelativeLayout rlContent;
     private Toolbar toolbar;
     private FloatingActionButton fab;
+    private ProgressBar pb;
 
     // Controller
     private DevicesController devicesController;
@@ -46,6 +49,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
         rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        pb = (ProgressBar) findViewById(R.id.pb);
 
         setSupportActionBar(toolbar);
         requestPermission(Manifest.permission.READ_CONTACTS, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
@@ -71,9 +75,15 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
             @Override
             public void onClick(View view) {
                 if (RelayrSdk.isBleSupported() && RelayrSdk.isBleAvailable()) {
-                    Snackbar.make(rlContent, getResources().getString(R.string.scanning_for_ble_devices), Snackbar.LENGTH_LONG)
-                            .show();
-                    devicesController.scan(DevicesActivity.this);
+                    /* DevicesActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Snackbar.make(rlContent, getResources().getString(R.string.scanning_for_ble_devices), Snackbar.LENGTH_LONG).show();
+                            pb.setVisibility(View.VISIBLE);
+                        }
+                    }); */
+
+                    new ScanTask(DevicesActivity.this).execute(BleDeviceType.WunderbarLIGHT, BleDeviceType.WunderbarGYRO, BleDeviceType.WunderbarHTU, BleDeviceType.WunderbarMIC);
                 } else {
                     requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
                 }
@@ -94,11 +104,19 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
 
     @Override
     public void onFinished() {
-        ScanResultsDialog dialog = new ScanResultsDialog();
-        Bundle b = new Bundle();
-        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-        dialog.setArguments(b);
-        dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+        pb.setVisibility(View.GONE);
+
+        if (!devicesController.getScannedDevices().isEmpty()) {
+
+            ScanResultsDialog dialog = new ScanResultsDialog();
+            Bundle b = new Bundle();
+            b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+            dialog.setArguments(b);
+            dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+        } else {
+            Snackbar.make(rlContent, getResources().getString(R.string.no_devices_found), Snackbar.LENGTH_LONG)
+                    .show();
+        }
     }
 
     // --------------------
