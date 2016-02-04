@@ -12,27 +12,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.ScanTask;
-import de.interoberlin.poisondartfrog.model.SubscribeTask;
+import de.interoberlin.poisondartfrog.model.tasks.ScanTask;
+import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
+import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
+import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 import io.relayr.android.RelayrSdk;
+import io.relayr.android.ble.BleDevice;
 import io.relayr.java.ble.BleDeviceType;
 import io.relayr.java.model.action.Reading;
 
-public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener, SubscribeTask.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener, SubscribeTask.OnCompleteListener, ScanResultsAdapter.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
+
+    // Modell
+    private DevicesAdapter devicesAdapter;
 
     // View
     private RelativeLayout rlContent;
     private Toolbar toolbar;
     private FloatingActionButton fab;
+    private ListView lv;
     private ProgressBar pb;
 
     // Controller
@@ -47,21 +55,25 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
 
-        // Load layout
-        rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        pb = (ProgressBar) findViewById(R.id.pb);
-
-        setSupportActionBar(toolbar);
         requestPermission(Manifest.permission.READ_CONTACTS, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         devicesController = DevicesController.getInstance(this);
+        devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getSubscribedDevicesAsList());
+
+        // Load layout
+        rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        lv = (ListView) findViewById(R.id.lv);
+        pb = (ProgressBar) findViewById(R.id.pb);
+
+        lv.setAdapter(devicesAdapter);
+
+        setSupportActionBar(toolbar);
 
         // Check BLE support
         if (!RelayrSdk.isBleSupported()) {
@@ -77,14 +89,6 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
             @Override
             public void onClick(View view) {
                 if (RelayrSdk.isBleSupported() && RelayrSdk.isBleAvailable()) {
-                    /* DevicesActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Snackbar.make(rlContent, getResources().getString(R.string.scanning_for_ble_devices), Snackbar.LENGTH_LONG).show();
-                            pb.setVisibility(View.VISIBLE);
-                        }
-                    }); */
-
                     new ScanTask(DevicesActivity.this).execute(BleDeviceType.WunderbarLIGHT, BleDeviceType.WunderbarGYRO, BleDeviceType.WunderbarHTU, BleDeviceType.WunderbarMIC);
                 } else {
                     requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
@@ -122,13 +126,35 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
     }
 
     @Override
-    public void onReceivedReading(Reading reading) {
+    public void onReceivedReading(BleDevice device, Reading reading) {
+        if (devicesController.getSubscribedDevices().containsKey(device.getAddress())) {
+            devicesController.updateSubscribedDevice(device.getAddress(), reading);
+        }
 
+            devicesController.getSubscribedDevices().containsKey(device.getAddress());
+
+        updateListView();
+
+    }
+
+    @Override
+    public void onSelectedItem() {
+        updateListView();
     }
 
     // --------------------
     // Methods
     // --------------------
+
+    /**
+     * Updates the list view
+     */
+    private void updateListView() {
+        final ListView lv = (ListView) findViewById(R.id.lv);
+
+        devicesAdapter.filter();
+        lv.invalidateViews();
+    }
 
     /**
      * Disables bluetooth

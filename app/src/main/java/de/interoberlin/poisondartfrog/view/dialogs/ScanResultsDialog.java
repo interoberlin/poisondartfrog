@@ -30,7 +30,7 @@ public class ScanResultsDialog extends DialogFragment {
         DevicesController devicesController = DevicesController.getInstance(getActivity());
         final Resources res = getActivity().getResources();
 
-        ScanResultsAdapter scanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), R.layout.item_scan_result, devicesController.getScannedDevices());
+        ScanResultsAdapter scanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
 
         // Load layout
         final View v = View.inflate(getActivity(), R.layout.dialog_scan_results, null);

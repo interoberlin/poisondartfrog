@@ -1,6 +1,5 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.tasks;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,7 +19,6 @@ import rx.functions.Func1;
 public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
     public static final String TAG = SubscribeTask.class.getCanonicalName();
 
-    public Context context;
     public OnCompleteListener ocListener;
 
     // --------------------
@@ -29,7 +27,6 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
 
     public SubscribeTask(OnCompleteListener ocListener) {
         this.ocListener = ocListener;
-        this.context = App.getContext();
     }
 
     // --------------------
@@ -43,7 +40,6 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
 
     @Override
     protected Void doInBackground(BleDevice... params) {
-        Log.i(TAG, "doInBackground");
         try {
             subscribe(params[0]);
         } catch (Exception e) {
@@ -73,24 +69,19 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
      * Subscribes values of {@code device}
      *
      * @param device device
-     * @return reading
      * @throws Exception
      */
     public void subscribe(final BleDevice device) throws Exception {
-        Log.i(TAG, "subscribe");
-
         device.connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
                     public Observable<Reading> call(BaseService baseService) {
-                        Log.i(TAG, "flatMap");
                         return ((DirectConnectionService) baseService).getReadings();
                     }
                 })
                 .doOnUnsubscribe(new Action0() {
                     @Override
                     public void call() {
-                        Log.i(TAG, "doOnUnsubscribe");
                         device.disconnect();
                     }
                 })
@@ -99,7 +90,7 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
                 .subscribe(new Observer<Reading>() {
                     @Override
                     public void onCompleted() {
-                        Log.i(TAG, "onComplete");
+                        Log.d(TAG, "onComplete");
                     }
 
                     @Override
@@ -110,12 +101,12 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
                     @Override
                     public void onNext(Reading reading) {
                         Log.i(TAG, "Read " + reading.toString());
-                        ocListener.onReceivedReading(reading);
+                        ocListener.onReceivedReading(device, reading);
                     }
                 });
     }
 
     public interface OnCompleteListener {
-        void onReceivedReading(Reading reading);
+        void onReceivedReading(BleDevice device, Reading reading);
     }
 }

@@ -1,15 +1,17 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.tasks;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BleDeviceReading;
+import de.interoberlin.poisondartfrog.model.RelayrSdkInitializer;
 import de.interoberlin.poisondartfrog.util.Configuration;
 import io.relayr.android.RelayrSdk;
 import io.relayr.android.ble.BleDevice;
@@ -22,8 +24,7 @@ import rx.functions.Func1;
 public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
     public static final String TAG = ScanTask.class.getCanonicalName();
 
-    public Context context;
-    public OnCompleteListener ocListener;
+    private OnCompleteListener ocListener;
 
     // --------------------
     // Constructors
@@ -31,7 +32,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
 
     public ScanTask(OnCompleteListener ocListener) {
         this.ocListener = ocListener;
-        this.context = App.getContext();
     }
 
     // --------------------
@@ -64,6 +64,7 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
         }
 
         super.onPostExecute(aVoid);
+
         ocListener.onFinished();
     }
 
@@ -90,9 +91,13 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                         for (BleDevice device : bleDevices) {
                             if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION) {
                                 // Add found device to list
-                                if (!devicesController.getScannedDevices().contains(device)) {
-                                    devicesController.getScannedDevices().add(device);
-                                    Log.i(TAG, "Found " + device.getAddress() + " " + device.getAddress());
+                                String address = device.getAddress();
+                                Map<String, BleDevice> scannedDevices = devicesController.getScannedDevices();
+                                Map<String, BleDeviceReading> subscribedDevices = devicesController.getSubscribedDevices();
+
+                                if (!scannedDevices.containsKey(address) && !subscribedDevices.containsKey(address)) {
+                                    devicesController.getScannedDevices().put(address, device);
+                                    Log.i(TAG, "Found " + address);
                                 }
                             }
                         }

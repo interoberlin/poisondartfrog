@@ -13,4 +13,7 @@
     <string name="scannedDevices">Devices</string>
     <string name="devices">Devices</string>
     <string name="no_devices_found">No devices found</string>
+    <string name="luminosity">luminosity</string>
+    <string name="color">color</string>
+    <string name="proximity">proximity</string>
 </resources>
