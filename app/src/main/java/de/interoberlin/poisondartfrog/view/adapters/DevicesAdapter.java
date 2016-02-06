@@ -112,7 +112,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
                 String luminosity = readings.get(EMeaning.LUMNINOSITY);
                 String proximity = readings.get(EMeaning.PROXIMITY);
                 String color = readings.get(EMeaning.COLOR);
-                rlMain.addView(new LightProximityComponent(context, luminosity, proximity, color));
+                rlMain.addView(new LightProximityComponent(context, activity, luminosity, proximity, color));
                 break;
             }
             case WunderbarMIC: {
