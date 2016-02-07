@@ -16,4 +16,7 @@
     <string name="luminosity">luminosity</string>
     <string name="color">color</string>
     <string name="proximity">proximity</string>
+    <string name="temperature">temperature</string>
+    <string name="humidity">humidity</string>
+    <string name="empty"></string>
 </resources>

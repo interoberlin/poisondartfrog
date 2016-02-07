@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,14 +15,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.model.EReadingType;
 import de.interoberlin.poisondartfrog.model.reading.LightProximity;
 
 public class LightProximityComponent extends LinearLayout {
     private static final String TAG = LightProximityComponent.class.getCanonicalName();
-
-    private static final int MAX_LUMINOSITY = 150; // 4096
-    private static final int MAX_PROXIMITY = 150; // 2047
-    private static final int MAX_RGB = 4096;
 
     private Activity activity;
 
@@ -39,7 +35,7 @@ public class LightProximityComponent extends LinearLayout {
     public LightProximityComponent(Context context, Activity activity, String luminosity, String proximity, String color) {
         super(context);
         this.activity = activity;
-        double prox = luminosity != null ? Double.parseDouble(luminosity) : 0.0;
+        double prox = proximity != null ? Double.parseDouble(proximity) : 0.0;
         double lum = luminosity != null ? Double.parseDouble(luminosity) : 0.0;
         LightProximity.Color col = color != null ? new Gson().fromJson(color, LightProximity.Color.class) : new LightProximity.Color();
 
@@ -69,7 +65,7 @@ public class LightProximityComponent extends LinearLayout {
         Bitmap bmpLuminosity = Bitmap.createBitmap(columnWidth, columnWidth, Bitmap.Config.ARGB_8888);
         Canvas canvasLuminosity = new Canvas(bmpLuminosity);
         Paint paintLuminosity = new Paint();
-        int rgbLuminosity = (int) (lum / MAX_LUMINOSITY * 255);
+        int rgbLuminosity = (int) (lum / EReadingType.LUMINOSITY.getMax() * 255);
         paintLuminosity.setARGB(255, rgbLuminosity, rgbLuminosity, rgbLuminosity);
         canvasLuminosity.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         canvasLuminosity.drawCircle(columnWidth / 2, columnWidth / 2, (int) (columnWidth / 2 * 0.8), paintLuminosity);
@@ -79,7 +75,7 @@ public class LightProximityComponent extends LinearLayout {
         Canvas canvasProximity = new Canvas(bmpProximity);
         Paint paintProximity = new Paint();
         int rgbProximity = 200;
-        int radiusProximity = (int) ((columnWidth / 2) * (1 -(prox / MAX_PROXIMITY)));
+        int radiusProximity = (int) ((columnWidth / 2) * (1 - (prox / EReadingType.PROXIMITY.getMax())));
         paintProximity.setARGB(255, rgbProximity, rgbProximity, rgbProximity);
         canvasProximity.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         canvasProximity.drawCircle(columnWidth / 2, columnWidth / 2, radiusProximity, paintProximity);

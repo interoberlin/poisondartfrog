@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.interoberlin.poisondartfrog.model.BleDeviceReading;
-import de.interoberlin.poisondartfrog.model.EMeaning;
+import de.interoberlin.poisondartfrog.model.EReadingType;
 import io.relayr.android.ble.BleDevice;
 import io.relayr.java.model.action.Reading;
 
@@ -54,7 +54,7 @@ public class DevicesController {
         BleDeviceReading bleDeviceReading = this.subscribedDevices.get(address);
 
         if (bleDeviceReading != null) {
-            bleDeviceReading.getReadings().put(EMeaning.fromString(reading.meaning), reading.value.toString());
+            bleDeviceReading.getReadings().put(EReadingType.fromString(reading.meaning), reading.value.toString());
         }
     }
 

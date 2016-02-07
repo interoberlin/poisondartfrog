@@ -5,9 +5,12 @@ import java.util.Map;
 
 import io.relayr.android.ble.BleDevice;
 
-public class BleDeviceReading  {
+/**
+ * Represents a tuple of a device and a set of readings where the latest readings are stored per reading type
+ */
+public class BleDeviceReading {
     private BleDevice device;
-    private Map<EMeaning, String> readings;
+    private Map<EReadingType, String> readings;
 
     // --------------------
     // Constructors
@@ -30,11 +33,11 @@ public class BleDeviceReading  {
         this.device = device;
     }
 
-    public Map<EMeaning, String> getReadings() {
+    public Map<EReadingType, String> getReadings() {
         return readings;
     }
 
-    public void setReadings(Map<EMeaning, String> readings) {
+    public void setReadings(Map<EReadingType, String> readings) {
         this.readings = readings;
     }
 }

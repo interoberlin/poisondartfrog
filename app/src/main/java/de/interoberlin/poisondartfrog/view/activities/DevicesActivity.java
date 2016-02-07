@@ -33,7 +33,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
-    // Modell
+    // Model
     private DevicesAdapter devicesAdapter;
 
     // View
@@ -56,6 +56,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
         setContentView(R.layout.activity_devices);
 
         requestPermission(Manifest.permission.READ_CONTACTS, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+
     }
 
     @Override

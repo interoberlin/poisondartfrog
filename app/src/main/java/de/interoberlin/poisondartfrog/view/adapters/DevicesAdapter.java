@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDeviceReading;
-import de.interoberlin.poisondartfrog.model.EMeaning;
+import de.interoberlin.poisondartfrog.model.EReadingType;
 import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import io.relayr.android.ble.BleDevice;
@@ -80,7 +80,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
 
     private View getCardView(final int position, final BleDeviceReading bleDeviceReading, final ViewGroup parent) {
         final BleDevice device = bleDeviceReading.getDevice();
-        final Map<EMeaning, String> readings = bleDeviceReading.getReadings();
+        final Map<EReadingType, String> readings = bleDeviceReading.getReadings();
 
         // Layout inflater
         LayoutInflater vi;
@@ -109,9 +109,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
             }
             case WunderbarLIGHT: {
                 ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                String luminosity = readings.get(EMeaning.LUMNINOSITY);
-                String proximity = readings.get(EMeaning.PROXIMITY);
-                String color = readings.get(EMeaning.COLOR);
+                String luminosity = readings.get(EReadingType.LUMINOSITY);
+                String proximity = readings.get(EReadingType.PROXIMITY);
+                String color = readings.get(EReadingType.COLOR);
                 rlMain.addView(new LightProximityComponent(context, activity, luminosity, proximity, color));
                 break;
             }
