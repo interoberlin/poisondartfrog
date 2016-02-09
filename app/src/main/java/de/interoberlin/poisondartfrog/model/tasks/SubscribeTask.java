@@ -90,7 +90,6 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
                 .subscribe(new Observer<Reading>() {
                     @Override
                     public void onCompleted() {
-                        Log.d(TAG, "onComplete");
                     }
 
                     @Override
@@ -100,7 +99,7 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
 
                     @Override
                     public void onNext(Reading reading) {
-                        Log.i(TAG, "Read " + reading.toString());
+                        Log.d(TAG, "Read " + reading.toString());
                         ocListener.onReceivedReading(device, reading);
                     }
                 });

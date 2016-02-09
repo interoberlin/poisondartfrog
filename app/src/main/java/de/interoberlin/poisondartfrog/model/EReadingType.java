@@ -8,7 +8,7 @@ public enum EReadingType {
     PROXIMITY("proximity", 0, 150), // min 0 max 2047
     COLOR("color", 0, 4096), // min 0 max 4096
 
-    TEMPERATURE("temperature", -10, 50), // min -100 max 100
+    TEMPERATURE("temperature", 10, 30), // min -100 max 100
     HUMIDITY("humidity", 0, 100); // min 0 max 100
 
     private String meaning;

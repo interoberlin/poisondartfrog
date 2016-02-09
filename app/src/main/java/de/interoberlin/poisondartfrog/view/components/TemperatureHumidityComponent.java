@@ -67,16 +67,15 @@ public class TemperatureHumidityComponent extends LinearLayout {
         ivTemperature.setImageBitmap(bmpTemperature);
 
         Bitmap bmpHumidity = Bitmap.createBitmap(columnWidth, columnWidth, Bitmap.Config.ARGB_8888);
-        Canvas canvasHumidity = new Canvas(bmpTemperature);
+        Canvas canvasHumidity = new Canvas(bmpHumidity);
         Paint paintHumidityMin = new Paint();
-        paintHumidityMin.setARGB(255, 0, 0, 255);
+        paintHumidityMin.setARGB(0, 0, 0, 255);
         Paint paintHumidityMax = new Paint();
-        paintHumidityMax.setARGB(255, 255, 0, 0);
+        paintHumidityMax.setARGB(255, 0, 0, 255);
         Paint paintHumidity = getPaint(paintHumidityMin, paintHumidityMax, EReadingType.HUMIDITY.getMin(), EReadingType.HUMIDITY.getMax(), hum);
         canvasHumidity.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         canvasHumidity.drawCircle(columnWidth / 2, columnWidth / 2, (int) (columnWidth / 2 * 0.8), paintHumidity);
         ivHumidity.setImageBitmap(bmpHumidity);
-
     }
 
     /**
@@ -91,7 +90,7 @@ public class TemperatureHumidityComponent extends LinearLayout {
      */
     private Paint getPaint(Paint pMin, Paint pMax, int vMin, int vMax, double v) {
         if (v < vMin) return pMin;
-        if (v < vMax) return pMax;
+        if (v > vMax) return pMax;
 
         int aMin = Color.alpha(pMin.getColor());
         int aMax = Color.alpha(pMax.getColor());
@@ -102,13 +101,30 @@ public class TemperatureHumidityComponent extends LinearLayout {
         int bMin = Color.blue(pMin.getColor());
         int bMax = Color.blue(pMax.getColor());
 
-        int a = (int) (((aMax - aMin) / (vMax - vMin) * v) + aMin);
-        int r = (int) (((rMax - rMin) / (vMax - vMin) * v) + rMin);
-        int g = (int) (((gMax - gMin) / (vMax - vMin) * v) + gMin);
-        int b = (int) (((bMax - bMin) / (vMax - vMin) * v) + bMin);
+        int a = getPaintComponent(aMin, aMax, vMin, vMax, v);
+        int r = getPaintComponent(rMin, rMax, vMin, vMax, v);
+        int g = getPaintComponent(gMin, gMax, vMin, vMax, v);
+        int b = getPaintComponent(bMin, bMax, vMin, vMax, v);
 
         Paint p = new Paint();
-        pMax.setARGB(a, r, g, b);
+
+        p.setARGB(a, r, g, b);
         return p;
+    }
+
+    /**
+     * Maps a {@code value} from {@code vMin} to {@code vMax} to a range from {@code pMin} to {@code pMax}
+     *
+     * @param pMin min output value
+     * @param pMax max output value
+     * @param vMin min input value
+     * @param vMax max input value
+     * @param v    input value
+     * @return mapped value
+     */
+    private int getPaintComponent(int pMin, int pMax, int vMin, int vMax, double v) {
+        int m = (pMax - pMin) / (vMax - vMin);
+        int n = pMax - (m * vMax);
+        return (int) (m * v) + n;
     }
 }

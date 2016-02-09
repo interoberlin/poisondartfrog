@@ -23,9 +23,12 @@ import de.interoberlin.poisondartfrog.model.BleDeviceReading;
 import de.interoberlin.poisondartfrog.model.EReadingType;
 import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
+import de.interoberlin.poisondartfrog.view.components.TemperatureHumidityComponent;
 import io.relayr.android.ble.BleDevice;
 
 public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
+    public static final String TAG = DevicesAdapter.class.getCanonicalName();
+
     // Context
     private Context context;
     private Activity activity;
@@ -101,6 +104,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
         switch (device.getType()) {
             case WunderbarHTU: {
                 ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                String temperature = readings.get(EReadingType.TEMPERATURE);
+                String humidity = readings.get(EReadingType.HUMIDITY);
+                rlMain.addView(new TemperatureHumidityComponent(context, activity, temperature, humidity));
                 break;
             }
             case WunderbarGYRO: {

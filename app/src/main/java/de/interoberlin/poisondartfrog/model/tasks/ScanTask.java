@@ -45,7 +45,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
 
     @Override
     protected Void doInBackground(BleDeviceType... params) {
-        Log.i(TAG, "doInBackground()");
         try {
             scan(params);
         } catch (Exception e) {
@@ -80,7 +79,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
      * @throws Exception
      */
     public void scan(final BleDeviceType[] types) throws Exception {
-        Log.i(TAG, "scan()");
         RelayrSdkInitializer.initSdk(App.getContext());
         RelayrSdk.getRelayrBleSdk()
                 .scan(Arrays.asList(types))
@@ -91,7 +89,6 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                         devicesController.getScannedDevices().clear();
 
                         for (BleDevice device : bleDevices) {
-                            Log.i(TAG, "PING");
                             if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION) {
                                 // Add found device to list
                                 String address = device.getAddress();

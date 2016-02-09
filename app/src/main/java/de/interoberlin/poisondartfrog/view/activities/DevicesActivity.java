@@ -55,8 +55,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
 
-        requestPermission(Manifest.permission.READ_CONTACTS, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
-
+        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
             RelayrSdk.promptUserToActivateBluetooth(this);
         }
 
-        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        // requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
 
         // Add actions
         fab.setOnClickListener(new View.OnClickListener() {
@@ -100,9 +99,9 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
 
     @Override
     protected void onDestroy() {
-        disconnectBluetooth();
-
         super.onDestroy();
+        RelayrSdk.getRelayrBleSdk().stop();
+        disconnectBluetooth();
     }
 
     // --------------------
@@ -132,7 +131,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
             devicesController.updateSubscribedDevice(device.getAddress(), reading);
         }
 
-            devicesController.getSubscribedDevices().containsKey(device.getAddress());
+        devicesController.getSubscribedDevices().containsKey(device.getAddress());
 
         updateListView();
 
