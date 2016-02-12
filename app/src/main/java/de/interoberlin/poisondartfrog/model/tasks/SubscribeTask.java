@@ -95,6 +95,7 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
+                        e.printStackTrace();
                     }
 
                     @Override

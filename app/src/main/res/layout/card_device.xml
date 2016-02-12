@@ -52,8 +52,9 @@
             </RelativeLayout>
 
             <!-- Components -->
-            <RelativeLayout
-                android:id="@+id/rlMain"
+            <LinearLayout
+                android:id="@+id/llComponents"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/card_padding"

@@ -2,6 +2,7 @@ package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +23,9 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDeviceReading;
 import de.interoberlin.poisondartfrog.model.EReadingType;
+import de.interoberlin.poisondartfrog.model.reading.LightProximity;
 import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
-import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
-import de.interoberlin.poisondartfrog.view.components.TemperatureHumidityComponent;
+import de.interoberlin.poisondartfrog.view.components.ReadingComponent;
 import io.relayr.android.ble.BleDevice;
 
 public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
@@ -91,7 +93,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
 
         // Load views
         final LinearLayout llCard = (LinearLayout) vi.inflate(R.layout.card_device, parent, false);
-        final RelativeLayout rlMain = (RelativeLayout) llCard.findViewById(R.id.rlMain);
+        final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
 
         final TextView tvName = (TextView) llCard.findViewById(R.id.tvName);
         final TextView tvAddress = (TextView) llCard.findViewById(R.id.tvAddress);
@@ -106,7 +108,21 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
                 ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
                 String temperature = readings.get(EReadingType.TEMPERATURE);
                 String humidity = readings.get(EReadingType.HUMIDITY);
-                rlMain.addView(new TemperatureHumidityComponent(context, activity, temperature, humidity));
+
+                double temp = temperature != null ? Double.parseDouble(temperature) : 0.0;
+                double humi = humidity != null ? Double.parseDouble(humidity) : 0.0;
+
+                Paint paintTemperatureMin = new Paint();
+                Paint paintTemperatureMax = new Paint();
+                Paint paintHumidityMin = new Paint();
+                Paint paintHumidityMax = new Paint();
+                paintTemperatureMin.setARGB(255, 0, 0, 255);
+                paintTemperatureMax.setARGB(255, 255, 0, 0);
+                paintHumidityMin.setARGB(0, 0, 0, 255);
+                paintHumidityMax.setARGB(255, 0, 0, 255);
+
+                llComponents.addView(new ReadingComponent(context, activity, EReadingType.TEMPERATURE, temp, paintTemperatureMin, paintTemperatureMax));
+                llComponents.addView(new ReadingComponent(context, activity, EReadingType.HUMIDITY, humi, paintHumidityMin, paintHumidityMax));
                 break;
             }
             case WunderbarGYRO: {
@@ -118,7 +134,21 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
                 String luminosity = readings.get(EReadingType.LUMINOSITY);
                 String proximity = readings.get(EReadingType.PROXIMITY);
                 String color = readings.get(EReadingType.COLOR);
-                rlMain.addView(new LightProximityComponent(context, activity, luminosity, proximity, color));
+
+                double prox = proximity != null ? Double.parseDouble(proximity) : 0.0;
+                double lumi = luminosity != null ? Double.parseDouble(luminosity) : 0.0;
+                LightProximity.Color colo = color != null ? new Gson().fromJson(color, LightProximity.Color.class) : new LightProximity.Color();
+
+                Paint paintLuminosityMin = new Paint();
+                Paint paintLuminosityMax = new Paint();
+                Paint paintColor = new Paint();
+                paintLuminosityMin.setARGB(255, 5, 5, 5);
+                paintLuminosityMax.setARGB(255, 250, 250, 250);
+                paintColor.setARGB(255, colo.getRed(), colo.getGreen(), colo.getBlue());
+
+                llComponents.addView(new ReadingComponent(context, activity, EReadingType.LUMINOSITY, lumi, paintLuminosityMin, paintLuminosityMax));
+                llComponents.addView(new ReadingComponent(context, activity, EReadingType.PROXIMITY, prox, 0.2, 1.0));
+                llComponents.addView(new ReadingComponent(context, activity, EReadingType.COLOR, colo.getRed() + " " + colo.getGreen() + " " +  colo.getBlue(), paintColor));
                 break;
             }
             case WunderbarMIC: {
