@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDeviceReading;
-import de.interoberlin.poisondartfrog.model.EReadingType;
-import de.interoberlin.poisondartfrog.model.reading.LightProximity;
-import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
+import de.interoberlin.poisondartfrog.controller.WunderbarDevicesController;
+import de.interoberlin.poisondartfrog.model.wunderbar.BleDeviceReading;
+import de.interoberlin.poisondartfrog.model.wunderbar.EReadingType;
+import de.interoberlin.poisondartfrog.model.wunderbar.reading.LightProximity;
+import de.interoberlin.poisondartfrog.model.wunderbar.tasks.SubscribeWunderbarTask;
 import de.interoberlin.poisondartfrog.view.components.ReadingComponent;
 import io.relayr.android.ble.BleDevice;
 
@@ -36,7 +36,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
     private Activity activity;
 
     // Controllers
-    DevicesController devicesController;
+    WunderbarDevicesController wunderbarDevicesController;
 
     // Filter
     private List<BleDeviceReading> filteredItems = new ArrayList<>();
@@ -50,7 +50,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
 
     public DevicesAdapter(Context context, Activity activity, int resource, List<BleDeviceReading> items) {
         super(context, resource, items);
-        devicesController = DevicesController.getInstance(activity);
+        wunderbarDevicesController = WunderbarDevicesController.getInstance(activity);
 
         this.filteredItems = items;
         this.originalItems = items;
@@ -162,7 +162,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
             @Override
             public void onClick(View v) {
                 try {
-                    new SubscribeTask((SubscribeTask.OnCompleteListener) activity).execute(device).get();
+                    new SubscribeWunderbarTask((SubscribeWunderbarTask.OnCompleteListener) activity).execute(device).get();
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -213,7 +213,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
             FilterResults results = new FilterResults();
 
             // Copy items
-            originalItems = devicesController.getSubscribedDevicesAsList();
+            originalItems = wunderbarDevicesController.getSubscribedDevicesAsList();
 
             ArrayList<BleDeviceReading> values;
             synchronized (lock) {

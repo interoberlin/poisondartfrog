@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.tasks;
+package de.interoberlin.poisondartfrog.model.wunderbar.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -9,9 +9,9 @@ import java.util.Map;
 
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDeviceReading;
-import de.interoberlin.poisondartfrog.model.RelayrSdkInitializer;
+import de.interoberlin.poisondartfrog.controller.WunderbarDevicesController;
+import de.interoberlin.poisondartfrog.model.wunderbar.BleDeviceReading;
+import de.interoberlin.poisondartfrog.model.wunderbar.RelayrSdkInitializer;
 import de.interoberlin.poisondartfrog.util.Configuration;
 import io.relayr.android.RelayrSdk;
 import io.relayr.android.ble.BleDevice;
@@ -21,8 +21,8 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
-public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
-    public static final String TAG = ScanTask.class.getCanonicalName();
+public class ScanWunderbarTask extends AsyncTask<BleDeviceType, Void, Void> {
+    public static final String TAG = ScanWunderbarTask.class.getCanonicalName();
 
     private OnCompleteListener ocListener;
 
@@ -30,7 +30,7 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
     // Constructors
     // --------------------
 
-    public ScanTask(OnCompleteListener ocListener) {
+    public ScanWunderbarTask(OnCompleteListener ocListener) {
         this.ocListener = ocListener;
     }
 
@@ -85,18 +85,18 @@ public class ScanTask extends AsyncTask<BleDeviceType, Void, Void> {
                 .filter(new Func1<List<BleDevice>, Boolean>() {
                     @Override
                     public Boolean call(List<BleDevice> bleDevices) {
-                        DevicesController devicesController = DevicesController.getInstance(null);
-                        devicesController.getScannedDevices().clear();
+                        WunderbarDevicesController wunderbarDevicesController = WunderbarDevicesController.getInstance(null);
+                        wunderbarDevicesController.getScannedDevices().clear();
 
                         for (BleDevice device : bleDevices) {
                             if (device.getMode() == BleDeviceMode.DIRECT_CONNECTION) {
                                 // Add found device to list
                                 String address = device.getAddress();
-                                Map<String, BleDevice> scannedDevices = devicesController.getScannedDevices();
-                                Map<String, BleDeviceReading> subscribedDevices = devicesController.getSubscribedDevices();
+                                Map<String, BleDevice> scannedDevices = wunderbarDevicesController.getScannedDevices();
+                                Map<String, BleDeviceReading> subscribedDevices = wunderbarDevicesController.getSubscribedDevices();
 
                                 if (!scannedDevices.containsKey(address) && !subscribedDevices.containsKey(address)) {
-                                    devicesController.getScannedDevices().put(address, device);
+                                    wunderbarDevicesController.getScannedDevices().put(address, device);
                                     Log.i(TAG, "Found " + address);
                                 }
                             }

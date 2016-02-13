@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.tasks;
+package de.interoberlin.poisondartfrog.model.wunderbar.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -16,8 +16,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 
-public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
-    public static final String TAG = SubscribeTask.class.getCanonicalName();
+public class SubscribeWunderbarTask extends AsyncTask<BleDevice, Void, Void> {
+    public static final String TAG = SubscribeWunderbarTask.class.getCanonicalName();
 
     public OnCompleteListener ocListener;
 
@@ -25,7 +25,7 @@ public class SubscribeTask extends AsyncTask<BleDevice, Void, Void> {
     // Constructors
     // --------------------
 
-    public SubscribeTask(OnCompleteListener ocListener) {
+    public SubscribeWunderbarTask(OnCompleteListener ocListener) {
         this.ocListener = ocListener;
     }
 

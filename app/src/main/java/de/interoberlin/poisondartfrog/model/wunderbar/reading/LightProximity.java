@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.reading;
+package de.interoberlin.poisondartfrog.model.wunderbar.reading;
 
 public class LightProximity {
     // --------------------

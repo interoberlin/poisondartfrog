@@ -2,7 +2,7 @@ package de.interoberlin.poisondartfrog;
 
 import android.app.Application;
 import android.content.Context;
-import de.interoberlin.poisondartfrog.model.RelayrSdkInitializer;
+import de.interoberlin.poisondartfrog.model.wunderbar.RelayrSdkInitializer;
 
 public class App extends Application {
     // Context

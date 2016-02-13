@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.EReadingType;
+import de.interoberlin.poisondartfrog.model.wunderbar.EReadingType;
 
 public class ReadingComponent extends LinearLayout {
     private static final String TAG = ReadingComponent.class.getCanonicalName();

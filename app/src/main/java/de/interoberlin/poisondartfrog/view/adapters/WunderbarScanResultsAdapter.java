@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -15,12 +14,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
+import de.interoberlin.poisondartfrog.controller.WunderbarDevicesController;
+import de.interoberlin.poisondartfrog.model.wunderbar.BleDeviceReading;
+import de.interoberlin.poisondartfrog.model.wunderbar.tasks.SubscribeWunderbarTask;
+import io.relayr.android.ble.BleDevice;
 
-public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
+public class WunderbarScanResultsAdapter extends ArrayAdapter<BleDevice> {
     public static final String TAG = ScanResultFilter.class.getCanonicalName();
 
     // Context
@@ -28,11 +30,11 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     private Activity activity;
 
     // Controllers
-    DevicesController devicesController;
+    WunderbarDevicesController wunderbarDevicesController;
 
     // Filter
-    private List<BluetoothDevice> filteredItems = new ArrayList<>();
-    private List<BluetoothDevice> originalItems = new ArrayList<>();
+    private List<BleDevice> filteredItems = new ArrayList<>();
+    private List<BleDevice> originalItems = new ArrayList<>();
     private ScanResultFilter scanResultFilter;
     private final Object lock = new Object();
 
@@ -40,9 +42,9 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Constructors
     // --------------------
 
-    public ScanResultsAdapter(Context context, Activity activity, int resource, List<BluetoothDevice> items) {
+    public WunderbarScanResultsAdapter(Context context, Activity activity, int resource, List<BleDevice> items) {
         super(context, resource, items);
-        devicesController = DevicesController.getInstance(activity);
+        wunderbarDevicesController = WunderbarDevicesController.getInstance(activity);
 
         this.filteredItems = items;
         this.originalItems = items;
@@ -63,19 +65,19 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     }
 
     @Override
-    public BluetoothDevice getItem(int position) {
+    public BleDevice getItem(int position) {
         return filteredItems.get(position);
     }
 
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BluetoothDevice bleDevice = getItem(position);
+        final BleDevice bleDevice = getItem(position);
 
         return getScanResultView(position, bleDevice, parent);
     }
 
-    private View getScanResultView(final int position, final BluetoothDevice device, final ViewGroup parent) {
+    private View getScanResultView(final int position, final BleDevice device, final ViewGroup parent) {
         // Layout inflater
         LayoutInflater vi;
         vi = LayoutInflater.from(getContext());
@@ -90,39 +92,39 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
         tvName.setText(device.getName());
         tvAddress.setText(device.getAddress());
 
-        if (device.getName() == null || device.getName().isEmpty())
-            tvName.setText(R.string.unknown_device);
-        if (EBluetoothDeviceType.fromString(device.getName()) != null) {
-            switch (EBluetoothDeviceType.fromString(device.getName())) {
-                case WUNDERBAR_HTU: {
-                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_GYRO: {
-                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_LIGHT: {
-                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_MIC: {
-                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
-                    break;
-                }
-                default: {
-                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
-                    break;
-                }
+        switch (device.getType()) {
+            case WunderbarHTU: {
+                ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                break;
             }
-        } else {
-            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+            case WunderbarGYRO: {
+                ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                break;
+            }
+            case WunderbarLIGHT: {
+                ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                break;
+            }
+            case WunderbarMIC: {
+                ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                break;
+            }
         }
 
         // Add actions
         rlScanResult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (activity instanceof SubscribeWunderbarTask.OnCompleteListener) {
+                    wunderbarDevicesController.getScannedDevices().remove(device.getAddress());
+                    wunderbarDevicesController.getSubscribedDevices().put(device.getAddress(), new BleDeviceReading(device));
+
+                    try {
+                        new SubscribeWunderbarTask((SubscribeWunderbarTask.OnCompleteListener) activity).execute(device).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 if (activity instanceof OnCompleteListener) {
                     ((OnCompleteListener) activity).onSelectedItem();
@@ -137,7 +139,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Methods - Filter
     // --------------------
 
-    public List<BluetoothDevice> getFilteredItems() {
+    public List<BleDevice> getFilteredItems() {
         return filteredItems;
     }
 
@@ -159,7 +161,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
      * @param bleDevice bleDevice
      * @return true if item is visible
      */
-    protected boolean filterBleDevice(BluetoothDevice bleDevice) {
+    protected boolean filterBleDevice(BleDevice bleDevice) {
         return bleDevice != null;
     }
 
@@ -189,18 +191,18 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
             FilterResults results = new FilterResults();
 
             // Copy items
-            originalItems = devicesController.getScannedDevicesAsList();
+            originalItems = wunderbarDevicesController.getScannedDevicesAsList();
 
-            ArrayList<BluetoothDevice> values;
+            ArrayList<BleDevice> values;
             synchronized (lock) {
                 values = new ArrayList<>(originalItems);
             }
 
             final int count = values.size();
-            final ArrayList<BluetoothDevice> newValues = new ArrayList<>();
+            final ArrayList<BleDevice> newValues = new ArrayList<>();
 
             for (int i = 0; i < count; i++) {
-                final BluetoothDevice value = values.get(i);
+                final BleDevice value = values.get(i);
                 if (filterBleDevice(value)) {
                     newValues.add(value);
                 }
@@ -215,7 +217,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredItems = (List<BluetoothDevice>) results.values;
+            filteredItems = (List<BleDevice>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged();

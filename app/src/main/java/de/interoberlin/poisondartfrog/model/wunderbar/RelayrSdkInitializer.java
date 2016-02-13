@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.wunderbar;
 
 import android.content.Context;
 

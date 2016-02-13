@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.wunderbar;
 
 /**
  * Enum containing reading type that can be retrieved by scanning

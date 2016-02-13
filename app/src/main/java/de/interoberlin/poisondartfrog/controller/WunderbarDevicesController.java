@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.controller;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,31 +9,32 @@ import java.util.Map;
 
 import de.interoberlin.poisondartfrog.model.wunderbar.BleDeviceReading;
 import de.interoberlin.poisondartfrog.model.wunderbar.EReadingType;
+import io.relayr.android.ble.BleDevice;
 import io.relayr.java.model.action.Reading;
 
-public class DevicesController {
-    public static final String TAG = DevicesController.class.getCanonicalName();
+public class WunderbarDevicesController {
+    public static final String TAG = WunderbarDevicesController.class.getCanonicalName();
 
     private Activity activity;
 
-    private Map<String, BluetoothDevice> scannedDevices;
+    private Map<String, BleDevice> scannedDevices;
     private Map<String, BleDeviceReading> subscribedDevices;
 
-    private static DevicesController instance;
+    private static WunderbarDevicesController instance;
 
     // --------------------
     // Constructors
     // --------------------
 
-    private DevicesController(Activity activity) {
+    private WunderbarDevicesController(Activity activity) {
         this.activity = activity;
         this.scannedDevices = new HashMap<>();
         this.subscribedDevices = new HashMap<>();
     }
 
-    public static DevicesController getInstance(Activity activity) {
+    public static WunderbarDevicesController getInstance(Activity activity) {
         if (instance == null) {
-            instance = new DevicesController(activity);
+            instance = new WunderbarDevicesController(activity);
         }
 
         return instance;
@@ -62,15 +62,15 @@ public class DevicesController {
     // Getters / Setters
     // --------------------
 
-    public Map<String, BluetoothDevice> getScannedDevices() {
+    public Map<String, BleDevice> getScannedDevices() {
         return scannedDevices;
     }
 
-    public List<BluetoothDevice> getScannedDevicesAsList() {
+    public List<BleDevice> getScannedDevicesAsList() {
         return new ArrayList<>(getScannedDevices().values());
     }
 
-    public void setScannedDevices(Map<String, BluetoothDevice> scannedDevices) {
+    public void setScannedDevices(Map<String, BleDevice> scannedDevices) {
         this.scannedDevices = scannedDevices;
     }
 

@@ -11,11 +11,11 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
+import de.interoberlin.poisondartfrog.controller.WunderbarDevicesController;
+import de.interoberlin.poisondartfrog.view.adapters.WunderbarScanResultsAdapter;
 
-public class ScanResultsDialog extends DialogFragment {
-    public static final String TAG = ScanResultsDialog.class.getCanonicalName();
+public class WunderbarScanResultsDialog extends DialogFragment {
+    public static final String TAG = WunderbarScanResultsDialog.class.getCanonicalName();
 
     // View
     private ListView lvScanResults;
@@ -27,10 +27,10 @@ public class ScanResultsDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DevicesController devicesController = DevicesController.getInstance(getActivity());
+        WunderbarDevicesController wunderbarDevicesController = WunderbarDevicesController.getInstance(getActivity());
         final Resources res = getActivity().getResources();
 
-        ScanResultsAdapter wunderbarScanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
+        WunderbarScanResultsAdapter wunderbarScanResultsAdapter = new WunderbarScanResultsAdapter(getActivity(), getActivity(), R.layout.item_scan_result, wunderbarDevicesController.getScannedDevicesAsList());
 
         // Load layout
         final View v = View.inflate(getActivity(), R.layout.dialog_scan_results, null);

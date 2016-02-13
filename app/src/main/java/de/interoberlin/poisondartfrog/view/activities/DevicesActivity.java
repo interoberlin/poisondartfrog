@@ -2,8 +2,13 @@ package de.interoberlin.poisondartfrog.view.activities;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -11,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -19,17 +25,10 @@ import android.widget.Toast;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.tasks.ScanTask;
-import de.interoberlin.poisondartfrog.model.tasks.SubscribeTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
-import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
-import io.relayr.android.RelayrSdk;
-import io.relayr.android.ble.BleDevice;
-import io.relayr.java.ble.BleDeviceType;
-import io.relayr.java.model.action.Reading;
 
-public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCompleteListener, SubscribeTask.OnCompleteListener, ScanResultsAdapter.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
@@ -45,6 +44,12 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
 
     // Controller
     private DevicesController devicesController;
+
+    private BluetoothAdapter bluetoothAdapter;
+    private final static int REQUEST_ENABLE_BT = 1;
+
+    private boolean scanning;
+    private Handler handler;
 
     // --------------------
     // Methods - Lifecycle
@@ -72,27 +77,51 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
         pb = (ProgressBar) findViewById(R.id.pb);
 
         lv.setAdapter(devicesAdapter);
-
         setSupportActionBar(toolbar);
 
         // Check BLE support
-        if (!RelayrSdk.isBleSupported()) {
-            Toast.makeText(this, getString(R.string.bt_not_supported), Toast.LENGTH_SHORT).show();
-        } else if (!RelayrSdk.isBleAvailable()) {
-            RelayrSdk.promptUserToActivateBluetooth(this);
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.bt_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
         }
 
-        // requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        // Initializes Bluetooth adapter.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Ensures Bluetooth is available on the device and it is enabled. If not,
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
 
         // Add actions
-        fab.setOnClickListener(new View.OnClickListener() {
+        final long[] times = new long[2];
+
+        fab.setOnTouchListener(new View.OnTouchListener() {
+
             @Override
-            public void onClick(View view) {
-                if (RelayrSdk.isBleSupported() && RelayrSdk.isBleAvailable()) {
-                    new ScanTask(DevicesActivity.this).execute(BleDeviceType.WunderbarLIGHT, BleDeviceType.WunderbarGYRO, BleDeviceType.WunderbarHTU, BleDeviceType.WunderbarMIC);
-                } else {
-                    requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                switch (arg1.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        times[0] = System.currentTimeMillis();
+                        break;
+                    }
+                    case MotionEvent.ACTION_CANCEL: {
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        times[1] = System.currentTimeMillis();
+                        long diff = times[1] - times[0];
+                        final long scanPeriod = diff < 1000 ? 1000 : diff;
+
+                        scanLeDevice(true, scanPeriod);
+                        break;
+                    }
                 }
+                return true;
             }
         });
     }
@@ -100,7 +129,6 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        RelayrSdk.getRelayrBleSdk().stop();
         disconnectBluetooth();
     }
 
@@ -109,42 +137,50 @@ public class DevicesActivity extends AppCompatActivity implements ScanTask.OnCom
     // --------------------
 
     @Override
-    public void onFinished() {
-        pb.setVisibility(View.GONE);
-
-        if (!devicesController.getScannedDevices().isEmpty()) {
-
-            ScanResultsDialog dialog = new ScanResultsDialog();
-            Bundle b = new Bundle();
-            b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-            dialog.setArguments(b);
-            dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
-        } else {
-            Snackbar.make(rlContent, getResources().getString(R.string.no_devices_found), Snackbar.LENGTH_LONG)
-                    .show();
-        }
-    }
-
-    @Override
-    public void onReceivedReading(BleDevice device, Reading reading) {
-        if (devicesController.getSubscribedDevices().containsKey(device.getAddress())) {
-            devicesController.updateSubscribedDevice(device.getAddress(), reading);
-        }
-
-        devicesController.getSubscribedDevices().containsKey(device.getAddress());
-
-        updateListView();
-
-    }
-
-    @Override
-    public void onSelectedItem() {
-        updateListView();
+    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        Log.d(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
+        devicesController.getScannedDevices().put(device.getAddress(), device);
     }
 
     // --------------------
     // Methods
     // --------------------
+
+    private void scanLeDevice(final boolean enable, final long scanPeriod) {
+        if (enable) {
+            devicesController.getScannedDevices().clear();
+            handler = new Handler();
+
+            // Stops scanning after a pre-defined scan period.
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    scanning = false;
+                    bluetoothAdapter.stopLeScan(DevicesActivity.this);
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            if (!devicesController.getScannedDevices().isEmpty()) {
+                                ScanResultsDialog dialog = new ScanResultsDialog();
+                                Bundle b = new Bundle();
+                                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                                dialog.setArguments(b);
+                                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                            } else {
+                                Snackbar.make(rlContent, getResources().getString(R.string.no_devices_found), Snackbar.LENGTH_LONG)
+                                        .show();
+                            }
+                        }
+                    }, 0);
+                }
+            }, scanPeriod);
+
+            scanning = true;
+            bluetoothAdapter.startLeScan(this);
+        } else {
+            scanning = false;
+            bluetoothAdapter.stopLeScan(this);
+        }
+    }
 
     /**
      * Updates the list view

@@ -1,18 +1,14 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.wunderbar;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import io.relayr.android.ble.BleDevice;
-import io.relayr.java.ble.BleDeviceType;
 
 /**
  * Represents a tuple of a device and a set of readings where the latest readings are stored per reading type
  */
 public class BleDeviceReading {
-
-    new BleDeviceType;
-
     private BleDevice device;
     private Map<EReadingType, String> readings;
 
