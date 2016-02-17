@@ -139,8 +139,10 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        Log.d(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
-        devicesController.getScannedDevices().put(device.getAddress(), device);
+        if (!devicesController.getAttachedDevices().containsKey(device.getAddress())) {
+            Log.d(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
+            devicesController.getScannedDevices().put(device.getAddress(), device);
+        }
     }
 
     @Override
@@ -173,8 +175,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                                 dialog.setArguments(b);
                                 dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
                             } else {
-                                Snackbar.make(rlContent, getResources().getString(R.string.no_devices_found), Snackbar.LENGTH_LONG)
-                                        .show();
+                                snack(R.string.no_devices_found);
                             }
                         }
                     }, 0);
@@ -190,9 +191,19 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text text resource
+     */
+    public void snack(int text) {
+        Snackbar.make(rlContent, getResources().getString(text), Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
      * Updates the list view
      */
-    private void updateListView() {
+    public void updateListView() {
         final ListView lv = (ListView) findViewById(R.id.lv);
 
         devicesAdapter.filter();

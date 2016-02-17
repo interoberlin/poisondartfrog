@@ -22,4 +22,7 @@
     <string name="meaning">meaning</string>
     <string name="unknown_device">unknown device</string>
     <string name="scan">scan</string>
+    <string name="detached_device">Detached device</string>
+    <string name="stopped_scanning">Stopped scanning</string>
+    <string name="started_scanning">Started scanning</string>
 </resources>

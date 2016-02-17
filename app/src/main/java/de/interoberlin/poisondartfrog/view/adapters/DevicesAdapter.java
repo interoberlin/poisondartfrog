@@ -23,6 +23,7 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BluetoothDeviceReading;
 import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
+import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 
 public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
     public static final String TAG = DevicesAdapter.class.getCanonicalName();
@@ -93,6 +94,7 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
         final TextView tvAddress = (TextView) llCard.findViewById(R.id.tvAddress);
         final ImageView ivIcon = (ImageView) llCard.findViewById(R.id.ivIcon);
         final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
+        final ImageView ivDetach = (ImageView) llCard.findViewById(R.id.ivDetach);
         final ImageView ivScan = (ImageView) llCard.findViewById(R.id.ivScan);
 
         // Set values
@@ -101,6 +103,7 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
 
         if (device.getName() == null || device.getName().isEmpty())
             tvName.setText(R.string.unknown_device);
+
         if (EBluetoothDeviceType.fromString(device.getName()) != null) {
             switch (EBluetoothDeviceType.fromString(device.getName())) {
                 case WUNDERBAR_HTU: {
@@ -131,11 +134,28 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
         ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
 
         // Add actions
+        ivDetach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                devicesController.detach(device);
+
+                if (activity instanceof DevicesActivity) {
+                    ((DevicesActivity) activity).updateListView();
+                    ((DevicesActivity) activity).snack(R.string.detached_device);
+                }
+            }
+        });
+
         ivScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reading.setScanning(!reading.isScanning());
                 ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
+
+                if (activity instanceof DevicesActivity) {
+                    ((DevicesActivity) activity).snack(reading.isScanning() ? R.string.started_scanning : R.string.stopped_scanning);
+                }
+
             }
         });
 

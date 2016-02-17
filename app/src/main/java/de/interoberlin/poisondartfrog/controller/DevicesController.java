@@ -45,11 +45,23 @@ public class DevicesController {
 
     /**
      * Attaches a device
+     *
      * @param device device
      */
     public void attach(BluetoothDevice device) {
-        scannedDevices.remove(device.getAddress());
+        if (scannedDevices.containsKey(device.getAddress()))
+            scannedDevices.remove(device.getAddress());
         attachedDevices.put(device.getAddress(), new BluetoothDeviceReading(device));
+    }
+
+    /**
+     * Detaches a device
+     *
+     * @param device device
+     */
+    public void detach(BluetoothDevice device) {
+        if (attachedDevices.containsKey(device.getAddress()))
+            attachedDevices.remove(device.getAddress());
     }
 
     /**
