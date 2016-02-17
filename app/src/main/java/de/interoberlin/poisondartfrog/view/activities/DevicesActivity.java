@@ -26,9 +26,10 @@ import android.widget.Toast;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
+import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
+public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
@@ -67,7 +68,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     protected void onResume() {
         super.onResume();
         devicesController = DevicesController.getInstance(this);
-        devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getSubscribedDevicesAsList());
+        devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
 
         // Load layout
         rlContent = (RelativeLayout) findViewById(R.id.rlContent);
@@ -140,6 +141,12 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         Log.d(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
         devicesController.getScannedDevices().put(device.getAddress(), device);
+    }
+
+    @Override
+    public void onSelectedScanResult(BluetoothDevice device) {
+        devicesController.attach(device);
+        updateListView();
     }
 
     // --------------------

@@ -1,8 +1,10 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,23 +14,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.WunderbarDevicesController;
-import de.interoberlin.poisondartfrog.model.wunderbar.BleDeviceReading;
-import de.interoberlin.poisondartfrog.model.wunderbar.EReadingType;
-import de.interoberlin.poisondartfrog.model.wunderbar.reading.LightProximity;
-import de.interoberlin.poisondartfrog.model.wunderbar.tasks.SubscribeWunderbarTask;
-import de.interoberlin.poisondartfrog.view.components.ReadingComponent;
-import io.relayr.android.ble.BleDevice;
+import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BluetoothDeviceReading;
+import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
 
-public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
+public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
     public static final String TAG = DevicesAdapter.class.getCanonicalName();
 
     // Context
@@ -36,21 +32,21 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
     private Activity activity;
 
     // Controllers
-    WunderbarDevicesController wunderbarDevicesController;
+    DevicesController devicesController;
 
     // Filter
-    private List<BleDeviceReading> filteredItems = new ArrayList<>();
-    private List<BleDeviceReading> originalItems = new ArrayList<>();
-    private BleDeviceReadingFilter bleDeviceReadingFilter;
+    private List<BluetoothDeviceReading> filteredItems = new ArrayList<>();
+    private List<BluetoothDeviceReading> originalItems = new ArrayList<>();
+    private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
     private final Object lock = new Object();
 
     // --------------------
     // Constructors
     // --------------------
 
-    public DevicesAdapter(Context context, Activity activity, int resource, List<BleDeviceReading> items) {
+    public DevicesAdapter(Context context, Activity activity, int resource, List<BluetoothDeviceReading> items) {
         super(context, resource, items);
-        wunderbarDevicesController = WunderbarDevicesController.getInstance(activity);
+        devicesController = DevicesController.getInstance(activity);
 
         this.filteredItems = items;
         this.originalItems = items;
@@ -71,21 +67,21 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
     }
 
     @Override
-    public BleDeviceReading getItem(int position) {
+    public BluetoothDeviceReading getItem(int position) {
         return filteredItems.get(position);
     }
 
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BleDeviceReading bleDeviceReading = getItem(position);
+        final BluetoothDeviceReading reading = getItem(position);
 
-        return getCardView(position, bleDeviceReading, parent);
+        return getCardView(position, reading, parent);
     }
 
-    private View getCardView(final int position, final BleDeviceReading bleDeviceReading, final ViewGroup parent) {
-        final BleDevice device = bleDeviceReading.getDevice();
-        final Map<EReadingType, String> readings = bleDeviceReading.getReadings();
+    private View getCardView(final int position, final BluetoothDeviceReading reading, final ViewGroup parent) {
+        final BluetoothDevice device = reading.getDevice();
+        final Map<UUID, BluetoothGattCharacteristic> readings = reading.getGattCharacteristics();
 
         // Layout inflater
         LayoutInflater vi;
@@ -93,79 +89,53 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
 
         // Load views
         final LinearLayout llCard = (LinearLayout) vi.inflate(R.layout.card_device, parent, false);
-        final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
-
         final TextView tvName = (TextView) llCard.findViewById(R.id.tvName);
         final TextView tvAddress = (TextView) llCard.findViewById(R.id.tvAddress);
         final ImageView ivIcon = (ImageView) llCard.findViewById(R.id.ivIcon);
+        final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
+        final ImageView ivScan = (ImageView) llCard.findViewById(R.id.ivScan);
 
         // Set values
         tvName.setText(device.getName());
         tvAddress.setText(device.getAddress());
 
-        switch (device.getType()) {
-            case WunderbarHTU: {
-                ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
-                String temperature = readings.get(EReadingType.TEMPERATURE);
-                String humidity = readings.get(EReadingType.HUMIDITY);
-
-                double temp = temperature != null ? Double.parseDouble(temperature) : 0.0;
-                double humi = humidity != null ? Double.parseDouble(humidity) : 0.0;
-
-                Paint paintTemperatureMin = new Paint();
-                Paint paintTemperatureMax = new Paint();
-                Paint paintHumidityMin = new Paint();
-                Paint paintHumidityMax = new Paint();
-                paintTemperatureMin.setARGB(255, 0, 0, 255);
-                paintTemperatureMax.setARGB(255, 255, 0, 0);
-                paintHumidityMin.setARGB(0, 0, 0, 255);
-                paintHumidityMax.setARGB(255, 0, 0, 255);
-
-                llComponents.addView(new ReadingComponent(context, activity, EReadingType.TEMPERATURE, temp, paintTemperatureMin, paintTemperatureMax));
-                llComponents.addView(new ReadingComponent(context, activity, EReadingType.HUMIDITY, humi, paintHumidityMin, paintHumidityMax));
-                break;
+        if (device.getName() == null || device.getName().isEmpty())
+            tvName.setText(R.string.unknown_device);
+        if (EBluetoothDeviceType.fromString(device.getName()) != null) {
+            switch (EBluetoothDeviceType.fromString(device.getName())) {
+                case WUNDERBAR_HTU: {
+                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                    break;
+                }
+                case WUNDERBAR_GYRO: {
+                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                    break;
+                }
+                case WUNDERBAR_LIGHT: {
+                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                    break;
+                }
+                case WUNDERBAR_MIC: {
+                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                    break;
+                }
+                default: {
+                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                    break;
+                }
             }
-            case WunderbarGYRO: {
-                ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
-                break;
-            }
-            case WunderbarLIGHT: {
-                ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                String luminosity = readings.get(EReadingType.LUMINOSITY);
-                String proximity = readings.get(EReadingType.PROXIMITY);
-                String color = readings.get(EReadingType.COLOR);
-
-                double prox = proximity != null ? Double.parseDouble(proximity) : 0.0;
-                double lumi = luminosity != null ? Double.parseDouble(luminosity) : 0.0;
-                LightProximity.Color colo = color != null ? new Gson().fromJson(color, LightProximity.Color.class) : new LightProximity.Color();
-
-                Paint paintLuminosityMin = new Paint();
-                Paint paintLuminosityMax = new Paint();
-                Paint paintColor = new Paint();
-                paintLuminosityMin.setARGB(255, 5, 5, 5);
-                paintLuminosityMax.setARGB(255, 250, 250, 250);
-                paintColor.setARGB(255, colo.getRed(), colo.getGreen(), colo.getBlue());
-
-                llComponents.addView(new ReadingComponent(context, activity, EReadingType.LUMINOSITY, lumi, paintLuminosityMin, paintLuminosityMax));
-                llComponents.addView(new ReadingComponent(context, activity, EReadingType.PROXIMITY, prox, 0.2, 1.0));
-                llComponents.addView(new ReadingComponent(context, activity, EReadingType.COLOR, colo.getRed() + " " + colo.getGreen() + " " +  colo.getBlue(), paintColor));
-                break;
-            }
-            case WunderbarMIC: {
-                ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
-                break;
-            }
+        } else {
+            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
+        ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
+
         // Add actions
-        llCard.setOnClickListener(new View.OnClickListener() {
+        ivScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    new SubscribeWunderbarTask((SubscribeWunderbarTask.OnCompleteListener) activity).execute(device).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+                reading.setScanning(!reading.isScanning());
+                ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
             }
         });
 
@@ -177,7 +147,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
     // Methods - Filter
     // --------------------
 
-    public List<BleDeviceReading> getFilteredItems() {
+    public List<BluetoothDeviceReading> getFilteredItems() {
         return filteredItems;
     }
 
@@ -187,45 +157,45 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
 
     @Override
     public Filter getFilter() {
-        if (bleDeviceReadingFilter == null) {
-            bleDeviceReadingFilter = new BleDeviceReadingFilter();
+        if (bluetoothDeviceReadingFilter == null) {
+            bluetoothDeviceReadingFilter = new BluetoothDeviceReadingFilter();
         }
-        return bleDeviceReadingFilter;
+        return bluetoothDeviceReadingFilter;
     }
 
     /**
-     * Determines if a BLE device reading shall be displayed
+     * Determines if a bluetooth device reading shall be displayed
      *
-     * @param bleDeviceReading BLE device reading
+     * @param reading reading
      * @return true if item is visible
      */
-    protected boolean filterBleDeviceReading(BleDeviceReading bleDeviceReading) {
-        return bleDeviceReading != null;
+    protected boolean filterBluetoothDeviceReading(BluetoothDeviceReading reading) {
+        return reading != null;
     }
 
     // --------------------
     // Inner classes
     // --------------------
 
-    public class BleDeviceReadingFilter extends Filter {
+    public class BluetoothDeviceReadingFilter extends Filter {
         @Override
         protected FilterResults performFiltering(CharSequence prefix) {
             FilterResults results = new FilterResults();
 
             // Copy items
-            originalItems = wunderbarDevicesController.getSubscribedDevicesAsList();
+            originalItems = devicesController.getAttachedDevicesAsList();
 
-            ArrayList<BleDeviceReading> values;
+            ArrayList<BluetoothDeviceReading> values;
             synchronized (lock) {
                 values = new ArrayList<>(originalItems);
             }
 
             final int count = values.size();
-            final ArrayList<BleDeviceReading> newValues = new ArrayList<>();
+            final ArrayList<BluetoothDeviceReading> newValues = new ArrayList<>();
 
             for (int i = 0; i < count; i++) {
-                final BleDeviceReading value = values.get(i);
-                if (filterBleDeviceReading(value)) {
+                final BluetoothDeviceReading value = values.get(i);
+                if (filterBluetoothDeviceReading(value)) {
                     newValues.add(value);
                 }
             }
@@ -239,7 +209,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDeviceReading> {
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredItems = (List<BleDeviceReading>) results.values;
+            filteredItems = (List<BluetoothDeviceReading>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged();

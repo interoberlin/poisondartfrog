@@ -8,15 +8,19 @@ public enum EBluetoothDeviceType {
     WUNDERBAR_BRIDG("WunderbarBRIDG"),
     WUNDERBAR_IR("WunderbarIR");
 
+
     private final String name;
+
 
     EBluetoothDeviceType(String name) {
         this.name = name;
     }
 
+
     // --------------------
     // Methods
     // --------------------
+
 
     public static EBluetoothDeviceType fromString(String name) {
         if (name != null) {
@@ -27,12 +31,15 @@ public enum EBluetoothDeviceType {
             }
         }
 
+
         return null;
     }
+
 
     // --------------------
     // Getters / Setters
     // --------------------
+
 
     public String getName() {
         return name;

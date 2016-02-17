@@ -17,9 +17,6 @@ import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 public class ScanResultsDialog extends DialogFragment {
     public static final String TAG = ScanResultsDialog.class.getCanonicalName();
 
-    // View
-    private ListView lvScanResults;
-
     // --------------------
     // Methods - Lifecycle
     // --------------------
@@ -30,12 +27,12 @@ public class ScanResultsDialog extends DialogFragment {
         DevicesController devicesController = DevicesController.getInstance(getActivity());
         final Resources res = getActivity().getResources();
 
-        ScanResultsAdapter wunderbarScanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
+        ScanResultsAdapter wunderbarScanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
 
         // Load layout
         final View v = View.inflate(getActivity(), R.layout.dialog_scan_results, null);
 
-        lvScanResults = (ListView) v.findViewById(R.id.lvScanResults);
+        ListView lvScanResults = (ListView) v.findViewById(R.id.lvScanResults);
         lvScanResults.setAdapter(wunderbarScanResultsAdapter);
 
         // Get arguments
@@ -61,9 +58,6 @@ public class ScanResultsDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-
-        // Get arguments
-        Bundle bundle = this.getArguments();
 
         AlertDialog dialog = (AlertDialog) getDialog();
 

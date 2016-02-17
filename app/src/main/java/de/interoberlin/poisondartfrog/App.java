@@ -2,7 +2,6 @@ package de.interoberlin.poisondartfrog;
 
 import android.app.Application;
 import android.content.Context;
-import de.interoberlin.poisondartfrog.model.wunderbar.RelayrSdkInitializer;
 
 public class App extends Application {
     // Context
@@ -12,8 +11,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         context = this;
-
-        RelayrSdkInitializer.initSdk(this);
     }
 
     // --------------------

@@ -1,6 +1,7 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.res.Resources;
@@ -26,6 +27,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Context
     private Context context;
     private Activity activity;
+    private DialogFragment dialog;
 
     // Controllers
     DevicesController devicesController;
@@ -40,7 +42,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Constructors
     // --------------------
 
-    public ScanResultsAdapter(Context context, Activity activity, int resource, List<BluetoothDevice> items) {
+    public ScanResultsAdapter(Context context, Activity activity, DialogFragment dialog, int resource, List<BluetoothDevice> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance(activity);
 
@@ -49,6 +51,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
 
         this.context = context;
         this.activity = activity;
+        this.dialog = dialog;
 
         filter();
     }
@@ -123,10 +126,11 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
         rlScanResult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (activity instanceof OnCompleteListener) {
-                    ((OnCompleteListener) activity).onSelectedItem();
+                    ((OnCompleteListener) activity).onSelectedScanResult(device);
                 }
+
+                dialog.dismiss();
             }
         });
 
@@ -176,7 +180,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // --------------------
 
     public interface OnCompleteListener {
-        void onSelectedItem();
+        void onSelectedScanResult(BluetoothDevice device);
     }
 
     // --------------------
