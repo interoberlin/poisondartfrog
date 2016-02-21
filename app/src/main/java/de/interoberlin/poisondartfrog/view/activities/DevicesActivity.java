@@ -3,6 +3,8 @@ package de.interoberlin.poisondartfrog.view.activities;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -26,6 +28,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
@@ -70,12 +74,22 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             if (!bluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
+
+            devicesController = DevicesController.getInstance();
+            if (!devicesController.getAttachedDevices().isEmpty())
+                devicesController.getAttachedDevices().get(0).setConnected(true);
+            updateListView();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             Log.i(TAG, "Service disconnected");
             bluetoothLeService = null;
+
+            devicesController = DevicesController.getInstance();
+            if (!devicesController.getAttachedDevices().isEmpty())
+                devicesController.getAttachedDevices().get(0).setConnected(false);
+            updateListView();
         }
     };
 
@@ -83,15 +97,29 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+            final String address = intent.getStringExtra(BluetoothLeService.EXTRA_ADDRESS);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                Log.i(TAG, "Gatt connected");
                 connected = true;
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                Log.i(TAG, "Gatt disconnected");
                 connected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // TODO
-                bluetoothLeService.getSupportedGattServices();
+                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(address);
+
+                List<BluetoothGattService> supportedGattServices = bluetoothLeService.getSupportedGattServices();
+                Log.i(TAG, "Gatt services discovered");
+                for (BluetoothGattService gs : supportedGattServices) {
+                    Log.d(TAG, ".. " + gs.getUuid().toString());
+                    for (BluetoothGattCharacteristic gc : gs.getCharacteristics()) {
+                        Log.d(TAG, ".... " + gc.getUuid().toString());
+                        device.getGattCharacteristics().put(gc.getUuid(), gc);
+                    }
+                }
+
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // TODO : update bluetooth device reading
+                Log.i(TAG, "Data available");
             }
         }
     };
@@ -205,13 +233,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
+        snack("Attached device");
         devicesController.attach(device);
         updateListView();
-
-        if (bluetoothLeService != null)
-            bluetoothLeService.connect(device.getAddress());
-        else
-            snack("bluetooth LE service not available");
     }
 
     @Override
@@ -220,6 +244,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             bluetoothLeService.connect(device.getAddress());
             device.setConnected(true);
             updateListView();
+            snack("Connected device");
         } else {
             snack("bluetooth LE service not available");
         }

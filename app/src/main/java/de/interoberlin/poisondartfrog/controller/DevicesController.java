@@ -76,6 +76,10 @@ public class DevicesController {
         }
     }
 
+    public ExtendedBluetoothDevice getAttachedDeviceByAdress(String address) {
+        return getAttachedDevices().get(address);
+    }
+
     // --------------------
     // Getters / Setters
     // --------------------
