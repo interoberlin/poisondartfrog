@@ -4,11 +4,16 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -19,17 +24,18 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getCanonicalName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
@@ -41,7 +47,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private ListView lv;
-    private ProgressBar pb;
 
     // Controller
     private DevicesController devicesController;
@@ -50,7 +55,46 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private final static int REQUEST_ENABLE_BT = 1;
 
     private boolean scanning;
+    private boolean connected;
     private Handler handler;
+
+    private BluetoothLeService bluetoothLeService;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.i(TAG, "Service connected");
+            if (service == null)
+                Log.e(TAG, "service is null");
+
+            bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!bluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.i(TAG, "Service disconnected");
+            bluetoothLeService = null;
+        }
+    };
+
+    private BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                connected = true;
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                connected = false;
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // TODO
+                bluetoothLeService.getSupportedGattServices();
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                // TODO : update bluetooth device reading
+            }
+        }
+    };
 
     // --------------------
     // Methods - Lifecycle
@@ -62,12 +106,17 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         setContentView(R.layout.activity_devices);
 
         requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        devicesController = DevicesController.getInstance(this);
+        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+
+        devicesController = DevicesController.getInstance();
         devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
 
         // Load layout
@@ -75,7 +124,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         lv = (ListView) findViewById(R.id.lv);
-        pb = (ProgressBar) findViewById(R.id.pb);
 
         lv.setAdapter(devicesAdapter);
         setSupportActionBar(toolbar);
@@ -102,25 +150,28 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         final long[] times = new long[2];
 
         fab.setOnTouchListener(new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
-                switch (arg1.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        times[0] = System.currentTimeMillis();
-                        break;
-                    }
-                    case MotionEvent.ACTION_CANCEL: {
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP: {
-                        times[1] = System.currentTimeMillis();
-                        long diff = times[1] - times[0];
-                        final long scanPeriod = diff < 1000 ? 1000 : diff;
+                if (devicesController.getAttachedDevices().isEmpty()) {
+                    switch (arg1.getAction()) {
+                        case MotionEvent.ACTION_DOWN: {
+                            times[0] = System.currentTimeMillis();
+                            break;
+                        }
+                        case MotionEvent.ACTION_CANCEL: {
+                            break;
+                        }
+                        case MotionEvent.ACTION_UP: {
+                            times[1] = System.currentTimeMillis();
+                            long diff = times[1] - times[0];
+                            final long scanPeriod = diff < 1000 ? 1000 : diff;
 
-                        scanLeDevice(true, scanPeriod);
-                        break;
+                            scanLeDevice(true, scanPeriod);
+                            break;
+                        }
                     }
+                } else {
+                    snack("Detach device first");
                 }
                 return true;
             }
@@ -128,8 +179,15 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(gattUpdateReceiver);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(serviceConnection);
         disconnectBluetooth();
     }
 
@@ -146,8 +204,42 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     @Override
-    public void onSelectedScanResult(BluetoothDevice device) {
+    public void onAttachDevice(BluetoothDevice device) {
         devicesController.attach(device);
+        updateListView();
+
+        if (bluetoothLeService != null)
+            bluetoothLeService.connect(device.getAddress());
+        else
+            snack("bluetooth LE service not available");
+    }
+
+    @Override
+    public void onConnectDevice(ExtendedBluetoothDevice device) {
+        if (bluetoothLeService != null) {
+            bluetoothLeService.connect(device.getAddress());
+            device.setConnected(true);
+            updateListView();
+        } else {
+            snack("bluetooth LE service not available");
+        }
+    }
+
+    @Override
+    public void onDisconnectDevice(ExtendedBluetoothDevice device) {
+        if (bluetoothLeService != null) {
+            bluetoothLeService.disconnect();
+            device.setConnected(false);
+            updateListView();
+        } else {
+            snack("bluetooth LE service not available");
+        }
+    }
+
+    @Override
+    public void onDetachDevice(ExtendedBluetoothDevice device) {
+        devicesController.detach(device);
+        snack(R.string.detached_device);
         updateListView();
     }
 
@@ -201,6 +293,15 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text text resource
+     */
+    public void snack(String text) {
+        Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
      * Updates the list view
      */
     public void updateListView() {
@@ -239,5 +340,14 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         } else {
             Log.d(TAG, "Permission granted");
         }
+    }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 }

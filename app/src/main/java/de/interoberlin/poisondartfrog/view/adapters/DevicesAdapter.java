@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -21,23 +20,23 @@ import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BluetoothDeviceReading;
 import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
-import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
+import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
 
-public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
+public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
     public static final String TAG = DevicesAdapter.class.getCanonicalName();
 
     // Context
-    private Context context;
-    private Activity activity;
+    private final Context context;
+    private final Activity activity;
+    private OnCompleteListener ocListener;
 
     // Controllers
     DevicesController devicesController;
 
     // Filter
-    private List<BluetoothDeviceReading> filteredItems = new ArrayList<>();
-    private List<BluetoothDeviceReading> originalItems = new ArrayList<>();
+    private List<ExtendedBluetoothDevice> filteredItems = new ArrayList<>();
+    private List<ExtendedBluetoothDevice> originalItems = new ArrayList<>();
     private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
     private final Object lock = new Object();
 
@@ -45,15 +44,16 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
     // Constructors
     // --------------------
 
-    public DevicesAdapter(Context context, Activity activity, int resource, List<BluetoothDeviceReading> items) {
+    public DevicesAdapter(Context context, Activity activity, int resource, List<ExtendedBluetoothDevice> items) {
         super(context, resource, items);
-        devicesController = DevicesController.getInstance(activity);
+        devicesController = DevicesController.getInstance();
 
         this.filteredItems = items;
         this.originalItems = items;
 
         this.context = context;
         this.activity = activity;
+        this.ocListener = (OnCompleteListener) activity;
 
         filter();
     }
@@ -68,21 +68,20 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
     }
 
     @Override
-    public BluetoothDeviceReading getItem(int position) {
+    public ExtendedBluetoothDevice getItem(int position) {
         return filteredItems.get(position);
     }
 
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BluetoothDeviceReading reading = getItem(position);
+        final ExtendedBluetoothDevice reading = getItem(position);
 
         return getCardView(position, reading, parent);
     }
 
-    private View getCardView(final int position, final BluetoothDeviceReading reading, final ViewGroup parent) {
-        final BluetoothDevice device = reading.getDevice();
-        final Map<UUID, BluetoothGattCharacteristic> readings = reading.getGattCharacteristics();
+    private View getCardView(final int position, final ExtendedBluetoothDevice device, final ViewGroup parent) {
+        final Map<UUID, BluetoothGattCharacteristic> characteristics = device.getGattCharacteristics();
 
         // Layout inflater
         LayoutInflater vi;
@@ -95,7 +94,7 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
         final ImageView ivIcon = (ImageView) llCard.findViewById(R.id.ivIcon);
         final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
         final ImageView ivDetach = (ImageView) llCard.findViewById(R.id.ivDetach);
-        final ImageView ivScan = (ImageView) llCard.findViewById(R.id.ivScan);
+        final ImageView ivConnect = (ImageView) llCard.findViewById(R.id.ivConnect);
 
         // Set values
         tvName.setText(device.getName());
@@ -131,43 +130,33 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
+        ivConnect.setImageDrawable(device.isConnected() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         // Add actions
         ivDetach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                devicesController.detach(device);
-
-                if (activity instanceof DevicesActivity) {
-                    ((DevicesActivity) activity).updateListView();
-                    ((DevicesActivity) activity).snack(R.string.detached_device);
-                }
+                ocListener.onDetachDevice(device);
             }
         });
-
-        ivScan.setOnClickListener(new View.OnClickListener() {
+        ivConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reading.setScanning(!reading.isScanning());
-                ivScan.setImageDrawable(ContextCompat.getDrawable(activity, reading.isScanning() ? R.drawable.ic_pause_black_36dp : R.drawable.ic_play_arrow_black_36dp));
-
-                if (activity instanceof DevicesActivity) {
-                    ((DevicesActivity) activity).snack(reading.isScanning() ? R.string.started_scanning : R.string.stopped_scanning);
-                }
-
+                if (device.isConnected())
+                    ocListener.onDisconnectDevice(device);
+                else
+                    ocListener.onConnectDevice(device);
             }
         });
 
         return llCard;
     }
 
-
     // --------------------
     // Methods - Filter
     // --------------------
 
-    public List<BluetoothDeviceReading> getFilteredItems() {
+    public List<ExtendedBluetoothDevice> getFilteredItems() {
         return filteredItems;
     }
 
@@ -189,8 +178,20 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
      * @param reading reading
      * @return true if item is visible
      */
-    protected boolean filterBluetoothDeviceReading(BluetoothDeviceReading reading) {
+    protected boolean filterBluetoothDeviceReading(ExtendedBluetoothDevice reading) {
         return reading != null;
+    }
+
+    // --------------------
+    // Callback interfaces
+    // --------------------
+
+    public interface OnCompleteListener {
+        void onConnectDevice(ExtendedBluetoothDevice device);
+
+        void onDisconnectDevice(ExtendedBluetoothDevice device);
+
+        void onDetachDevice(ExtendedBluetoothDevice device);
     }
 
     // --------------------
@@ -205,16 +206,16 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
             // Copy items
             originalItems = devicesController.getAttachedDevicesAsList();
 
-            ArrayList<BluetoothDeviceReading> values;
+            ArrayList<ExtendedBluetoothDevice> values;
             synchronized (lock) {
                 values = new ArrayList<>(originalItems);
             }
 
             final int count = values.size();
-            final ArrayList<BluetoothDeviceReading> newValues = new ArrayList<>();
+            final ArrayList<ExtendedBluetoothDevice> newValues = new ArrayList<>();
 
             for (int i = 0; i < count; i++) {
-                final BluetoothDeviceReading value = values.get(i);
+                final ExtendedBluetoothDevice value = values.get(i);
                 if (filterBluetoothDeviceReading(value)) {
                     newValues.add(value);
                 }
@@ -229,7 +230,7 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDeviceReading> {
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredItems = (List<BluetoothDeviceReading>) results.values;
+            filteredItems = (List<ExtendedBluetoothDevice>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged();

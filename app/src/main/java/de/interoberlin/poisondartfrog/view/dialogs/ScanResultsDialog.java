@@ -24,7 +24,7 @@ public class ScanResultsDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DevicesController devicesController = DevicesController.getInstance(getActivity());
+        DevicesController devicesController = DevicesController.getInstance();
         final Resources res = getActivity().getResources();
 
         ScanResultsAdapter wunderbarScanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());

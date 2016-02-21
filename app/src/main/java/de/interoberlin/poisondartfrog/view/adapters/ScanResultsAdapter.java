@@ -44,7 +44,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
 
     public ScanResultsAdapter(Context context, Activity activity, DialogFragment dialog, int resource, List<BluetoothDevice> items) {
         super(context, resource, items);
-        devicesController = DevicesController.getInstance(activity);
+        devicesController = DevicesController.getInstance();
 
         this.filteredItems = items;
         this.originalItems = items;
@@ -127,7 +127,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
             @Override
             public void onClick(View v) {
                 if (activity instanceof OnCompleteListener) {
-                    ((OnCompleteListener) activity).onSelectedScanResult(device);
+                    ((OnCompleteListener) activity).onAttachDevice(device);
                 }
 
                 dialog.dismiss();
@@ -180,7 +180,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // --------------------
 
     public interface OnCompleteListener {
-        void onSelectedScanResult(BluetoothDevice device);
+        void onAttachDevice(BluetoothDevice device);
     }
 
     // --------------------

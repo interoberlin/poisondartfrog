@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@color/background"
-    tools:context=".view.activities.WunderbarDevicesActivity">
+    tools:context=".view.activities.DevicesActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
