@@ -3,8 +3,6 @@ package de.interoberlin.poisondartfrog.view.activities;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -28,8 +26,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
@@ -105,18 +101,12 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 Log.i(TAG, "Gatt disconnected");
                 connected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(address);
-
-                List<BluetoothGattService> supportedGattServices = bluetoothLeService.getSupportedGattServices();
                 Log.i(TAG, "Gatt services discovered");
-                for (BluetoothGattService gs : supportedGattServices) {
-                    Log.d(TAG, ".. " + gs.getUuid().toString());
-                    for (BluetoothGattCharacteristic gc : gs.getCharacteristics()) {
-                        Log.d(TAG, ".... " + gc.getUuid().toString());
-                        device.getGattCharacteristics().put(gc.getUuid(), gc);
-                    }
-                }
+                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(address);
+                device.setGattServices(bluetoothLeService.getSupportedGattServices());
+                Log.d(TAG, device.toString());
 
+                updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // TODO : update bluetooth device reading
                 Log.i(TAG, "Data available");

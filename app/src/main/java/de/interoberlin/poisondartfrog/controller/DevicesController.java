@@ -70,10 +70,7 @@ public class DevicesController {
      */
     public void updateAttachedDevice(String address, BluetoothGattCharacteristic characteristic) {
         ExtendedBluetoothDevice extendedBluetoothDevice = this.attachedDevices.get(address);
-
-        if (extendedBluetoothDevice != null) {
-            extendedBluetoothDevice.getGattCharacteristics().put(characteristic.getUuid(), characteristic);
-        }
+        // TODO
     }
 
     public ExtendedBluetoothDevice getAttachedDeviceByAdress(String address) {

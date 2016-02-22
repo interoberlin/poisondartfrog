@@ -2,10 +2,10 @@ package de.interoberlin.poisondartfrog.model;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a tuple of a device and a set of characteristics
@@ -14,7 +14,7 @@ public class ExtendedBluetoothDevice {
     public static final String TAG = ExtendedBluetoothDevice.class.getSimpleName();
 
     private BluetoothDevice device;
-    private Map<UUID, BluetoothGattCharacteristic> gattCharacteristics;
+    private List<BluetoothGattService> gattServices;
     private boolean scanning;
     private boolean connected;
 
@@ -24,7 +24,7 @@ public class ExtendedBluetoothDevice {
 
     public ExtendedBluetoothDevice(BluetoothDevice device) {
         this.device = device;
-        this.gattCharacteristics = new HashMap<>();
+        this.gattServices = new ArrayList<>();
         this.scanning = false;
         this.connected = false;
     }
@@ -41,6 +41,25 @@ public class ExtendedBluetoothDevice {
         return (device != null) ? device.getName() : null;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("name=" + this.getName() + ", \n");
+        sb.append("address=" + this.getAddress() + ", \n");
+        sb.append("services=\n");
+
+        for (BluetoothGattService service : getGattServices()) {
+            sb.append("  service " + service.getUuid() + "\n");
+            for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
+                sb.append("  characteristic " + chara.getUuid() + " / " + chara.getValue() + "\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
     public BluetoothDevice getDevice() {
         return device;
     }
@@ -49,12 +68,12 @@ public class ExtendedBluetoothDevice {
         this.device = device;
     }
 
-    public Map<UUID, BluetoothGattCharacteristic> getGattCharacteristics() {
-        return gattCharacteristics;
+    public List<BluetoothGattService> getGattServices() {
+        return gattServices;
     }
 
-    public void setGattCharacteristics(Map<UUID, BluetoothGattCharacteristic> gattCharacteristics) {
-        this.gattCharacteristics = gattCharacteristics;
+    public void setGattServices(List<BluetoothGattService> gattServices) {
+        this.gattServices = gattServices;
     }
 
     public boolean isScanning() {
