@@ -58,10 +58,12 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
-    public final static String EXTRA_ADDRESS =
-            "com.example.bluetooth.le.EXTRA_ADDRESS";
+    public final static String EXTRA_CHARACTERISTIC_ID =
+            "com.example.bluetooth.le.EXTRA_CHARACTERISTIC_ID";
+    public final static String EXTRA_CHARACTERISTIC_VALUE =
+            "com.example.bluetooth.le.EXTRA_CHARACTERISTIC_VALUE";
+    public final static String EXTRA_DEVICE_ADDRESS =
+            "com.example.bluetooth.le.EXTRA_DEVICE_ADDRESS ";
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -118,14 +120,14 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action, final BluetoothGatt gatt) {
         final Intent intent = new Intent(action);
-        intent.putExtra(EXTRA_ADDRESS, gatt.getDevice().getAddress());
+        intent.putExtra(EXTRA_DEVICE_ADDRESS , gatt.getDevice().getAddress());
         sendBroadcast(intent);
     }
 
     private void broadcastUpdate(final String action, final BluetoothGatt gatt,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-        intent.putExtra(EXTRA_ADDRESS, gatt.getDevice().getAddress());
+        intent.putExtra(EXTRA_DEVICE_ADDRESS , gatt.getDevice().getAddress());
 
         // For all other profiles, writes the data formatted in HEX.
         final byte[] data = characteristic.getValue();
@@ -133,7 +135,8 @@ public class BluetoothLeService extends Service {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
             for (byte byteChar : data)
                 stringBuilder.append(String.format("%02X ", byteChar));
-            intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+            intent.putExtra(EXTRA_CHARACTERISTIC_ID, characteristic.getUuid().toString());
+            intent.putExtra(EXTRA_CHARACTERISTIC_VALUE, stringBuilder.toString());
         }
 
         sendBroadcast(intent);

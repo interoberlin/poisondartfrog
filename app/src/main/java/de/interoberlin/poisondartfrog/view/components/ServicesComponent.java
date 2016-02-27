@@ -12,7 +12,7 @@ import java.util.List;
 import de.interoberlin.poisondartfrog.R;
 
 public class ServicesComponent extends LinearLayout {
-    private static final String TAG = ServicesComponent.class.getCanonicalName();
+    private static final String TAG = ServicesComponent.class.getSimpleName();
 
     private Context context;
     private Activity activity;

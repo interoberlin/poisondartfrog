@@ -15,7 +15,7 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 
 public class ScanResultsDialog extends DialogFragment {
-    public static final String TAG = ScanResultsDialog.class.getCanonicalName();
+    public static final String TAG = ScanResultsDialog.class.getSimpleName();
 
     // --------------------
     // Methods - Lifecycle

@@ -36,7 +36,7 @@ import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener {
-    public static final String TAG = DevicesActivity.class.getCanonicalName();
+    public static final String TAG = DevicesActivity.class.getSimpleName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
 
     // Model
@@ -93,7 +93,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            final String address = intent.getStringExtra(BluetoothLeService.EXTRA_ADDRESS);
+            final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
+            final String characteristicId = intent.getStringExtra(BluetoothLeService.EXTRA_CHARACTERISTIC_ID);
+            final String characteristicValue = intent.getStringExtra(BluetoothLeService.EXTRA_CHARACTERISTIC_VALUE);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.i(TAG, "Gatt connected");
                 connected = true;
@@ -102,14 +104,14 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 connected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.i(TAG, "Gatt services discovered");
-                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(address);
+                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
                 device.setGattServices(bluetoothLeService.getSupportedGattServices());
                 Log.d(TAG, device.toString());
 
                 updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                Log.i(TAG, characteristicId + " : " + characteristicValue);
                 // TODO : update bluetooth device reading
-                Log.i(TAG, "Data available");
             }
         }
     };
@@ -364,5 +366,13 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
+    }
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    public BluetoothLeService getBluetoothLeService() {
+        return bluetoothLeService;
     }
 }

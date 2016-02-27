@@ -22,7 +22,7 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
 
 public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
-    public static final String TAG = ScanResultFilter.class.getCanonicalName();
+    public static final String TAG = ScanResultFilter.class.getSimpleName();
 
     // Context
     private Context context;

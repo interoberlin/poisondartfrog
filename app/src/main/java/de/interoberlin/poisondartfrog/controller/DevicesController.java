@@ -12,7 +12,7 @@ import java.util.Map;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
 
 public class DevicesController {
-    public static final String TAG = DevicesController.class.getCanonicalName();
+    public static final String TAG = DevicesController.class.getSimpleName();
 
     private Map<String, BluetoothDevice> scannedDevices;
     private Map<String, ExtendedBluetoothDevice> attachedDevices;

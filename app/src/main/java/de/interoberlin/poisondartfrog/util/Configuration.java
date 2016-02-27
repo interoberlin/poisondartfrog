@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Configuration {
-    private static final String TAG = Configuration.class.getCanonicalName();
+    private static final String TAG = Configuration.class.getSimpleName();
     private static final String GRADLE_PROPERTIES_FILE = "frog.properties";
 
     public static String getProperty(Context c, String property) {

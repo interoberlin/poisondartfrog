@@ -18,17 +18,22 @@ import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
+import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicsTask;
+import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
 
 public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
-    public static final String TAG = DevicesAdapter.class.getCanonicalName();
+    public static final String TAG = DevicesAdapter.class.getSimpleName();
 
     // Context
     private final Context context;
     private final Activity activity;
     private OnCompleteListener ocListener;
+
+    private boolean reading = false;
 
     // Controllers
     DevicesController devicesController;
@@ -37,6 +42,9 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
     private List<ExtendedBluetoothDevice> filteredItems = new ArrayList<>();
     private List<ExtendedBluetoothDevice> originalItems = new ArrayList<>();
     private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
+
+    private ReadCharacteristicsTask readCharacteristicsTask;
+
     private final Object lock = new Object();
 
     // --------------------
@@ -147,6 +155,24 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
                     ocListener.onDisconnectDevice(device);
                 else
                     ocListener.onConnectDevice(device);
+            }
+        });
+        tvName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                BluetoothLeService service = devicesActivity.getBluetoothLeService();
+                readCharacteristicsTask = new ReadCharacteristicsTask(service);
+
+                if (!reading) {
+                    reading = true;
+                    devicesActivity.snack(readCharacteristicsTask.getStatus() + " > GO");
+                    readCharacteristicsTask.execute(device);
+                } else {
+                    reading = false;
+                    devicesActivity.snack(readCharacteristicsTask.getStatus() + " > STOP");
+                    readCharacteristicsTask.cancel(true);
+                }
             }
         });
 
