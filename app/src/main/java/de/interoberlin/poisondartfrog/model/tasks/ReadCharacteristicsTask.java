@@ -3,15 +3,18 @@ package de.interoberlin.poisondartfrog.model.tasks;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import de.interoberlin.poisondartfrog.App;
+import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
+import de.interoberlin.poisondartfrog.util.Configuration;
 
 public class ReadCharacteristicsTask extends AsyncTask<ExtendedBluetoothDevice, Void, Void> {
     public static final String TAG = ReadCharacteristicsTask.class.getSimpleName();
-    private static final int INTERVAL = 2500;
 
     private BluetoothLeService bluetoothLeService;
     private OnCompleteListener ocListener;
@@ -67,7 +70,11 @@ public class ReadCharacteristicsTask extends AsyncTask<ExtendedBluetoothDevice, 
                 }
             }
 
-            Thread.sleep(INTERVAL);
+            Context c = App.getContext();
+            int SCAN_PERIOD = Configuration.getIntProperty(c, c.getResources().getString(R.string.scan_period));
+
+            Log.v(TAG, "Sleep for " + SCAN_PERIOD + " millseconds");
+            Thread.sleep(SCAN_PERIOD);
         }
     }
 
