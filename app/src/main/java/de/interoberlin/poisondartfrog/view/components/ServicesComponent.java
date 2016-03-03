@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.model.devices.PropertyMapper;
 
 public class ServicesComponent extends LinearLayout {
     private static final String TAG = ServicesComponent.class.getSimpleName();
@@ -42,19 +43,32 @@ public class ServicesComponent extends LinearLayout {
             lp.setMargins(0, (int) context.getResources().getDimension(R.dimen.card_margin), 0, 0);
 
             TextView s = new TextView(activity);
-            s.setText(service.getUuid().toString());
-            s.setTextColor(activity.getResources().getColor(R.color.colorPrimary));
+
+            String serviceId = service.getUuid().toString();
+            if (PropertyMapper.getInstance().isKnownService(serviceId)) {
+                s.setText(PropertyMapper.getInstance().getServiceById(serviceId).getName());
+            } else {
+                s.setText(serviceId);
+            }
+
+            s.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
             s.setTextAppearance(activity, android.R.style.TextAppearance_Small);
             s.setLayoutParams(lp);
-            s.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
             addView(s);
 
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                 TextView c = new TextView(activity);
-                c.setText("  " + characteristic.getUuid().toString());
+
+                String characteristicId = characteristic.getUuid().toString();
+                if (PropertyMapper.getInstance().isKnownCharacteristic(characteristicId)) {
+                    c.setText("  " + PropertyMapper.getInstance().getCharacteristicById(characteristicId).getName());
+                } else {
+                    c.setText("  " + characteristicId);
+                }
+
+                c.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 c.setTextAppearance(activity, android.R.style.TextAppearance_Small);
                 c.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                c.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 addView(c);
             }
         }

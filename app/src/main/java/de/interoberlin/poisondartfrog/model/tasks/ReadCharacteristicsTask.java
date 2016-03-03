@@ -4,7 +4,6 @@ package de.interoberlin.poisondartfrog.model.tasks;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;

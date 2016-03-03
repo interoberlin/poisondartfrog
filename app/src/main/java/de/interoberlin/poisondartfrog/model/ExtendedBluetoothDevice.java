@@ -44,16 +44,38 @@ public class ExtendedBluetoothDevice {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("name=" + this.getName() + ", \n");
+        sb.append("type=" + this.getDevice().getType() + "(" + getDeviceType(this.getDevice().getType()) + "), \n");
         sb.append("address=" + this.getAddress() + ", \n");
         sb.append("services=\n");
 
         for (BluetoothGattService service : getGattServices()) {
             sb.append("  service " + service.getUuid() + "\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic " + chara.getUuid() + " / " + chara.getValue() + "\n");
+                sb.append("  characteristic " + chara.getUuid() + ((chara.getValue() != null) ? " / " + chara.getValue() : "") + "\n");
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Retrieves the device type string by its integer
+     *
+     * @param type type integer
+     * @return type string
+     */
+    private String getDeviceType(int type) {
+        switch (type) {
+            case BluetoothDevice.DEVICE_TYPE_UNKNOWN:
+                return "unknown";
+            case BluetoothDevice.DEVICE_TYPE_CLASSIC:
+                return "classic";
+            case BluetoothDevice.DEVICE_TYPE_LE:
+                return "le";
+            case BluetoothDevice.DEVICE_TYPE_DUAL:
+                return "dual";
+        }
+
+        return "unknown";
     }
 
     // --------------------
