@@ -51,33 +51,43 @@ public class ExtendedBluetoothDevice {
         Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
 
         if (c != null && c.getRead() != null) {
-            switch(c.getRead()) {
+            switch (c.getRead()) {
                 case NEVER: {
-                    Log.i(TAG, "Skip " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
+                    int index = getLastReadCharacteristic() + 1;
+                    int total = getCharacteristics().size();
+                    Log.i(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+
                     incrementLastReadCharacteristic();
                     readNextCharacteristic(service);
                     break;
                 }
                 case ONCE: {
-                    // TODO implement unique characteristic read
+                    if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
+                        readCharacteristicTask = new ReadCharacteristicTask(service);
+                        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                    } else {
+                        int index = getLastReadCharacteristic() + 1;
+                        int total = getCharacteristics().size();
+                        Log.i(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+
+                        incrementLastReadCharacteristic();
+                        readNextCharacteristic(service);
+                    }
+                    break;
                 }
                 case CYCLIC: {
-                    Log.i(TAG, "Read " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
                     readCharacteristicTask = new ReadCharacteristicTask(service);
                     readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
                     break;
                 }
             }
         } else {
-            Log.i(TAG, "Read " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
             readCharacteristicTask = new ReadCharacteristicTask(service);
             readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
         }
-
-        incrementLastReadCharacteristic();
     }
 
-    private void incrementLastReadCharacteristic() {
+    public void incrementLastReadCharacteristic() {
         lastReadCharacteristic++;
         if (lastReadCharacteristic >= getCharacteristics().size())
             lastReadCharacteristic = 0;
@@ -239,12 +249,16 @@ public class ExtendedBluetoothDevice {
 
         for (BluetoothGattService service : gattServices) {
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                Log.i(TAG, "Appended chara #" + (characteristics.size()+1) + " " + characteristic.getUuid());
+                Log.i(TAG, "Appended chara #" + (characteristics.size() + 1) + " " + characteristic.getUuid());
                 Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
                 Log.i(TAG, c.toString());
                 characteristics.add(characteristic);
             }
         }
+    }
+
+    public int getLastReadCharacteristic() {
+        return lastReadCharacteristic;
     }
 
     public boolean isReading() {

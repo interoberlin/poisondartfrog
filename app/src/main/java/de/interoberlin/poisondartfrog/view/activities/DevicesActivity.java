@@ -54,8 +54,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private BluetoothAdapter bluetoothAdapter;
     private final static int REQUEST_ENABLE_BT = 1;
 
-    private boolean scanning;
-    private boolean connected;
     private Handler handler;
 
     private BluetoothLeService bluetoothLeService;
@@ -98,10 +96,8 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             final String characteristicValue = intent.getStringExtra(BluetoothLeService.EXTRA_CHARACTERISTIC_VALUE);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.i(TAG, "Gatt connected");
-                connected = true;
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 Log.i(TAG, "Gatt disconnected from " + deviceAddress);
-                connected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.i(TAG, "Gatt services discovered");
                 ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
@@ -110,13 +106,17 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
                 updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                Log.i(TAG, "Read " + characteristicId + " : " + characteristicValue);
                 ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
 
                 if (device != null) {
+                    int index = device.getLastReadCharacteristic() + 1;
+                    int total = device.getCharacteristics().size();
+
+                    Log.i(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
                     device.updateCharacteristicValue(characteristicId, characteristicValue);
 
                     if (device.isReading()) {
+                        device.incrementLastReadCharacteristic();
                         device.readNextCharacteristic(getBluetoothLeService());
                     }
                 }
@@ -283,7 +283,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    scanning = false;
                     bluetoothAdapter.stopLeScan(DevicesActivity.this);
                     handler.postDelayed(new Runnable() {
                         public void run() {
@@ -301,10 +300,8 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 }
             }, scanPeriod);
 
-            scanning = true;
             bluetoothAdapter.startLeScan(this);
         } else {
-            scanning = false;
             bluetoothAdapter.stopLeScan(this);
         }
     }
