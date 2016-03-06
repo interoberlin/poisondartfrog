@@ -18,7 +18,7 @@ public class Configuration {
             props.load(inputStream);
             return props.getProperty(property);
         } catch (IOException e) {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
 

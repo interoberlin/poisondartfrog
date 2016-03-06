@@ -112,7 +112,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                     int index = device.getLastReadCharacteristic() + 1;
                     int total = device.getCharacteristics().size();
 
-                    Log.i(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
+                    Log.d(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
                     device.updateCharacteristicValue(characteristicId, characteristicValue);
 
                     if (device.isReading()) {

@@ -8,14 +8,14 @@ public class Characteristic {
 
     public enum EFormat {
         STRING,
-        FORMAT_UINT8,
-        FORMAT_UINT16,
-        FORMAT_UINT32,
-        FORMAT_SINT8,
-        FORMAT_SINT16,
-        FORMAT_SINT32,
-        FORMAT_SFLOAT,
-        FORMAT_FLOAT;
+        UINT8,
+        UINT16,
+        UINT32,
+        SINT8,
+        SINT16,
+        SINT32,
+        SFLOAT,
+        FLOAT;
     }
 
     public enum ERead {

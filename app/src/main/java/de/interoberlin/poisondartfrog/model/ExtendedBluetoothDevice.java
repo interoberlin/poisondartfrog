@@ -47,43 +47,45 @@ public class ExtendedBluetoothDevice {
     public void readNextCharacteristic(BluetoothLeService service) {
         setReading(true);
 
-        BluetoothGattCharacteristic characteristic = getCharacteristics().get(lastReadCharacteristic);
-        Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
+        if (getCharacteristics() != null && !getCharacteristics().isEmpty()) {
+            BluetoothGattCharacteristic characteristic = getCharacteristics().get(lastReadCharacteristic);
+            Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
 
-        if (c != null && c.getRead() != null) {
-            switch (c.getRead()) {
-                case NEVER: {
-                    int index = getLastReadCharacteristic() + 1;
-                    int total = getCharacteristics().size();
-                    Log.i(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
-
-                    incrementLastReadCharacteristic();
-                    readNextCharacteristic(service);
-                    break;
-                }
-                case ONCE: {
-                    if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
-                        readCharacteristicTask = new ReadCharacteristicTask(service);
-                        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
-                    } else {
+            if (c != null && c.getRead() != null) {
+                switch (c.getRead()) {
+                    case NEVER: {
                         int index = getLastReadCharacteristic() + 1;
                         int total = getCharacteristics().size();
-                        Log.i(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+                        Log.d(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
 
                         incrementLastReadCharacteristic();
                         readNextCharacteristic(service);
+                        break;
                     }
-                    break;
+                    case ONCE: {
+                        if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
+                            readCharacteristicTask = new ReadCharacteristicTask(service);
+                            readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                        } else {
+                            int index = getLastReadCharacteristic() + 1;
+                            int total = getCharacteristics().size();
+                            Log.d(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+
+                            incrementLastReadCharacteristic();
+                            readNextCharacteristic(service);
+                        }
+                        break;
+                    }
+                    case CYCLIC: {
+                        readCharacteristicTask = new ReadCharacteristicTask(service);
+                        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                        break;
+                    }
                 }
-                case CYCLIC: {
-                    readCharacteristicTask = new ReadCharacteristicTask(service);
-                    readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
-                    break;
-                }
+            } else {
+                readCharacteristicTask = new ReadCharacteristicTask(service);
+                readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
             }
-        } else {
-            readCharacteristicTask = new ReadCharacteristicTask(service);
-            readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
         }
     }
 
@@ -137,7 +139,7 @@ public class ExtendedBluetoothDevice {
         for (BluetoothGattService service : getGattServices()) {
             sb.append("  service ").append(service.getUuid()).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic " + chara.getUuid() + (getFormat(chara) != null ? "[" + getFormat(chara) + "]" : "") + ((chara.getValue() != null) ? " / " + parseValue(chara) : "") + "\n");
+                sb.append("  characteristic ").append(chara.getUuid()).append(getFormat(chara) != null ? "[" + getFormat(chara) + "]" : "").append((chara.getValue() != null) ? " / " + parseValue(chara) : "").append("\n");
             }
         }
         return sb.toString();
@@ -169,41 +171,78 @@ public class ExtendedBluetoothDevice {
         UUID id = characteristic.getUuid();
 
         if (PropertyMapper.getInstance().isKnownCharacteristic(id) && PropertyMapper.getInstance().getCharacteristicById(id).getFormat() != null) {
-            switch (PropertyMapper.getInstance().getCharacteristicById(id).getFormat()) {
+            Characteristic.EFormat format = PropertyMapper.getInstance().getCharacteristicById(id).getFormat();
+            String value = "";
+
+            switch (format) {
                 case STRING:
-                    return characteristic.getStringValue(0);
-                case FORMAT_UINT8:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
-                case FORMAT_UINT16:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
-                case FORMAT_UINT32:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
-                case FORMAT_SINT8:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
-                case FORMAT_SINT16:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
-                case FORMAT_SINT32:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
-                case FORMAT_SFLOAT:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
-                case FORMAT_FLOAT:
-                    return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
+                    value = getStringValue(characteristic.getValue());
+                    break;
+                case UINT8:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
+                    break;
+                case UINT16:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
+                    break;
+                case UINT32:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
+                    break;
+                case SINT8:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
+                    break;
+                case SINT16:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
+                    break;
+                case SINT32:
+                    value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
+                    break;
+                case SFLOAT:
+                    value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
+                    break;
+                case FLOAT:
+                    value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
+                    break;
             }
-        }
+
+            return value;
+        } else {
 
         /*
-        Log.i(TAG, "INT FORMAT_UINT8 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
-        Log.i(TAG, "INT FORMAT_UINT16 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
-        Log.i(TAG, "INT FORMAT_UINT32 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
+        Log.i(TAG, characteristic.getUuid().toString());
+        Log.i(TAG, "INT UINT8 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
+        Log.i(TAG, "INT UINT16 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
+        Log.i(TAG, "INT UINT32 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
         Log.i(TAG, "INT FORMAT_SINT8 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
         Log.i(TAG, "INT FORMAT_SINT16 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
         Log.i(TAG, "INT FORMAT_SINT32 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
-        Log.i(TAG, "INT FORMAT_SFLOAT " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
-        Log.i(TAG, "INT FORMAT_FLOAT " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
+        Log.i(TAG, "INT FORMAT_SFLOAT " + characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
+        Log.i(TAG, "INT FORMAT_FLOAT " + characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
         Log.i(TAG, " ");
         */
 
-        return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
+            return new String(characteristic.getValue()).replaceAll(" ", "");
+        }
+    }
+
+    /**
+     * Turns a byte array into a corresponding ASCII string
+     *
+     * @param value byte array
+     * @return ASCII string
+     */
+    private static String getStringValue(byte[] value) {
+        StringBuilder sb = new StringBuilder();
+        String v = new String(value).replaceAll(" ", "");
+
+        try {
+            for (int i = 0; i < v.length(); i += 2) {
+                String s = v.substring(i, i + 2);
+                sb.append((char) Integer.parseInt(s, 16));
+            }
+            return sb.toString();
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            return v;
+        }
     }
 
     /**
@@ -249,9 +288,7 @@ public class ExtendedBluetoothDevice {
 
         for (BluetoothGattService service : gattServices) {
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                Log.i(TAG, "Appended chara #" + (characteristics.size() + 1) + " " + characteristic.getUuid());
                 Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
-                Log.i(TAG, c.toString());
                 characteristics.add(characteristic);
             }
         }
