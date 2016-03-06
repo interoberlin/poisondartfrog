@@ -46,7 +46,7 @@ public class DevicesController {
      * @param device device
      */
     public void attach(BluetoothDevice device) {
-        Log.d(TAG, "Attach " + device.getName());
+        Log.i(TAG, "Attach " + device.getName());
         if (scannedDevices.containsKey(device.getAddress()))
             scannedDevices.remove(device.getAddress());
         attachedDevices.put(device.getAddress(), new ExtendedBluetoothDevice(device));

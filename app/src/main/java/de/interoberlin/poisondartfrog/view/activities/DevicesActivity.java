@@ -72,7 +72,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             }
 
             devicesController = DevicesController.getInstance();
-            if (!devicesController.getAttachedDevices().isEmpty())
+            if (!devicesController.getAttachedDevices().isEmpty() && devicesController.getAttachedDevices().get(0) != null)
                 devicesController.getAttachedDevices().get(0).setConnected(true);
             updateListView();
         }
@@ -106,7 +106,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 Log.i(TAG, "Gatt services discovered");
                 ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
                 device.setGattServices(bluetoothLeService.getSupportedGattServices());
-                Log.d(TAG, device.toString());
+                Log.i(TAG, device.toString());
 
                 updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
@@ -115,7 +115,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
                 if (device != null) {
                     device.updateCharacteristicValue(characteristicId, characteristicValue);
-                    Log.v(TAG, device.toString());
 
                     if (device.isReading()) {
                         device.readNextCharacteristic(getBluetoothLeService());
@@ -229,7 +228,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         if (!devicesController.getAttachedDevices().containsKey(device.getAddress())) {
-            Log.d(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
+            Log.i(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
             devicesController.getScannedDevices().put(device.getAddress(), device);
         }
     }
@@ -357,7 +356,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         if (ContextCompat.checkSelfPermission(this,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permission not granted");
+            Log.w(TAG, "Permission not granted");
 
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                     permission)) {
@@ -366,7 +365,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                         callBack);
             }
         } else {
-            Log.d(TAG, "Permission granted");
+            Log.i(TAG, "Permission granted");
         }
     }
 

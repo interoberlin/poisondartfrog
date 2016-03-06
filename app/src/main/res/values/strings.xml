@@ -25,5 +25,5 @@
     <string name="detached_device">Detached device</string>
     <string name="stopped_scanning">Stopped scanning</string>
     <string name="started_scanning">Started scanning</string>
-    <string name="no_value"> no value</string>
+    <string name="no_value">-</string>
 </resources>

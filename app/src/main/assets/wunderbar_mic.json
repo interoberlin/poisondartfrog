@@ -6,37 +6,37 @@
       "id": "00001800-0000-1000-8000-00805f9b34fb",
       "name": "s1 COMMON SERVICE",
       "characteristics": [
-        { "id": "00002a00-0000-1000-8000-00805f9b34fb", "name": "device type "},
-        { "id": "00002a01-0000-1000-8000-00805f9b34fb", "name": "s1 c2 unknown "},
-        { "id": "00002a04-0000-1000-8000-00805f9b34fb", "name": "s1 c3 unknown "}
+        { "id": "00002a00-0000-1000-8000-00805f9b34fb", "name": "s1 c1 unknown", "format": "ASCII"},
+        { "id": "00002a01-0000-1000-8000-00805f9b34fb", "name": "s1 c2 unknown"},
+        { "id": "00002a04-0000-1000-8000-00805f9b34fb", "name": "s1 c3 unknown"}
       ]
     },
     {
       "id": "00001801-0000-1000-8000-00805f9b34fb",
       "name": "s2 COMMON SERVICE",
       "characteristics": [
-        { "id": "00002a05-0000-1000-8000-00805f9b34fb", "name": "s2 c2 unknown "}
+        { "id": "00002a05-0000-1000-8000-00805f9b34fb", "name": "s2 c2 unknown"}
       ]
     },
     {
       "id": "00002002-0000-1000-8000-00805f9b34fb",
       "name": "s3 unknown service",
       "characteristics": [
-        { "id": "00002010-0000-1000-8000-00805f9b34fb", "name": "s3 c1 unknown "},
-        { "id": "00002011-0000-1000-8000-00805f9b34fb", "name": "s3 c2 unknown "},
-        { "id": "00002012-0000-1000-8000-00805f9b34fb", "name": "s3 c3 unknown "},
-        { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "s3 c4 unknown "},
-        { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "s3 c5 unknown "},
-        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "s3 c6 unknown "}
+        { "id": "00002010-0000-1000-8000-00805f9b34fb", "name": "s3 c1 unknown"},
+        { "id": "00002011-0000-1000-8000-00805f9b34fb", "name": "s3 c2 unknown"},
+        { "id": "00002012-0000-1000-8000-00805f9b34fb", "name": "s3 c3 unknown"},
+        { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "s3 c4 unknown", "format": "ASCII"},
+        { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "s3 c5 unknown"},
+        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "s3 c6 unknown"}
       ]
     },
     {
       "id": "0000180a-0000-1000-8000-00805f9b34fb",
       "name": "s4 COMMON SERVICE",
       "characteristics": [
-        { "id": "00002a29-0000-1000-8000-00805f9b34fb", "name": "s4 c1 unknown "},
-        { "id": "00002a27-0000-1000-8000-00805f9b34fb", "name": "s4 c2 unknown "},
-        { "id": "00002a26-0000-1000-8000-00805f9b34fb", "name": "s4 c3 unknown "}
+        { "id": "00002a29-0000-1000-8000-00805f9b34fb", "name": "s4 c1 unknown"},
+        { "id": "00002a27-0000-1000-8000-00805f9b34fb", "name": "s4 c2 unknown"},
+        { "id": "00002a26-0000-1000-8000-00805f9b34fb", "name": "s4 c3 unknown"}
       ]
     },
     {
@@ -44,9 +44,9 @@
       "id": "0000180f-0000-1000-8000-00805f9b34fb",
       "name": "s5 COMMON SERVICE",
       "characteristics": [
-        { "id": "00002a29-0000-1000-8000-00805f9b34fb", "name": "s5 c1 unknown "},
-        { "id": "00002a27-0000-1000-8000-00805f9b34fb", "name": "s5 c2 unknown "},
-        { "id": "00002a26-0000-1000-8000-00805f9b34fb", "name": "s5 c3 unknown "}
+        { "id": "00002a29-0000-1000-8000-00805f9b34fb", "name": "s5 c1 unknown", "format": "ASCII"},
+        { "id": "00002a27-0000-1000-8000-00805f9b34fb", "name": "s5 c2 unknown", "format": "ASCII"},
+        { "id": "00002a26-0000-1000-8000-00805f9b34fb", "name": "s5 c3 unknown", "format": "ASCII"}
       ]
     },
     {
@@ -54,7 +54,7 @@
       "id": "0000180f-0000-1000-8000-00805f9b34fb",
       "name": "s6 unknown service",
       "characteristics": [
-        { "id": "00002a19-0000-1000-8000-00805f9b34fb", "name": "s6 c1 unknown "}
+        { "id": "00002a19-0000-1000-8000-00805f9b34fb", "name": "s6 c1 unknown", "format": "ASCII"}
       ]
     }
   ]

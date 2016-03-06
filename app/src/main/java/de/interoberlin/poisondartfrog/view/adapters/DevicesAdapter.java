@@ -134,7 +134,7 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        llComponents.addView(new ServicesComponent(context, activity, services));
+        llComponents.addView(new ServicesComponent(context, services));
 
         ivConnect.setImageDrawable(device.isConnected() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
