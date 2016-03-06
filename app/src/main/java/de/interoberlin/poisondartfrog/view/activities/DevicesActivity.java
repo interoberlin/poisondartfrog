@@ -110,8 +110,19 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
                 updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                Log.i(TAG, characteristicId + " : " + characteristicValue);
-                // TODO : update bluetooth device reading
+                Log.i(TAG, "Read " + characteristicId + " : " + characteristicValue);
+                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
+
+                if (device != null) {
+                    device.updateCharacteristicValue(characteristicId, characteristicValue);
+                    Log.v(TAG, device.toString());
+
+                    if (device.isReading()) {
+                        device.readNextCharacteristic(getBluetoothLeService());
+                    }
+                }
+
+                updateListView();
             }
         }
     };
