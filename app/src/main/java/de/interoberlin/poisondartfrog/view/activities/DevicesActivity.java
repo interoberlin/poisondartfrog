@@ -100,7 +100,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 Log.i(TAG, "Gatt connected");
                 connected = true;
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.i(TAG, "Gatt disconnected");
+                Log.i(TAG, "Gatt disconnected from " + deviceAddress);
                 connected = false;
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.i(TAG, "Gatt services discovered");

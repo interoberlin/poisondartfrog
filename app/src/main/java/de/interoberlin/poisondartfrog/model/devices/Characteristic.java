@@ -4,9 +4,10 @@ public class Characteristic {
     private String id;
     private String name;
     private EFormat format;
+    private ERead read;
 
     public enum EFormat {
-        ASCII,
+        STRING,
         FORMAT_UINT8,
         FORMAT_UINT16,
         FORMAT_UINT32,
@@ -15,6 +16,26 @@ public class Characteristic {
         FORMAT_SINT32,
         FORMAT_SFLOAT,
         FORMAT_FLOAT;
+    }
+
+    public enum ERead {
+        NEVER,
+        ONCE,
+        CYCLIC;
+    }
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id=").append(this.getId()).append(", \n");
+        sb.append("name=").append(this.getName()).append(", \n");
+        sb.append("format=").append(this.getFormat()).append(", \n");
+        sb.append("read=").append(this.getRead()).append(", \n");
+        return sb.toString();
     }
 
     // --------------------
@@ -43,5 +64,13 @@ public class Characteristic {
 
     public void setFormat(EFormat format) {
         this.format = format;
+    }
+
+    public ERead getRead() {
+        return read;
+    }
+
+    public void setRead(ERead read) {
+        this.read = read;
     }
 }

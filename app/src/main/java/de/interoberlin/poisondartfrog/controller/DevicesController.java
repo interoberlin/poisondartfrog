@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.controller;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -60,17 +59,6 @@ public class DevicesController {
     public void detach(ExtendedBluetoothDevice device) {
         if (attachedDevices.containsKey(device.getAddress()))
             attachedDevices.remove(device.getAddress());
-    }
-
-    /**
-     * Updates a {@code characteristic} value of a device with a given {@code address}
-     *
-     * @param address        device address
-     * @param characteristic characteristic
-     */
-    public void updateAttachedDevice(String address, BluetoothGattCharacteristic characteristic) {
-        ExtendedBluetoothDevice extendedBluetoothDevice = this.attachedDevices.get(address);
-        // TODO
     }
 
     public ExtendedBluetoothDevice getAttachedDeviceByAdress(String address) {

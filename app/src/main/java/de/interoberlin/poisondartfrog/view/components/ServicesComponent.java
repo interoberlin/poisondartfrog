@@ -8,6 +8,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
@@ -35,11 +36,11 @@ public class ServicesComponent extends TableLayout {
 
             TextView tvService = new TextView(context);
 
-            String serviceId = service.getUuid().toString();
+            UUID serviceId = service.getUuid();
             if (PropertyMapper.getInstance().isKnownService(serviceId))
                 tvService.setText(PropertyMapper.getInstance().getServiceById(serviceId).getName());
             else
-                tvService.setText(serviceId);
+                tvService.setText(serviceId.toString());
 
             tvService.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
             tvService.setTextAppearance(context, android.R.style.TextAppearance_Small);
@@ -54,11 +55,11 @@ public class ServicesComponent extends TableLayout {
                 TextView tvCharacteristic = new TextView(context);
                 TextView tvValue = new TextView(context);
 
-                String characteristicId = characteristic.getUuid().toString();
+                UUID characteristicId = characteristic.getUuid();
                 if (PropertyMapper.getInstance().isKnownCharacteristic(characteristicId)) {
                     tvCharacteristic.setText("  " + PropertyMapper.getInstance().getCharacteristicById(characteristicId).getName());
                 } else {
-                    tvCharacteristic.setText("  " + characteristicId.substring(0, 18) + "...");
+                    tvCharacteristic.setText("  " + characteristicId.toString().substring(0, 18) + "...");
                 }
                 tvCharacteristic.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 tvCharacteristic.setTextAppearance(context, android.R.style.TextAppearance_Small);

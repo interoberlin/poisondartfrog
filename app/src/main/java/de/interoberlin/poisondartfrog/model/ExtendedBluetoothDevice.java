@@ -7,7 +7,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import de.interoberlin.poisondartfrog.model.devices.Characteristic;
 import de.interoberlin.poisondartfrog.model.devices.PropertyMapper;
 import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
 
@@ -45,11 +47,37 @@ public class ExtendedBluetoothDevice {
     public void readNextCharacteristic(BluetoothLeService service) {
         setReading(true);
 
-        Log.i(TAG, lastReadCharacteristic + 1 + "/" + getCharacteristics().size());
+        BluetoothGattCharacteristic characteristic = getCharacteristics().get(lastReadCharacteristic);
+        Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
 
-        readCharacteristicTask = new ReadCharacteristicTask(service);
-        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+        if (c != null && c.getRead() != null) {
+            switch(c.getRead()) {
+                case NEVER: {
+                    Log.i(TAG, "Skip " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
+                    incrementLastReadCharacteristic();
+                    readNextCharacteristic(service);
+                    break;
+                }
+                case ONCE: {
+                    // TODO implement unique characteristic read
+                }
+                case CYCLIC: {
+                    Log.i(TAG, "Read " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
+                    readCharacteristicTask = new ReadCharacteristicTask(service);
+                    readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                    break;
+                }
+            }
+        } else {
+            Log.i(TAG, "Read " + (lastReadCharacteristic + 1) + "/" + getCharacteristics().size());
+            readCharacteristicTask = new ReadCharacteristicTask(service);
+            readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+        }
 
+        incrementLastReadCharacteristic();
+    }
+
+    private void incrementLastReadCharacteristic() {
         lastReadCharacteristic++;
         if (lastReadCharacteristic >= getCharacteristics().size())
             lastReadCharacteristic = 0;
@@ -112,7 +140,7 @@ public class ExtendedBluetoothDevice {
      * @return value format string
      */
     public static String getFormat(BluetoothGattCharacteristic characteristic) {
-        String id = characteristic.getUuid().toString();
+        UUID id = characteristic.getUuid();
 
         if (PropertyMapper.getInstance().isKnownCharacteristic(id) && PropertyMapper.getInstance().getCharacteristicById(id).getFormat() != null)
             return PropertyMapper.getInstance().getCharacteristicById(id).getFormat().toString();
@@ -128,11 +156,11 @@ public class ExtendedBluetoothDevice {
      * @return value string
      */
     public static String parseValue(BluetoothGattCharacteristic characteristic) {
-        String id = characteristic.getUuid().toString();
+        UUID id = characteristic.getUuid();
 
         if (PropertyMapper.getInstance().isKnownCharacteristic(id) && PropertyMapper.getInstance().getCharacteristicById(id).getFormat() != null) {
             switch (PropertyMapper.getInstance().getCharacteristicById(id).getFormat()) {
-                case ASCII:
+                case STRING:
                     return characteristic.getStringValue(0);
                 case FORMAT_UINT8:
                     return String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
@@ -212,6 +240,8 @@ public class ExtendedBluetoothDevice {
         for (BluetoothGattService service : gattServices) {
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                 Log.i(TAG, "Appended chara #" + (characteristics.size()+1) + " " + characteristic.getUuid());
+                Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
+                Log.i(TAG, c.toString());
                 characteristics.add(characteristic);
             }
         }

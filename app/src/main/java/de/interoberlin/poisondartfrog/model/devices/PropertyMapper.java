@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
@@ -51,19 +52,35 @@ public class PropertyMapper {
         return idMap.get(id);
     }
 
-    public boolean isKnownService(String id) {
+    public boolean isKnownService(UUID id) {
+        return isKnownService(id.toString());
+    }
+
+    private boolean isKnownService(String id) {
         return idMap.containsKey(id) && idMap.get(id) instanceof Service;
     }
 
-    public boolean isKnownCharacteristic(String id) {
+    public boolean isKnownCharacteristic(UUID id) {
+        return isKnownCharacteristic(id.toString());
+    }
+
+    private boolean isKnownCharacteristic(String id) {
         return idMap.containsKey(id) && idMap.get(id) instanceof Characteristic;
     }
 
-    public Service getServiceById(String id) {
+    public Service getServiceById(UUID id) {
+        return getServiceById(id.toString());
+    }
+
+    private Service getServiceById(String id) {
         return (isKnownService(id)) ? (Service) getObjectById(id) : null;
     }
 
-    public Characteristic getCharacteristicById(String id) {
+    public Characteristic getCharacteristicById(UUID id) {
+        return getCharacteristicById(id.toString());
+    }
+
+    private Characteristic getCharacteristicById(String id) {
         return (isKnownCharacteristic(id)) ? (Characteristic) getObjectById(id) : null;
     }
 
