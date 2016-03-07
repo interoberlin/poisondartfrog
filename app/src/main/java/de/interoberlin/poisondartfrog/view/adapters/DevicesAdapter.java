@@ -136,7 +136,7 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
 
         llComponents.addView(new ServicesComponent(context, services));
 
-        ivConnect.setImageDrawable(device.isConnected() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
+        ivConnect.setImageDrawable(device.isReading() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         // Add actions
         ivDetach.setOnClickListener(new View.OnClickListener() {
@@ -146,15 +146,6 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
             }
         });
         ivConnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (device.isConnected())
-                    ocListener.onDisconnectDevice(device);
-                else
-                    ocListener.onConnectDevice(device);
-            }
-        });
-        tvName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DevicesActivity devicesActivity = ((DevicesActivity) activity);
@@ -208,7 +199,7 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
     // --------------------
 
     public interface OnCompleteListener {
-        void onConnectDevice(ExtendedBluetoothDevice device);
+        // void onConnectDevice(ExtendedBluetoothDevice device);
 
         void onDisconnectDevice(ExtendedBluetoothDevice device);
 

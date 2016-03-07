@@ -235,18 +235,15 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
-        snack("Attached device");
         devicesController.attach(device);
-        updateListView();
-    }
 
-    @Override
-    public void onConnectDevice(ExtendedBluetoothDevice device) {
+        ExtendedBluetoothDevice extendedBluetoothDevice = devicesController.getAttachedDeviceByAdress(device.getAddress());
+
         if (bluetoothLeService != null) {
             bluetoothLeService.connect(device.getAddress());
-            device.setConnected(true);
+            extendedBluetoothDevice.setConnected(true);
             updateListView();
-            snack("Connected device");
+            snack("Attached and connected device");
         } else {
             snack("bluetooth LE service not available");
         }
