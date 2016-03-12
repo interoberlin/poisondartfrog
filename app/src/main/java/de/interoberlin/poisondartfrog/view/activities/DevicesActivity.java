@@ -235,36 +235,22 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
-        devicesController.attach(device);
-
-        ExtendedBluetoothDevice extendedBluetoothDevice = devicesController.getAttachedDeviceByAdress(device.getAddress());
-
-        if (bluetoothLeService != null) {
-            bluetoothLeService.connect(device.getAddress());
-            extendedBluetoothDevice.setConnected(true);
+        if (devicesController.attach(bluetoothLeService, new ExtendedBluetoothDevice(device))) {
             updateListView();
-            snack("Attached and connected device");
+            snack(R.string.attached_device);
         } else {
-            snack("bluetooth LE service not available");
-        }
-    }
-
-    @Override
-    public void onDisconnectDevice(ExtendedBluetoothDevice device) {
-        if (bluetoothLeService != null) {
-            bluetoothLeService.disconnect();
-            device.setConnected(false);
-            updateListView();
-        } else {
-            snack("bluetooth LE service not available");
+            snack(R.string.failed_to_attach_device);
         }
     }
 
     @Override
     public void onDetachDevice(ExtendedBluetoothDevice device) {
-        devicesController.detach(device);
-        snack(R.string.detached_device);
-        updateListView();
+        if (devicesController.detach(bluetoothLeService, device)) {
+            updateListView();
+            snack(R.string.detached_device);
+        } else {
+            snack(R.string.failed_to_detach_device);
+        }
     }
 
     // --------------------

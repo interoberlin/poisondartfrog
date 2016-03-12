@@ -139,6 +139,12 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
         ivConnect.setImageDrawable(device.isReading() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         // Add actions
+        ivIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ocListener.onConnectDevice(device);
+            }
+        });
         ivDetach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,10 +205,6 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
     // --------------------
 
     public interface OnCompleteListener {
-        // void onConnectDevice(ExtendedBluetoothDevice device);
-
-        void onDisconnectDevice(ExtendedBluetoothDevice device);
-
         void onDetachDevice(ExtendedBluetoothDevice device);
     }
 

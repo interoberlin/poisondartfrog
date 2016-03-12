@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
 
 public class DevicesController {
@@ -42,23 +43,45 @@ public class DevicesController {
     /**
      * Attaches a device
      *
-     * @param device device
+     * @param service BLE service
+     * @param device  device
+     * @return true, if it worked
      */
-    public void attach(BluetoothDevice device) {
+    public boolean attach(BluetoothLeService service, ExtendedBluetoothDevice device) {
         Log.i(TAG, "Attach " + device.getName());
-        if (scannedDevices.containsKey(device.getAddress()))
-            scannedDevices.remove(device.getAddress());
-        attachedDevices.put(device.getAddress(), new ExtendedBluetoothDevice(device));
+
+        if (service != null) {
+            service.connect(device.getAddress());
+            device.setConnected(true);
+            if (scannedDevices.containsKey(device.getAddress()))
+                scannedDevices.remove(device.getAddress());
+            attachedDevices.put(device.getAddress(), device);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Detaches a device
      *
-     * @param device device
+     * @param service BLE service
+     * @param device  device
+     * @return true, if it worked
      */
-    public void detach(ExtendedBluetoothDevice device) {
-        if (attachedDevices.containsKey(device.getAddress()))
-            attachedDevices.remove(device.getAddress());
+    public boolean detach(BluetoothLeService service, ExtendedBluetoothDevice device) {
+        if (service != null) {
+            service.disconnect();
+            device.setConnected(false);
+
+            if (attachedDevices.containsKey(device.getAddress()))
+                attachedDevices.remove(device.getAddress());
+
+            return true;
+        }
+
+        return false;
     }
 
     public ExtendedBluetoothDevice getAttachedDeviceByAdress(String address) {

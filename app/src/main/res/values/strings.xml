@@ -10,7 +10,7 @@
     <string name="address">address</string>
     <string name="name">name</string>
     <string name="scan_result_icon">scan result icon</string>
-    <string name="scannedDevices">Devices</string>
+    <string name="scanned_devices">Devices</string>
     <string name="devices">Devices</string>
     <string name="no_devices_found">No devices found</string>
     <string name="luminosity">luminosity</string>
@@ -22,8 +22,11 @@
     <string name="meaning">meaning</string>
     <string name="unknown_device">unknown device</string>
     <string name="scan">scan</string>
-    <string name="detached_device">Detached device</string>
     <string name="stopped_scanning">Stopped scanning</string>
     <string name="started_scanning">Started scanning</string>
     <string name="no_value">-</string>
+    <string name="attached_device">Attached device</string>
+    <string name="failed_to_attach_device">Failed to attach device</string>
+    <string name="detached_device">DEtached device</string>
+    <string name="failed_to_detach_device">Failed to detach device</string>
 </resources>
