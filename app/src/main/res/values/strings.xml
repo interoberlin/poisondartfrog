@@ -27,6 +27,6 @@
     <string name="no_value">-</string>
     <string name="attached_device">Attached device</string>
     <string name="failed_to_attach_device">Failed to attach device</string>
-    <string name="detached_device">DEtached device</string>
+    <string name="detached_device">Detached device</string>
     <string name="failed_to_detach_device">Failed to detach device</string>
 </resources>
