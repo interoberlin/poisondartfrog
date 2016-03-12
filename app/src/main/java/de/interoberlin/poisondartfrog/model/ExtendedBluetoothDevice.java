@@ -98,7 +98,8 @@ public class ExtendedBluetoothDevice {
     public void stopReading() {
         setReading(false);
 
-        readCharacteristicTask.cancel(true);
+        if (readCharacteristicTask != null)
+            readCharacteristicTask.cancel(true);
     }
 
     public String getAddress() {
