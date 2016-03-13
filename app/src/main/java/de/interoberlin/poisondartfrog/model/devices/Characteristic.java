@@ -15,7 +15,8 @@ public class Characteristic {
         SINT16,
         SINT32,
         SFLOAT,
-        FLOAT;
+        FLOAT,
+        RELAYR;
     }
 
     public enum ERead {

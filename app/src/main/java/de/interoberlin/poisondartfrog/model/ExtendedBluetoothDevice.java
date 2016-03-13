@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.devices.Characteristic;
 import de.interoberlin.poisondartfrog.model.devices.PropertyMapper;
+import de.interoberlin.poisondartfrog.model.parser.RelayrDataParser;
 import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
 
 /**
@@ -151,7 +152,7 @@ public class ExtendedBluetoothDevice {
         for (BluetoothGattService service : getGattServices()) {
             sb.append("  service ").append(service.getUuid()).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid()).append(getFormat(chara) != null ? "[" + getFormat(chara) + "]" : "").append((chara.getValue() != null) ? " / " + parseValue(chara) : "").append("\n");
+                sb.append("  characteristic ").append(chara.getUuid()).append(getFormat(chara) != null ? "[" + getFormat(chara) + "]" : "").append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
             }
         }
         return sb.toString();
@@ -177,9 +178,10 @@ public class ExtendedBluetoothDevice {
      * Retrieves a value of a given {@code characteristic}
      *
      * @param characteristic characteristic
+     * @param device         device
      * @return value string
      */
-    public static String parseValue(BluetoothGattCharacteristic characteristic) {
+    public static String parseValue(BluetoothDevice device, BluetoothGattCharacteristic characteristic) {
         UUID id = characteristic.getUuid();
 
         if (PropertyMapper.getInstance().isKnownCharacteristic(id) && PropertyMapper.getInstance().getCharacteristicById(id).getFormat() != null) {
@@ -213,6 +215,9 @@ public class ExtendedBluetoothDevice {
                     break;
                 case FLOAT:
                     value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
+                    break;
+                case RELAYR:
+                    value = RelayrDataParser.getFormattedValue(EBluetoothDeviceType.fromString(device.getName()), characteristic.getValue());
                     break;
             }
 

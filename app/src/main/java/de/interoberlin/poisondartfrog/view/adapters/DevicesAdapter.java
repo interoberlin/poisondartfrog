@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -83,8 +82,6 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
     }
 
     private View getCardView(final int position, final ExtendedBluetoothDevice device, final ViewGroup parent) {
-        final List<BluetoothGattService> services = device.getGattServices();
-
         // Layout inflater
         LayoutInflater vi;
         vi = LayoutInflater.from(getContext());
@@ -134,7 +131,7 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        llComponents.addView(new ServicesComponent(context, services));
+        llComponents.addView(new ServicesComponent(context, device));
 
         ivConnect.setImageDrawable(device.isReading() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
