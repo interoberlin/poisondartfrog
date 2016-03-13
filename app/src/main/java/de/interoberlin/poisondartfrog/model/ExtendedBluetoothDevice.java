@@ -56,7 +56,7 @@ public class ExtendedBluetoothDevice {
                     case NEVER: {
                         int index = getLastReadCharacteristic() + 1;
                         int total = getCharacteristics().size();
-                        Log.d(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+                        Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
 
                         incrementLastReadCharacteristic();
                         readNextCharacteristic(service);
@@ -69,7 +69,7 @@ public class ExtendedBluetoothDevice {
                         } else {
                             int index = getLastReadCharacteristic() + 1;
                             int total = getCharacteristics().size();
-                            Log.d(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+                            Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
 
                             incrementLastReadCharacteristic();
                             readNextCharacteristic(service);
@@ -83,8 +83,17 @@ public class ExtendedBluetoothDevice {
                     }
                 }
             } else {
-                readCharacteristicTask = new ReadCharacteristicTask(service);
-                readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
+                    readCharacteristicTask = new ReadCharacteristicTask(service);
+                    readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                } else {
+                    int index = getLastReadCharacteristic() + 1;
+                    int total = getCharacteristics().size();
+                    Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
+
+                    incrementLastReadCharacteristic();
+                    readNextCharacteristic(service);
+                }
             }
         }
     }

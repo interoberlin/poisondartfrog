@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.components;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -42,6 +43,8 @@ public class ServicesComponent extends TableLayout {
             else
                 tvService.setText(serviceId.toString());
 
+            tvService.setPadding(0, 10, 0, 0);
+            tvService.setTypeface(null, Typeface.BOLD);
             tvService.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
             tvService.setTextAppearance(context, android.R.style.TextAppearance_Small);
             trService.addView(tvService);
@@ -57,12 +60,13 @@ public class ServicesComponent extends TableLayout {
 
                 UUID characteristicId = characteristic.getUuid();
                 if (PropertyMapper.getInstance().isKnownCharacteristic(characteristicId)) {
-                    tvCharacteristic.setText("  " + PropertyMapper.getInstance().getCharacteristicById(characteristicId).getName());
+                    tvCharacteristic.setText(PropertyMapper.getInstance().getCharacteristicById(characteristicId).getName());
                 } else {
-                    tvCharacteristic.setText("  " + characteristicId.toString().substring(0, 18) + "...");
+                    tvCharacteristic.setText(characteristicId.toString().substring(0, 18) + "...");
                 }
                 tvCharacteristic.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 tvCharacteristic.setTextAppearance(context, android.R.style.TextAppearance_Small);
+                tvCharacteristic.setPadding(40, 0, 40, 0);
 
                 if (characteristic.getValue() != null && characteristic.getValue().length != 0) {
                     String characteristicValue = ExtendedBluetoothDevice.parseValue(characteristic);
