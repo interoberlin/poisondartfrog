@@ -6,7 +6,7 @@
       "characteristics": [
         { "id": "00002a00-0000-1000-8000-00805f9b34fb", "name": "device name", "format": "STRING"},
         { "id": "00002a01-0000-1000-8000-00805f9b34fb", "name": "appearance", "format": "16BIT"},
-        { "id": "00002a04-0000-1000-8000-00805f9b34fb", "name": "peripheral preferred\nconnection parameters", "format": "BOOLEAN"},
+        { "id": "00002a04-0000-1000-8000-00805f9b34fb", "name": "peripheral\npreferred\nconnection\nparameters", "format": "BOOLEAN"},
         { "id": "00002a03-0000-1000-8000-00805f9b34fb", "name": "reconnection address", "format": "UNIT48"}
       ]
     }, {

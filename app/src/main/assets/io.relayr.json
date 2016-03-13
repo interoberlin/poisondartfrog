@@ -13,13 +13,13 @@
       "id": "00002002-0000-1000-8000-00805f9b34fb",
       "name": "direct connection",
       "characteristics": [
-        { "id": "00002011-0000-1000-8000-00805f9b34fb", "name": "sensor beacon frequency", "format": "UINT8"},
-        { "id": "00002012-0000-1000-8000-00805f9b34fb", "name": "sensor frequency", "format": "UINT8"},
-        { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "sensor led state", "format": "STRING", "read": "NEVER"},
-        { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "sensor threshold", "format": "UINT8"},
-        { "id": "00002015-0000-1000-8000-00805f9b34fb", "name": "sensor configuration", "format": "UINT8"},
-        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "sensor data", "format": "RELAYR", "read": "CYCLIC"},
-        { "id": "00002017-0000-1000-8000-00805f9b34fb", "name": "sensor send command", "format": "UINT8"}
+        { "id": "00002011-0000-1000-8000-00805f9b34fb", "name": "beacon frequency", "format": "UINT8"},
+        { "id": "00002012-0000-1000-8000-00805f9b34fb", "name": "frequency", "format": "UINT8"},
+        { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "led state", "format": "STRING", "read": "NEVER"},
+        { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "threshold", "format": "UINT8"},
+        { "id": "00002015-0000-1000-8000-00805f9b34fb", "name": "configuration", "format": "UINT8"},
+        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "data", "format": "RELAYR", "read": "CYCLIC"},
+        { "id": "00002017-0000-1000-8000-00805f9b34fb", "name": "send command", "format": "UINT8"}
       ]
     }
   ]

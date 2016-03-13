@@ -155,9 +155,11 @@ public class DevicesAdapter extends ArrayAdapter<ExtendedBluetoothDevice> {
                 BluetoothLeService service = devicesActivity.getBluetoothLeService();
 
                 if (!device.isReading()) {
+                    device.setReading(true);
                     devicesActivity.snack("Started reading");
                     device.readNextCharacteristic(service);
                 } else {
+                    device.setReading(false);
                     devicesActivity.snack("Stopped reading");
                     device.stopReading();
                 }

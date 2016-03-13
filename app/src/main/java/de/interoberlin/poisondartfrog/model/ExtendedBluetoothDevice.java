@@ -218,6 +218,7 @@ public class ExtendedBluetoothDevice {
                     break;
                 case RELAYR:
                     value = RelayrDataParser.getFormattedValue(EBluetoothDeviceType.fromString(device.getName()), characteristic.getValue());
+                    value = value.replaceAll(",", ",\n");
                     break;
             }
 
