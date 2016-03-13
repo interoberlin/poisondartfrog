@@ -27,10 +27,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
+import de.interoberlin.poisondartfrog.util.Configuration;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
@@ -121,7 +123,16 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                     }
                 }
 
-                updateListView();
+                if (device.getLastReadCharacteristic() == device.getCharacteristics().size()-1) {
+                    updateListView();
+
+                    int SCAN_PERIOD = Configuration.getIntProperty(App.getContext(), getResources().getString(R.string.scan_period));
+                    try {
+                        Thread.sleep(SCAN_PERIOD);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     };

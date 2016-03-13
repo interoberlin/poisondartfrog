@@ -18,8 +18,8 @@
         { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "sensor led state", "format": "STRING", "read": "NEVER"},
         { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "sensor threshold", "format": "UINT8"},
         { "id": "00002015-0000-1000-8000-00805f9b34fb", "name": "sensor configuration", "format": "UINT8"},
-        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "sensor_data", "format": "UINT8", "read": "CYCLIC"},
-        { "id": "00002017-0000-1000-8000-00805f9b34fb", "name": "sensor_send_command", "format": "UINT8"}
+        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "sensor data", "format": "UINT8", "read": "CYCLIC"},
+        { "id": "00002017-0000-1000-8000-00805f9b34fb", "name": "sensor send command", "format": "UINT8"}
       ]
     }
   ]

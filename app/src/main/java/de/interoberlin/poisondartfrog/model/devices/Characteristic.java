@@ -4,7 +4,7 @@ public class Characteristic {
     private String id;
     private String name;
     private EFormat format;
-    private ERead read;
+    private ERead read = ERead.ONCE;
 
     public enum EFormat {
         STRING,

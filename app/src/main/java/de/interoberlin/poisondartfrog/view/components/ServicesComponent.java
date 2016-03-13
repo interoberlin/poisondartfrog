@@ -43,7 +43,7 @@ public class ServicesComponent extends TableLayout {
             else
                 tvService.setText(serviceId.toString());
 
-            tvService.setPadding(0, 10, 0, 0);
+            tvService.setPadding(0, 15, 0, 0);
             tvService.setTypeface(null, Typeface.BOLD);
             tvService.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
             tvService.setTextAppearance(context, android.R.style.TextAppearance_Small);
@@ -66,7 +66,7 @@ public class ServicesComponent extends TableLayout {
                 }
                 tvCharacteristic.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 tvCharacteristic.setTextAppearance(context, android.R.style.TextAppearance_Small);
-                tvCharacteristic.setPadding(40, 0, 40, 0);
+                tvCharacteristic.setPadding(20, 0, 40, 0);
 
                 if (characteristic.getValue() != null && characteristic.getValue().length != 0) {
                     String characteristicValue = ExtendedBluetoothDevice.parseValue(characteristic);

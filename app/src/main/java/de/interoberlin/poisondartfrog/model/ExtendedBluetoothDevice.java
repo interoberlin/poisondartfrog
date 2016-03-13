@@ -62,7 +62,14 @@ public class ExtendedBluetoothDevice {
                         readNextCharacteristic(service);
                         break;
                     }
-                    case ONCE: {
+
+                    case CYCLIC: {
+                        readCharacteristicTask = new ReadCharacteristicTask(service);
+                        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                        break;
+                    }
+                    case ONCE:
+                    default: {
                         if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
                             readCharacteristicTask = new ReadCharacteristicTask(service);
                             readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
@@ -74,11 +81,6 @@ public class ExtendedBluetoothDevice {
                             incrementLastReadCharacteristic();
                             readNextCharacteristic(service);
                         }
-                        break;
-                    }
-                    case CYCLIC: {
-                        readCharacteristicTask = new ReadCharacteristicTask(service);
-                        readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
                         break;
                     }
                 }
@@ -107,7 +109,8 @@ public class ExtendedBluetoothDevice {
     public void stopReading() {
         setReading(false);
 
-        readCharacteristicTask.cancel(true);
+        if (readCharacteristicTask != null)
+            readCharacteristicTask.cancel(true);
     }
 
     public String getAddress() {
