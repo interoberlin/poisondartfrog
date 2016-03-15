@@ -1,0 +1,13 @@
+def version = versionMajor + '.' + versionMinor + '.' + versionPatch
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+            pom.groupId = groupId
+            pom.artifactId = artifactId
+            if (System.getenv("BUILD_NUMBER") != null)
+                pom.version = versionMajor + '.' + versionMinor + '.' + versionPatch
+        }
+    }
+}

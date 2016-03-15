@@ -1,25 +1,102 @@
 apply plugin: 'com.android.application'
 // This does not break the build when Android Studio is missing the JRebel for Android plugin.
 apply plugin: 'com.zeroturnaround.jrebel.android'
+apply plugin: 'maven'
+
+apply from: 'fdroid.gradle'
+apply from: 'javadoc.gradle'
+apply from: 'maven.gradle'
+
+import java.util.regex.Pattern
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.3.0'
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "http://maven.interoberlin.de"
+    }
+}
+
+ext.versionPatch = project.hasProperty('patch') ? project.getProperty('patch') : versionPatch
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "de.interoberlin.poisondartfrog"
+        applicationId groupId + '.' + artifactId
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 1
-        versionName "0.6"
+        versionCode versionPatch as Integer ?: 0
+        versionName versionMajor + "." + versionMinor + "." + versionPatch
     }
-    buildTypes {
+
+    signingConfigs {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("KEYSTORE") != null)
+                storeFile file(System.getenv("KEYSTORE"))
+            if (System.getenv("KEYSTORE_PASSWORD") != null)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+            if (System.getenv("KEY_ALIAS") != null)
+                keyAlias System.getenv("KEY_ALIAS")
+            if (System.getenv("KEY_PASSWORD") != null)
+                keyPassword System.getenv("KEY_PASSWORD")
         }
     }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
+
+// --------------------
+// Properties injection
+// --------------------
+
+task copyPropertiesDebug(type: Copy, dependsOn: "injectProperties") {
+    from '../gradle.properties'
+    into 'src/main/assets'
+}
+
+task copyPropertiesRelease(type: Copy, dependsOn: "injectProperties") {
+    from '../gradle.properties'
+    into 'src/main/assets'
+}
+
+task injectProperties() {
+    def propertiesFile = file('../gradle.properties')
+
+    def patternVersionPatch = Pattern.compile("versionPatch=.*")
+    def propertiesText = propertiesFile.getText()
+    def matcherVersionPatch = patternVersionPatch.matcher(propertiesText)
+    matcherVersionPatch.find()
+    def propertiesContent = matcherVersionPatch.replaceAll("versionPatch=" + versionPatch)
+    propertiesFile.write(propertiesContent)
+}
+
+assembleDebug.dependsOn(copyPropertiesDebug)
+assembleRelease.dependsOn(copyPropertiesRelease)
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
