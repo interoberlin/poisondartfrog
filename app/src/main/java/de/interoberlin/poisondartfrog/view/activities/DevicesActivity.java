@@ -116,22 +116,22 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
                     Log.d(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
                     device.updateCharacteristicValue(characteristicId, characteristicValue);
+                    updateListView();
 
                     if (device.isReading()) {
+                        int SCAN_PERIOD = Configuration.getIntProperty(App.getContext(), getResources().getString(R.string.scan_period));
+                        try {
+                            Thread.sleep(SCAN_PERIOD);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         device.incrementLastReadCharacteristic();
                         device.readNextCharacteristic(getBluetoothLeService());
                     }
                 }
 
                 if (device.getLastReadCharacteristic() == device.getCharacteristics().size()-1) {
-                    updateListView();
 
-                    int SCAN_PERIOD = Configuration.getIntProperty(App.getContext(), getResources().getString(R.string.scan_period));
-                    try {
-                        Thread.sleep(SCAN_PERIOD);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         }

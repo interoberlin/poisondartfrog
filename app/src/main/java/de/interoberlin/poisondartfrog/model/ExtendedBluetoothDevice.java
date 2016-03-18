@@ -13,6 +13,7 @@ import de.interoberlin.poisondartfrog.model.devices.Characteristic;
 import de.interoberlin.poisondartfrog.model.devices.PropertyMapper;
 import de.interoberlin.poisondartfrog.model.parser.RelayrDataParser;
 import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
+import de.interoberlin.poisondartfrog.model.tasks.SubscribeCharacteristicTask;
 
 /**
  * Represents a tuple of a device and a set of characteristics
@@ -25,6 +26,7 @@ public class ExtendedBluetoothDevice {
     private List<BluetoothGattCharacteristic> characteristics;
 
     private ReadCharacteristicTask readCharacteristicTask;
+    private SubscribeCharacteristicTask subscribeCharacteristicTask;
     private int lastReadCharacteristic;
 
     private boolean reading;
@@ -67,6 +69,11 @@ public class ExtendedBluetoothDevice {
                     case CYCLIC: {
                         readCharacteristicTask = new ReadCharacteristicTask(service);
                         readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
+                        break;
+                    }
+                    case SUBSCRIBE: {
+                        subscribeCharacteristicTask = new SubscribeCharacteristicTask(service);
+                        subscribeCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
                         break;
                     }
                     case ONCE:
@@ -224,20 +231,6 @@ public class ExtendedBluetoothDevice {
 
             return value;
         } else {
-
-        /*
-        Log.i(TAG, characteristic.getUuid().toString());
-        Log.i(TAG, "INT UINT8 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
-        Log.i(TAG, "INT UINT16 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
-        Log.i(TAG, "INT UINT32 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
-        Log.i(TAG, "INT FORMAT_SINT8 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
-        Log.i(TAG, "INT FORMAT_SINT16 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
-        Log.i(TAG, "INT FORMAT_SINT32 " + characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
-        Log.i(TAG, "INT FORMAT_SFLOAT " + characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
-        Log.i(TAG, "INT FORMAT_FLOAT " + characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
-        Log.i(TAG, " ");
-        */
-
             return new String(characteristic.getValue()).replaceAll(" ", "");
         }
     }

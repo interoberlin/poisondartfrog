@@ -22,7 +22,8 @@ public class Characteristic {
     public enum ERead {
         NEVER,
         ONCE,
-        CYCLIC;
+        CYCLIC,
+        SUBSCRIBE;
     }
 
     // --------------------
