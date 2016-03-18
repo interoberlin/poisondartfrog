@@ -4,7 +4,7 @@ public class Characteristic {
     private String id;
     private String name;
     private EFormat format;
-    private ERead read;
+    private ERead read = ERead.ONCE;
 
     public enum EFormat {
         STRING,
@@ -15,13 +15,15 @@ public class Characteristic {
         SINT16,
         SINT32,
         SFLOAT,
-        FLOAT;
+        FLOAT,
+        RELAYR;
     }
 
     public enum ERead {
         NEVER,
         ONCE,
-        CYCLIC;
+        CYCLIC,
+        SUBSCRIBE;
     }
 
     // --------------------
