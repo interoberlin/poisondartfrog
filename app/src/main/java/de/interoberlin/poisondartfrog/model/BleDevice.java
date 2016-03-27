@@ -116,7 +116,6 @@ public class BleDevice {
     }
 
     public Subscription subscribe() {
-        reading = true;
         return connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
