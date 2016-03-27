@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,8 +31,9 @@ import android.widget.Toast;
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
-import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
+import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.util.Configuration;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
@@ -40,21 +42,17 @@ import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
+    private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
 
     // Model
     private DevicesAdapter devicesAdapter;
-
-    // View
-    private RelativeLayout rlContent;
-    private Toolbar toolbar;
-    private FloatingActionButton fab;
-    private ListView lv;
 
     // Controller
     private DevicesController devicesController;
 
     private BluetoothAdapter bluetoothAdapter;
     private final static int REQUEST_ENABLE_BT = 1;
+    private final static int REQUEST_ENABLE_LOCATION = 2;
 
     private Handler handler;
 
@@ -63,10 +61,12 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             Log.i(TAG, "Service connected");
-            if (service == null)
-                Log.e(TAG, "service is null");
+            if (service != null) {
+                bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            } else {
+                Log.e(TAG, "Service is null");
+            }
 
-            bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!bluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
@@ -102,13 +102,13 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 Log.i(TAG, "Gatt disconnected from " + deviceAddress);
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.i(TAG, "Gatt services discovered");
-                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
-                device.setGattServices(bluetoothLeService.getSupportedGattServices());
+                BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
+                device.setServices(bluetoothLeService.getSupportedGattServices());
                 Log.i(TAG, device.toString());
 
                 updateListView();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                ExtendedBluetoothDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
+                final BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
 
                 if (device != null) {
                     int index = device.getLastReadCharacteristic() + 1;
@@ -116,9 +116,8 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
                     Log.d(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
                     device.updateCharacteristicValue(characteristicId, characteristicValue);
-                    updateListView();
 
-                    if (device.isReading()) {
+                    if (device.isReading() && device.getLastReadCharacteristic() < device.getCharacteristics().size()-1) {
                         int SCAN_PERIOD = Configuration.getIntProperty(App.getContext(), getResources().getString(R.string.scan_period));
                         try {
                             Thread.sleep(SCAN_PERIOD);
@@ -127,11 +126,10 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                         }
                         device.incrementLastReadCharacteristic();
                         device.readNextCharacteristic(getBluetoothLeService());
+                    } else {
+                        device.setReading(false);
+                        updateListView();
                     }
-                }
-
-                if (device.getLastReadCharacteristic() == device.getCharacteristics().size()-1) {
-
                 }
             }
         }
@@ -147,6 +145,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         setContentView(R.layout.activity_devices);
 
         requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        requestPermission(Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -161,31 +160,18 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
 
         // Load layout
-        rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        lv = (ListView) findViewById(R.id.lv);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final ListView lv = (ListView) findViewById(R.id.lv);
 
         lv.setAdapter(devicesAdapter);
         setSupportActionBar(toolbar);
 
-        // Check BLE support
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.bt_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        checkBleSupport();
+        initBleAdapter();
 
-        // Initializes Bluetooth adapter.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
-
-        // Ensures Bluetooth is available on the device and it is enabled. If not,
-        // displays a dialog requesting user permission to enable Bluetooth.
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
+        requestEnableBluetooth();
+        requestEnableLocation();
 
         // Add actions
         final long[] times = new long[2];
@@ -246,7 +232,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
-        if (devicesController.attach(bluetoothLeService, new ExtendedBluetoothDevice(device))) {
+        if (devicesController.attach(bluetoothLeService, new BleDevice(device, BleDeviceManager.getInstance()))) {
             updateListView();
             snack(R.string.attached_device);
         } else {
@@ -255,7 +241,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     @Override
-    public void onDetachDevice(ExtendedBluetoothDevice device) {
+    public void onDetachDevice(BleDevice device) {
         if (devicesController.detach(bluetoothLeService, device)) {
             updateListView();
             snack(R.string.detached_device);
@@ -268,65 +254,38 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     // Methods
     // --------------------
 
-    private void scanLeDevice(final boolean enable, final long scanPeriod) {
-        if (enable) {
-            devicesController.getScannedDevices().clear();
-            handler = new Handler();
-
-            // Stops scanning after a pre-defined scan period.
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothAdapter.stopLeScan(DevicesActivity.this);
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            if (!devicesController.getScannedDevices().isEmpty()) {
-                                ScanResultsDialog dialog = new ScanResultsDialog();
-                                Bundle b = new Bundle();
-                                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-                                dialog.setArguments(b);
-                                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
-                            } else {
-                                snack(R.string.no_devices_found);
-                            }
-                        }
-                    }, 0);
-                }
-            }, scanPeriod);
-
-            bluetoothAdapter.startLeScan(this);
-        } else {
-            bluetoothAdapter.stopLeScan(this);
+    private void checkBleSupport() {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.bt_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
-    /**
-     * Displays a snack with a given {@code text}
-     *
-     * @param text text resource
-     */
-    public void snack(int text) {
-        Snackbar.make(rlContent, getResources().getString(text), Snackbar.LENGTH_LONG)
-                .show();
+    private void initBleAdapter() {
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
     }
 
-    /**
-     * Displays a snack with a given {@code text}
-     *
-     * @param text text resource
-     */
-    public void snack(String text) {
-        Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    private boolean isBluetoothEnabled() {
+        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
-    /**
-     * Updates the list view
-     */
-    public void updateListView() {
-        final ListView lv = (ListView) findViewById(R.id.lv);
+    private boolean isLocationEnabled() {
+        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
 
-        devicesAdapter.filter();
-        lv.invalidateViews();
+    private void requestEnableBluetooth() {
+        if (!isBluetoothEnabled()) {
+            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE_BT);
+        }
+    }
+
+    private void requestEnableLocation() {
+        if (!isLocationEnabled()) {
+            startActivityForResult(new Intent(
+                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_ENABLE_LOCATION);
+        }
     }
 
     /**
@@ -367,6 +326,69 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
+    }
+
+    private void scanLeDevice(final boolean enable, final long scanPeriod) {
+        if (enable) {
+            devicesController.getScannedDevices().clear();
+            handler = new Handler();
+
+            // Stops scanning after a pre-defined scan period.
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothAdapter.stopLeScan(DevicesActivity.this);
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            if (!devicesController.getScannedDevices().isEmpty()) {
+                                ScanResultsDialog dialog = new ScanResultsDialog();
+                                Bundle b = new Bundle();
+                                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                                dialog.setArguments(b);
+                                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                            } else {
+                                snack(R.string.no_devices_found);
+                            }
+                        }
+                    }, 0);
+                }
+            }, scanPeriod);
+
+            bluetoothAdapter.startLeScan(this);
+        } else {
+            bluetoothAdapter.stopLeScan(this);
+        }
+    }
+
+    /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text text resource
+     */
+    public void snack(int text) {
+        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        Snackbar.make(rlContent, getResources().getString(text), Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text text resource
+     */
+    public void snack(String text) {
+        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
+     * Updates the list view
+     */
+    public void updateListView() {
+        final ListView lv = (ListView) findViewById(R.id.lv);
+
+        devicesAdapter.filter();
+        lv.invalidateViews();
     }
 
     // --------------------

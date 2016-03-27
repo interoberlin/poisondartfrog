@@ -11,8 +11,9 @@ import android.widget.TextView;
 import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
-import de.interoberlin.poisondartfrog.model.devices.PropertyMapper;
+import de.interoberlin.poisondartfrog.model.config.PropertyMapper;
+import de.interoberlin.poisondartfrog.model.parser.ValueParser;
+import de.interoberlin.poisondartfrog.model.BleDevice;
 
 public class ServicesComponent extends TableLayout {
     // --------------------
@@ -23,14 +24,14 @@ public class ServicesComponent extends TableLayout {
         super(context);
     }
 
-    public ServicesComponent(Context context, ExtendedBluetoothDevice device) {
+    public ServicesComponent(Context context, BleDevice device) {
         super(context);
 
         TableLayout.LayoutParams lp = new TableLayout.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, (int) context.getResources().getDimension(R.dimen.card_margin), 0, 0);
         setLayoutParams(lp);
 
-        for (BluetoothGattService service : device.getGattServices()) {
+        for (BluetoothGattService service : device.getServices()) {
             TableRow trService = new TableRow(context);
             trService.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
@@ -68,7 +69,7 @@ public class ServicesComponent extends TableLayout {
                 tvCharacteristic.setPadding(20, 0, 40, 0);
 
                 if (characteristic.getValue() != null && characteristic.getValue().length != 0) {
-                    String characteristicValue = ExtendedBluetoothDevice.parseValue(device.getDevice(), characteristic);
+                    String characteristicValue = ValueParser.parseValue(device, characteristic);
                     tvValue.setText(" " + characteristicValue);
                     tvValue.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                     tvValue.setTextAppearance(context, android.R.style.TextAppearance_Small);

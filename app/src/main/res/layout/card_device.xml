@@ -98,7 +98,16 @@
 
                     <!-- Connect -->
                     <ImageView
-                        android:id="@+id/ivConnect"
+                        android:id="@+id/ivRead"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/scan"
+                        android:padding="@dimen/icon_padding"
+                        android:src="@drawable/ic_play_arrow_black_36dp" />
+
+                    <!-- Subscribe -->
+                    <ImageView
+                        android:id="@+id/ivSubscribe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/scan"

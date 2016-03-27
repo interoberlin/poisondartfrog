@@ -1,11 +1,11 @@
-package de.interoberlin.poisondartfrog.model.devices;
+package de.interoberlin.poisondartfrog.model.config;
 
 import java.util.List;
 
-public class Service {
+public class Device {
     private String id;
     private String name;
-    private List<Characteristic> characteristics;
+    private List<Service> services;
 
     // --------------------
     // Getters / Setters
@@ -27,11 +27,11 @@ public class Service {
         this.name = name;
     }
 
-    public List<Characteristic> getCharacteristics() {
-        return characteristics;
+    public List<Service> getServices() {
+        return services;
     }
 
-    public void setCharacteristics(List<Characteristic> characteristics) {
-        this.characteristics = characteristics;
+    public void setServices(List<Service> services) {
+        this.services = services;
     }
 }

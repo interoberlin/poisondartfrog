@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.devices;
+package de.interoberlin.poisondartfrog.model.config;
 
 public class Characteristic {
     private String id;
@@ -22,8 +22,7 @@ public class Characteristic {
     public enum ERead {
         NEVER,
         ONCE,
-        CYCLIC,
-        SUBSCRIBE;
+        SUBSCRIBE,
     }
 
     // --------------------

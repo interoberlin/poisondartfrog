@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.devices;
+package de.interoberlin.poisondartfrog.model.config;
 
 
 import android.content.Context;

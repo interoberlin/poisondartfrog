@@ -18,7 +18,7 @@
         { "id": "00002013-0000-1000-8000-00805f9b34fb", "name": "led state", "format": "STRING", "read": "NEVER"},
         { "id": "00002014-0000-1000-8000-00805f9b34fb", "name": "threshold", "format": "UINT8"},
         { "id": "00002015-0000-1000-8000-00805f9b34fb", "name": "configuration", "format": "UINT8"},
-        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "data", "format": "RELAYR", "read": "CYCLIC"},
+        { "id": "00002016-0000-1000-8000-00805f9b34fb", "name": "data", "format": "RELAYR", "read": "SUBSCRIBE"},
         { "id": "00002017-0000-1000-8000-00805f9b34fb", "name": "send command", "format": "UINT8"}
       ]
     }

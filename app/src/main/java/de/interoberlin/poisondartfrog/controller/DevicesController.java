@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
-import de.interoberlin.poisondartfrog.model.ExtendedBluetoothDevice;
+import de.interoberlin.poisondartfrog.model.BleDevice;
 
 public class DevicesController {
     public static final String TAG = DevicesController.class.getSimpleName();
 
     private Map<String, BluetoothDevice> scannedDevices;
-    private Map<String, ExtendedBluetoothDevice> attachedDevices;
+    private Map<String, BleDevice> attachedDevices;
 
     private static DevicesController instance;
 
@@ -47,7 +47,7 @@ public class DevicesController {
      * @param device  device
      * @return true, if it worked
      */
-    public boolean attach(BluetoothLeService service, ExtendedBluetoothDevice device) {
+    public boolean attach(BluetoothLeService service, BleDevice device) {
         Log.i(TAG, "Attach " + device.getName());
 
         if (service != null) {
@@ -70,7 +70,7 @@ public class DevicesController {
      * @param device  device
      * @return true, if it worked
      */
-    public boolean detach(BluetoothLeService service, ExtendedBluetoothDevice device) {
+    public boolean detach(BluetoothLeService service, BleDevice device) {
         if (service != null) {
             service.disconnect();
             device.setConnected(false);
@@ -84,7 +84,7 @@ public class DevicesController {
         return false;
     }
 
-    public ExtendedBluetoothDevice getAttachedDeviceByAdress(String address) {
+    public BleDevice getAttachedDeviceByAdress(String address) {
         return getAttachedDevices().get(address);
     }
 
@@ -100,11 +100,11 @@ public class DevicesController {
         return new ArrayList<>(getScannedDevices().values());
     }
 
-    public Map<String, ExtendedBluetoothDevice> getAttachedDevices() {
+    public Map<String, BleDevice> getAttachedDevices() {
         return attachedDevices;
     }
 
-    public List<ExtendedBluetoothDevice> getAttachedDevicesAsList() {
+    public List<BleDevice> getAttachedDevicesAsList() {
         return new ArrayList<>(getAttachedDevices().values());
     }
 }
