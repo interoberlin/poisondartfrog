@@ -1,6 +1,5 @@
 package de.interoberlin.poisondartfrog.model.parser;
 
-/** {@link io.relayr.java.model.action.Reading#value} for Wunderbar's LightProximityColor sensor. */
 public class LightColorProx {
 
     public long ts;     //"ts":1400776389653,
@@ -8,9 +7,6 @@ public class LightColorProx {
     public Color clr;   //"clr":{"r":65535,"g":65535,"b":65535}, //format: 16 bit unsigned, range: 0-65535
     public long prox;   //"prox":65535
 
-    /**
-     * {@link io.relayr.java.model.action.Reading#value} for Wunderbar's LightProximityColor sensor.
-     */
     public static class Color {
         public final int red;
         public final int green;

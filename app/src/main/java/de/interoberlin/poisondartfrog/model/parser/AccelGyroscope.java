@@ -1,8 +1,5 @@
 package de.interoberlin.poisondartfrog.model.parser;
 
-/**
- * {@link io.relayr.java.model.action.Reading#value} for Wunderbar's Accelerometer sensor.
- */
 public class AccelGyroscope {
 
     public long ts; //":1400776389653, //Timestamp

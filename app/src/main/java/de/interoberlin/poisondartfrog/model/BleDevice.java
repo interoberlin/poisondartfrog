@@ -14,11 +14,11 @@ import de.interoberlin.poisondartfrog.model.config.PropertyMapper;
 import de.interoberlin.poisondartfrog.model.parser.RelayrDataParser;
 import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
-import de.interoberlin.poisondartfrog.model.util.DeviceCompatibilityUtils;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
 import de.interoberlin.poisondartfrog.model.tasks.SubscribeCharacteristicTask;
+import de.interoberlin.poisondartfrog.model.util.DeviceCompatibilityUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -144,7 +144,6 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        // TODO
                         Log.i(TAG, reading.toString());
                     }
                 });

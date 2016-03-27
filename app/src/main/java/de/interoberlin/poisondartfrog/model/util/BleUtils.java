@@ -42,8 +42,6 @@ public class BleUtils {
     }
 
     public void promptUserToActivateBluetooth(Activity activity) {
-        // if (!RelayrSdk.isPermissionGrantedBluetooth()) return;
-
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
@@ -51,7 +49,6 @@ public class BleUtils {
     }
 
     protected int getBleStatus() {
-        // if (!RelayrSdk.isPermissionGrantedBluetooth()) return STATUS_BLE_NOT_AVAILABLE;
         if (!isBleSupported()) return STATUS_BLE_NOT_AVAILABLE;
 
         return mBluetoothAdapter == null ? STATUS_BLUETOOTH_NOT_AVAILABLE :

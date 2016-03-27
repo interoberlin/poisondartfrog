@@ -49,32 +49,6 @@ public class BluetoothGattReceiver extends BluetoothGattCallback {
             }
         });
     }
-//    private static final int GATT_ERROR = 133;
-//    private static final int GATT_AUTH_FAILED = 137;
-//    private static final int CONNECTION_TERMINATED_LOCAL_HOST = 22;
-//    private static final int CONNECTION_TIMEOUT = 8;
-//    private static final int CONNECTION_FAILED_TO_ESTABLISH = 62;
-//
-//    static class GattErrorStuff {
-//
-//        static boolean isGattError(int status) {
-//            return status == GATT_ERROR || status == GATT_AUTH_FAILED ||
-//                    status == CONNECTION_TERMINATED_LOCAL_HOST || status == CONNECTION_TIMEOUT;
-//        }
-//
-//        static boolean isConnectionError(int status) {
-//            return status == CONNECTION_FAILED_TO_ESTABLISH;
-//        }
-//
-//        static void tryToReconnect(BluetoothGatt gatt, BluetoothGattReceiver receiver) {
-//            gatt.getDevice().connectGatt(RelayrApp.get(), false, receiver);
-//        }
-//
-//        static void fixGattError(BluetoothGatt gatt, BluetoothGattReceiver receiver) {
-//            DeviceCompatibilityUtils.refresh(gatt);
-//            gatt.getDevice().connectGatt(RelayrApp.get(), false, receiver);
-//        }
-//    }
 
     static class UndocumentedBleStuff {
 
