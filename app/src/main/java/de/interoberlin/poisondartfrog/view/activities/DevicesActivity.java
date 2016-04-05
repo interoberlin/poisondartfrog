@@ -232,7 +232,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
-        if (devicesController.attach(bluetoothLeService, new BleDevice(device, BleDeviceManager.getInstance()))) {
+        if (devicesController.attach(bluetoothLeService, new BleDevice(this, device, BleDeviceManager.getInstance()))) {
             updateListView();
             snack(R.string.attached_device);
         } else {

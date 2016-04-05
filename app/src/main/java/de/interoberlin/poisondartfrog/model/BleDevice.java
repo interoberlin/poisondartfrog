@@ -1,5 +1,6 @@
 package de.interoberlin.poisondartfrog.model;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -17,8 +18,8 @@ import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
-import de.interoberlin.poisondartfrog.model.tasks.SubscribeCharacteristicTask;
 import de.interoberlin.poisondartfrog.model.util.DeviceCompatibilityUtils;
+import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -33,12 +34,14 @@ import rx.functions.Func1;
 public class BleDevice {
     public static final String TAG = BleDevice.class.getSimpleName();
 
+    private static final String CHARACTERISTIC_SENSOR_DATA = "2016";
+
+    private final Activity activity;
     private final BluetoothDevice device;
     private final String name;
     private final String address;
     private final EBluetoothDeviceType type;
 
-    private int rssi;
     private final BleDeviceManager deviceManager;
     private final Observable<? extends BaseService> serviceObservable;
 
@@ -51,7 +54,6 @@ public class BleDevice {
     private boolean scanning;
 
     private ReadCharacteristicTask readCharacteristicTask;
-    private SubscribeCharacteristicTask subscribeCharacteristicTask;
 
     private int lastReadCharacteristic;
 
@@ -59,17 +61,13 @@ public class BleDevice {
     // Constructors
     // --------------------
 
-    public BleDevice(BluetoothDevice device, BleDeviceManager manager) {
-        this(device, manager, 0);
-    }
-
-    public BleDevice(BluetoothDevice device, BleDeviceManager manager, int rssi) {
+    public BleDevice(Activity activity, BluetoothDevice device, BleDeviceManager manager) {
+        this.activity = activity;
         this.device = device;
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EBluetoothDeviceType.fromString(device.getName());
 
-        this.rssi = rssi;
         this.deviceManager = manager;
         this.serviceObservable = DirectConnectionService.connect(this, device).cache();
 
@@ -141,10 +139,16 @@ public class BleDevice {
                     public void onError(Throwable e) {
                     }
 
-
                     @Override
                     public void onNext(Reading reading) {
                         Log.i(TAG, reading.toString());
+                        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+                            if (c.getUuid().toString().contains(CHARACTERISTIC_SENSOR_DATA))
+                                c.setValue(reading.toString());
+                        }
+
+                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                        devicesActivity.updateListView();
                     }
                 });
     }
