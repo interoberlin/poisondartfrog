@@ -19,10 +19,11 @@ public abstract class Utils {
 
     public static BluetoothGattCharacteristic getCharacteristicForUuid(
             List<BluetoothGattCharacteristic> characteristics,
-            String shortUuid) {
+            String uuid) {
         for (BluetoothGattCharacteristic characteristic: characteristics) {
-            String serviceUuid = BleUtils.getShortUUID(characteristic.getUuid());
-            if (shortUuid.equals(serviceUuid)) return characteristic;
+            String shortUuid = BleUtils.getShortUUID(characteristic.getUuid());
+            String longUuid = BleUtils.getLongUUID(characteristic.getUuid());
+            if (uuid.equals(shortUuid) || uuid.equals(longUuid)) return characteristic;
         }
         return null;
     }

@@ -10,14 +10,6 @@ public class Reading {
 
     /** Timestamp - when reading is saved to device state */
     public final long ts;
-
-    /**
-     * Every device has a {@link DeviceModel} which defines all device readings.
-     * Every {@link DeviceReading} has a {@link DeviceReading#meaning}.
-     * Details for every reading can be found in {@link DeviceReading#getValueSchema()}
-     * Details about device readings can be obtained using {@link DeviceModelCache#getModelById(String)}
-     * where modelId is {@link Device#getModelId()}.
-     */
     public final String meaning;
 
     /**
@@ -25,8 +17,6 @@ public class Reading {
      * they will be identified with the path.
      */
     public final String path;
-
-    /** Reading value is determined by {@link DeviceReading#getValueSchema()} */
     public final Object value;
 
     public Reading(long received, long recorded, String meaning, String path, Object value) {

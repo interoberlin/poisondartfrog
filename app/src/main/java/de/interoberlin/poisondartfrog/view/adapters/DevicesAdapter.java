@@ -18,8 +18,8 @@ import java.util.List;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
-import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
+import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
 import rx.Subscription;
@@ -148,20 +148,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         ivRead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                BluetoothLeService service = devicesActivity.getBluetoothLeService();
-
-                if (!device.isReading()) {
-                    devicesActivity.updateListView();
-                    devicesActivity.snack("Started reading");
-                    device.setLastReadCharacteristic(0);
-                    device.clearValues();
-                    device.readNextCharacteristic(service);
-                } else {
-                    devicesActivity.updateListView();
-                    devicesActivity.snack("Stopped reading");
-                    device.stopReading();
-                }
+                device.read(DirectConnectionService.CHARACTERISTIC_SENSOR_DATA);
             }
         });
 
@@ -172,7 +159,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                 if (!device.isSubscribing()) {
                     device.setSubscribing(true);
-                    deviceSubscription = device.subscribe();
+                    deviceSubscription = device.subscribe(DirectConnectionService.CHARACTERISTIC_SENSOR_DATA);
                     devicesActivity.updateListView();
                     devicesActivity.snack("Started subscription");
                 } else {

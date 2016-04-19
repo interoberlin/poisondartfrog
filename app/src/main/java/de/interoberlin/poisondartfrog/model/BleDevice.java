@@ -17,24 +17,19 @@ import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
-import de.interoberlin.poisondartfrog.model.tasks.ReadCharacteristicTask;
-import de.interoberlin.poisondartfrog.model.util.DeviceCompatibilityUtils;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 
 /**
- * A class representing a relayr BLE Device
+ * A class representing a BLE Device
  */
 public class BleDevice {
     public static final String TAG = BleDevice.class.getSimpleName();
-
-    private static final String CHARACTERISTIC_SENSOR_DATA = "2016";
 
     private final Activity activity;
     private final BluetoothDevice device;
@@ -48,14 +43,8 @@ public class BleDevice {
     private List<BluetoothGattService> services;
     private List<BluetoothGattCharacteristic> characteristics;
 
-    private boolean connected;
     private boolean reading;
     private boolean subscribing;
-    private boolean scanning;
-
-    private ReadCharacteristicTask readCharacteristicTask;
-
-    private int lastReadCharacteristic;
 
     // --------------------
     // Constructors
@@ -73,7 +62,6 @@ public class BleDevice {
 
         this.services = new ArrayList<>();
         this.reading = false;
-        this.connected = false;
     }
 
     // --------------------
@@ -95,30 +83,17 @@ public class BleDevice {
                 });
     }
 
-    public void refreshGatt() {
-        serviceObservable
-                .flatMap(new Func1<BaseService, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(final BaseService service) {
-                        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-                            @Override
-                            public void call(Subscriber<? super Boolean> subscriber) {
-                                service.getGatt().disconnect();
-                                service.getGatt().close();
-                                DeviceCompatibilityUtils.refresh(service.getGatt());
-                            }
-                        });
-                    }
-                })
-                .subscribe();
-    }
-
-    public Subscription subscribe() {
+    /**
+     * Reads a single value from a characteristic
+     * @param id uuid of the characteristic
+     * @return subscription
+     */
+    public Subscription read(final String id) {
         return connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
                     public Observable<Reading> call(BaseService baseService) {
-                        return ((DirectConnectionService) baseService).getReadings();
+                        return ((DirectConnectionService) baseService).read(id);
                     }
                 })
                 .doOnUnsubscribe(new Action0() {
@@ -141,10 +116,10 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        Log.i(TAG, reading.toString());
+                        Log.i(TAG, reading.meaning + " " + reading.value.toString());
                         for (BluetoothGattCharacteristic c : getCharacteristics()) {
-                            if (c.getUuid().toString().contains(CHARACTERISTIC_SENSOR_DATA))
-                                c.setValue(reading.toString());
+                            if (c.getUuid().toString().contains(id))
+                                c.setValue(reading.value.toString());
                         }
 
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
@@ -153,75 +128,50 @@ public class BleDevice {
                 });
     }
 
-    public void readNextCharacteristic(BluetoothLeService service) {
-        setReading(true);
-
-        if (getCharacteristics() != null && !getCharacteristics().isEmpty()) {
-            BluetoothGattCharacteristic characteristic = getCharacteristics().get(lastReadCharacteristic);
-            Characteristic c = PropertyMapper.getInstance().getCharacteristicById(characteristic.getUuid());
-
-            Log.d(TAG, c.getId() + " " + c.getName());
-
-            if (c != null && c.getRead() != null) {
-                switch (c.getRead()) {
-                    case NEVER:
-                    case SUBSCRIBE: {
-                        int index = getLastReadCharacteristic() + 1;
-                        int total = getCharacteristics().size();
-                        Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
-
-                        incrementLastReadCharacteristic();
-                        readNextCharacteristic(service);
-                        break;
-                    }
-                    case ONCE:
-                    default: {
-                        if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
-                            readCharacteristicTask = new ReadCharacteristicTask(service);
-                            readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
-                        } else {
-                            int index = getLastReadCharacteristic() + 1;
-                            int total = getCharacteristics().size();
-                            Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
-
-                            incrementLastReadCharacteristic();
-                            readNextCharacteristic(service);
-                        }
-                        break;
-                    }
-                }
-            } else {
-                if (characteristic.getValue() == null || characteristic.getValue().length == 0) {
-                    readCharacteristicTask = new ReadCharacteristicTask(service);
-                    readCharacteristicTask.execute(getCharacteristics().get(lastReadCharacteristic));
-                } else {
-                    int index = getLastReadCharacteristic() + 1;
-                    int total = getCharacteristics().size();
-                    Log.v(TAG, "Skip [" + ((index < 10) ? " " : "") + index + "/" + total + "]");
-
-                    incrementLastReadCharacteristic();
-                    readNextCharacteristic(service);
-                }
-            }
-        }
-    }
-
-    public void stopReading() {
-        setReading(false);
-
-        if (readCharacteristicTask != null)
-            readCharacteristicTask.cancel(true);
-    }
-
     /**
-     * Clears values of all characteristics
+     * Subscribes to a characteristic with a given {@code id}
+     *
+     * @param id uuid of the characteristic
+     * @return subscription
      */
-    public void clearValues() {
-        for (BluetoothGattService s : services) {
-            for (BluetoothGattCharacteristic c : s.getCharacteristics()) {
-                c.setValue("");
-            }
-        }
+    public Subscription subscribe(final String id) {
+        return connect()
+                .flatMap(new Func1<BaseService, Observable<Reading>>() {
+                    @Override
+                    public Observable<Reading> call(BaseService baseService) {
+                        return ((DirectConnectionService) baseService).subscribe(id);
+                    }
+                })
+                .doOnUnsubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        disconnect();
+                    }
+                })
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Reading>() {
+                    @Override
+                    public void onCompleted() {
+                        reading = false;
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(Reading reading) {
+                        Log.i(TAG, reading.meaning + " " + reading.value.toString());
+                        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+                            if (c.getUuid().toString().contains(id))
+                                c.setValue(reading.value.toString());
+                        }
+
+                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                        devicesActivity.updateListView();
+                    }
+                });
     }
 
     /**
@@ -238,12 +188,6 @@ public class BleDevice {
                 }
             }
         }
-    }
-
-    public void incrementLastReadCharacteristic() {
-        lastReadCharacteristic++;
-        if (lastReadCharacteristic >= getCharacteristics().size())
-            lastReadCharacteristic = 0;
     }
 
     /**
@@ -387,14 +331,6 @@ public class BleDevice {
         this.characteristics = characteristics;
     }
 
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public void setConnected(boolean connected) {
-        this.connected = connected;
-    }
-
     public boolean isReading() {
         return reading;
     }
@@ -411,14 +347,6 @@ public class BleDevice {
         this.subscribing = subscribing;
     }
 
-    public boolean isScanning() {
-        return scanning;
-    }
-
-    public void setScanning(boolean scanning) {
-        this.scanning = scanning;
-    }
-
     public String getName() {
         return name;
     }
@@ -429,13 +357,5 @@ public class BleDevice {
 
     public EBluetoothDeviceType getType() {
         return type;
-    }
-
-    public int getLastReadCharacteristic() {
-        return lastReadCharacteristic;
-    }
-
-    public void setLastReadCharacteristic(int lastReadCharacteristic) {
-        this.lastReadCharacteristic = lastReadCharacteristic;
     }
 }

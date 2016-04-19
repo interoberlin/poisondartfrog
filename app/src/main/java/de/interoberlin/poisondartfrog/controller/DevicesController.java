@@ -52,7 +52,6 @@ public class DevicesController {
 
         if (service != null) {
             service.connect(device.getAddress());
-            device.setConnected(true);
             if (scannedDevices.containsKey(device.getAddress()))
                 scannedDevices.remove(device.getAddress());
             attachedDevices.put(device.getAddress(), device);
@@ -73,7 +72,6 @@ public class DevicesController {
     public boolean detach(BluetoothLeService service, BleDevice device) {
         if (service != null) {
             service.disconnect();
-            device.setConnected(false);
 
             if (attachedDevices.containsKey(device.getAddress()))
                 attachedDevices.remove(device.getAddress());

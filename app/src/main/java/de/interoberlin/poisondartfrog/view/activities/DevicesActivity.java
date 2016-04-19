@@ -28,21 +28,17 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
-import de.interoberlin.poisondartfrog.util.Configuration;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
-    private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
-    private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
 
     // Model
     private DevicesAdapter devicesAdapter;
@@ -51,8 +47,10 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private DevicesController devicesController;
 
     private BluetoothAdapter bluetoothAdapter;
-    private final static int REQUEST_ENABLE_BT = 1;
-    private final static int REQUEST_ENABLE_LOCATION = 2;
+    private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
+    private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
+    private final static int REQUEST_ENABLE_BT = 2;
+    private final static int REQUEST_ENABLE_LOCATION = 3;
 
     private Handler handler;
 
@@ -72,8 +70,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             }
 
             devicesController = DevicesController.getInstance();
-            if (!devicesController.getAttachedDevices().isEmpty() && devicesController.getAttachedDevices().get(0) != null)
-                devicesController.getAttachedDevices().get(0).setConnected(true);
             updateListView();
         }
 
@@ -83,8 +79,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
             bluetoothLeService = null;
 
             devicesController = DevicesController.getInstance();
-            if (!devicesController.getAttachedDevices().isEmpty())
-                devicesController.getAttachedDevices().get(0).setConnected(false);
             updateListView();
         }
     };
@@ -94,8 +88,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
-            final String characteristicId = intent.getStringExtra(BluetoothLeService.EXTRA_CHARACTERISTIC_ID);
-            final String characteristicValue = intent.getStringExtra(BluetoothLeService.EXTRA_CHARACTERISTIC_VALUE);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.i(TAG, "Gatt connected");
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -107,30 +99,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 Log.i(TAG, device.toString());
 
                 updateListView();
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                final BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
-
-                if (device != null) {
-                    int index = device.getLastReadCharacteristic() + 1;
-                    int total = device.getCharacteristics().size();
-
-                    Log.d(TAG, "Read [" + ((index < 10) ? " " : "") + index + "/" + total + "] " + characteristicId + " : " + characteristicValue);
-                    device.updateCharacteristicValue(characteristicId, characteristicValue);
-
-                    if (device.isReading() && device.getLastReadCharacteristic() < device.getCharacteristics().size()-1) {
-                        int SCAN_PERIOD = Configuration.getIntProperty(App.getContext(), getResources().getString(R.string.scan_period));
-                        try {
-                            Thread.sleep(SCAN_PERIOD);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        device.incrementLastReadCharacteristic();
-                        device.readNextCharacteristic(getBluetoothLeService());
-                    } else {
-                        device.setReading(false);
-                        updateListView();
-                    }
-                }
             }
         }
     };
@@ -328,6 +296,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         return intentFilter;
     }
 
+    @SuppressWarnings("deprecation")
     private void scanLeDevice(final boolean enable, final long scanPeriod) {
         if (enable) {
             devicesController.getScannedDevices().clear();
@@ -389,13 +358,5 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
         devicesAdapter.filter();
         lv.invalidateViews();
-    }
-
-    // --------------------
-    // Getters / Setters
-    // --------------------
-
-    public BluetoothLeService getBluetoothLeService() {
-        return bluetoothLeService;
     }
 }

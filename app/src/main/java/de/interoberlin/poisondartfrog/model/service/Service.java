@@ -132,7 +132,7 @@ public class Service {
                 .subscribe();
     }
 
-    protected Observable<BluetoothGattCharacteristic> readCharacteristic(String serviceUuid,
+    public Observable<BluetoothGattCharacteristic> readCharacteristic(String serviceUuid,
                                                                          String characteristicUuid,
                                                                          final String what) {
 
@@ -220,5 +220,4 @@ public class Service {
                     }
                 });
     }
-
 }
