@@ -46,6 +46,8 @@ public class BleDevice {
     private boolean reading;
     private boolean subscribing;
 
+    private boolean ledOn;
+
     // --------------------
     // Constructors
     // --------------------
@@ -85,6 +87,7 @@ public class BleDevice {
 
     /**
      * Reads a single value from a characteristic
+     *
      * @param id uuid of the characteristic
      * @return subscription
      */
@@ -170,6 +173,49 @@ public class BleDevice {
 
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
                         devicesActivity.updateListView();
+                    }
+                });
+    }
+
+    /**
+     * Reads a single value from a characteristic
+     *
+     * @param id uuid of the characteristic
+     * @return subscription
+     */
+    public Subscription write(final String id) {
+        return connect()
+                .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
+                    @Override
+                    public Observable<BluetoothGattCharacteristic> call(BaseService baseService) {
+                        //if (id.equals(DirectConnectionService.CHARACTERISTIC_SENSOR_LED_STATE)) {
+                                ledOn = !ledOn;
+                                return ((DirectConnectionService) baseService).turnLed(ledOn);
+                        // }
+
+                        // return null;
+                    }
+                }).doOnUnsubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        disconnect();
+                    }
+                })
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BluetoothGattCharacteristic>() {
+                    @Override
+                    public void onCompleted() {
+                        reading = false;
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(BluetoothGattCharacteristic characteristic) {
+                        Log.i(TAG, characteristic.getUuid() + " " + characteristic.getValue());
                     }
                 });
     }

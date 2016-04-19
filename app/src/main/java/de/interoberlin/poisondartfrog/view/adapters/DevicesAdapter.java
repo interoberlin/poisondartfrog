@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,6 +96,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivDetach = (ImageView) llCard.findViewById(R.id.ivDetach);
         final ImageView ivRead = (ImageView) llCard.findViewById(R.id.ivRead);
         final ImageView ivSubscribe = (ImageView) llCard.findViewById(R.id.ivSubscribe);
+        final ImageView ivLed = (ImageView) llCard.findViewById(R.id.ivLed);
 
         // Set values
         tvName.setText(device.getName());
@@ -168,6 +170,14 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     devicesActivity.snack("Stopped subscription");
                     deviceSubscription.unsubscribe();
                 }
+            }
+        });
+
+        ivLed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "ping");
+                device.write(DirectConnectionService.CHARACTERISTIC_SENSOR_LED_STATE);
             }
         });
 

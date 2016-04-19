@@ -162,8 +162,10 @@ public class DirectConnectionService extends BaseService {
      * @return Observable<BluetoothGattCharacteristic>, an observable of what will be written to the
      * device
      */
-    public Observable<BluetoothGattCharacteristic> turnLedOn() {
-        return write(new byte[]{0x01}, SERVICE_DIRECT_CONNECTION, CHARACTERISTIC_SENSOR_LED_STATE);
+    public Observable<BluetoothGattCharacteristic> turnLed(boolean on) {
+        Log.i(TAG, "new byte[]{0x01}");
+        return write(on ? new byte[]{0x01} : new byte[]{0x00}, SERVICE_DIRECT_CONNECTION, CHARACTERISTIC_SENSOR_LED_STATE);
+        // return write(new byte[]{0x01}, SERVICE_DIRECT_CONNECTION, CHARACTERISTIC_SENSOR_LED_STATE);
     }
 
     /**
