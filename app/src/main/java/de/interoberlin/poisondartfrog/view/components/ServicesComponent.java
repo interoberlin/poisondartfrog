@@ -11,9 +11,9 @@ import android.widget.TextView;
 import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.config.PropertyMapper;
-import de.interoberlin.poisondartfrog.model.parser.ValueParser;
 import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
+import de.interoberlin.poisondartfrog.model.parser.ValueParser;
 
 public class ServicesComponent extends TableLayout {
     // --------------------
@@ -38,8 +38,8 @@ public class ServicesComponent extends TableLayout {
             TextView tvService = new TextView(context);
 
             UUID serviceId = service.getUuid();
-            if (PropertyMapper.getInstance().isKnownService(serviceId))
-                tvService.setText(PropertyMapper.getInstance().getServiceById(serviceId).getName());
+            if (RepositoryMapper.getInstance().isKnownService(serviceId.toString()))
+                tvService.setText(RepositoryMapper.getInstance().getServiceById(serviceId.toString()).getName());
             else
                 tvService.setText(serviceId.toString());
 
@@ -59,8 +59,8 @@ public class ServicesComponent extends TableLayout {
                 TextView tvValue = new TextView(context);
 
                 UUID characteristicId = characteristic.getUuid();
-                if (PropertyMapper.getInstance().isKnownCharacteristic(characteristicId)) {
-                    tvCharacteristic.setText(PropertyMapper.getInstance().getCharacteristicById(characteristicId).getName());
+                if (RepositoryMapper.getInstance().isKnownCharacteristic(characteristicId.toString())) {
+                    tvCharacteristic.setText(RepositoryMapper.getInstance().getCharacteristicById(characteristicId.toString()).getName());
                 } else {
                     tvCharacteristic.setText(characteristicId.toString().substring(0, 18) + "...");
                 }

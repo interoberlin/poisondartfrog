@@ -96,27 +96,18 @@
                         android:padding="@dimen/icon_padding"
                         android:src="@drawable/ic_stop_black_36dp" />
 
-                    <!-- Connect -->
+                    <!-- Subscribe DATA -->
                     <ImageView
-                        android:id="@+id/ivRead"
+                        android:id="@+id/ivSubscribeData"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/scan"
                         android:padding="@dimen/icon_padding"
                         android:src="@drawable/ic_play_arrow_black_36dp" />
 
-                    <!-- Subscribe -->
+                    <!-- Write LED_STATE -->
                     <ImageView
-                        android:id="@+id/ivSubscribe"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/scan"
-                        android:padding="@dimen/icon_padding"
-                        android:src="@drawable/ic_play_arrow_black_36dp" />
-
-                    <!-- LED -->
-                    <ImageView
-                        android:id="@+id/ivLed"
+                        android:id="@+id/ivLedState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/scan"

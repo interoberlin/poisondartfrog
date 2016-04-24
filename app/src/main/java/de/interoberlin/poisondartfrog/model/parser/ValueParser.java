@@ -4,9 +4,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 import java.util.UUID;
 
-import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
-import de.interoberlin.poisondartfrog.model.config.Characteristic;
-import de.interoberlin.poisondartfrog.model.config.PropertyMapper;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 
 public class ValueParser {
@@ -20,7 +17,7 @@ public class ValueParser {
      */
     public static String parseValue(BleDevice device, BluetoothGattCharacteristic characteristic) {
         UUID id = characteristic.getUuid();
-
+/*
         if (PropertyMapper.getInstance().isKnownCharacteristic(id) && PropertyMapper.getInstance().getCharacteristicById(id).getFormat() != null) {
             Characteristic.EFormat format = PropertyMapper.getInstance().getCharacteristicById(id).getFormat();
             String value = "";
@@ -54,15 +51,19 @@ public class ValueParser {
                     value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
                     break;
                 case RELAYR:
-                    value = RelayrDataParser.getFormattedValue(EBluetoothDeviceType.fromString(device.getName()), characteristic.getValue());
+                    value = RelayrDataParser.getFormattedValue(EDevice.fromString(device.getName()), characteristic.getValue());
                     value = value.replaceAll(",", ",\n");
                     break;
             }
+
+
 
             return value;
         } else {
             return new String(characteristic.getValue()).replaceAll(" ", "");
         }
+        */
+        return null;
     }
 
     /**

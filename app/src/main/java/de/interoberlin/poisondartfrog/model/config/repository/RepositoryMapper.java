@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.config;
+package de.interoberlin.poisondartfrog.model.config.repository;
 
 
 import android.content.Context;
@@ -14,31 +14,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
 
-public class PropertyMapper {
+public class RepositoryMapper {
     private static final String TAG = ServicesComponent.class.getSimpleName();
 
-    private List<Device> devices;
+    private List<Namespace> namespaces;
     private Map<String, Object> idMap;
 
-    private static PropertyMapper instance;
+    private static RepositoryMapper instance;
 
     // --------------------
     // Constructors
     // --------------------
 
-    private PropertyMapper() {
-        devices = getKnownDevices();
-        idMap = createIdMap(devices);
+    private RepositoryMapper() {
+        namespaces = getNamespaces();
+        idMap = createIdMap(namespaces);
     }
 
-    public static PropertyMapper getInstance() {
+    public static RepositoryMapper getInstance() {
         if (instance == null) {
-            instance = new PropertyMapper();
+            instance = new RepositoryMapper();
         }
 
         return instance;
@@ -52,35 +51,19 @@ public class PropertyMapper {
         return idMap.get(id);
     }
 
-    public boolean isKnownService(UUID id) {
-        return isKnownService(id.toString());
-    }
-
-    private boolean isKnownService(String id) {
+    public boolean isKnownService(String id) {
         return idMap.containsKey(id) && idMap.get(id) instanceof Service;
     }
 
-    public boolean isKnownCharacteristic(UUID id) {
-        return isKnownCharacteristic(id.toString());
-    }
-
-    private boolean isKnownCharacteristic(String id) {
+    public boolean isKnownCharacteristic(String id) {
         return idMap.containsKey(id) && idMap.get(id) instanceof Characteristic;
     }
 
-    public Service getServiceById(UUID id) {
-        return getServiceById(id.toString());
-    }
-
-    private Service getServiceById(String id) {
+    public Service getServiceById(String id) {
         return (isKnownService(id)) ? (Service) getObjectById(id) : null;
     }
 
-    public Characteristic getCharacteristicById(UUID id) {
-        return getCharacteristicById(id.toString());
-    }
-
-    private Characteristic getCharacteristicById(String id) {
+    public Characteristic getCharacteristicById(String id) {
         return (isKnownCharacteristic(id)) ? (Characteristic) getObjectById(id) : null;
     }
 
@@ -89,9 +72,9 @@ public class PropertyMapper {
      *
      * @return list of devices
      */
-    private List<Device> getKnownDevices() {
+    private List<Namespace> getNamespaces() {
         Context context = App.getContext();
-        List<Device> devices = new ArrayList<>();
+        List<Namespace> namespaces = new ArrayList<>();
 
         try {
             for (String assetName : Arrays.asList(context.getAssets().list(""))) {
@@ -99,28 +82,28 @@ public class PropertyMapper {
                     InputStream inputStream = context.getAssets().open(assetName);
                     String content = IOUtils.toString(inputStream, "UTF-8");
 
-                    Device d = new Gson().fromJson(content, Device.class);
+                    Namespace d = new Gson().fromJson(content, Namespace.class);
 
-                    if (d != null) devices.add(d);
+                    if (d != null) namespaces.add(d);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return devices;
+        return namespaces;
     }
 
     /**
      * Iterates through all known devices and their services and characteristics and stores all
      *
-     * @param devices list of devies
+     * @param namespaces list of devies
      * @return map of objects
      */
-    private Map<String, Object> createIdMap(List<Device> devices) {
+    private Map<String, Object> createIdMap(List<Namespace> namespaces) {
         Map<String, Object> idMap = new HashMap<>();
 
-        for (Device d : devices) {
+        for (Namespace d : namespaces) {
             if (d != null) {
                 for (Service s : d.getServices()) {
                     if (s != null) {

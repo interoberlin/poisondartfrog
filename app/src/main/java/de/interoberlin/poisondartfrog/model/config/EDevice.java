@@ -1,6 +1,6 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.config;
 
-public enum EBluetoothDeviceType {
+public enum EDevice {
     WUNDERBAR_HTU("ecf6cf94-cb07-43ac-a85e-dccf26b48c86", "WunderbarHTU"),
     WUNDERBAR_GYRO("173c44b5-334e-493f-8eb8-82c8cc65d29f","WunderbarGYRO"),
     WUNDERBAR_LIGHT("a7ec1b21-8582-4304-b1cf-15a1fc66d1e8","WunderbarLIGHT"),
@@ -11,7 +11,7 @@ public enum EBluetoothDeviceType {
     private final String id;
     private final String name;
 
-    EBluetoothDeviceType(String id, String name) {
+    EDevice(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -20,10 +20,9 @@ public enum EBluetoothDeviceType {
     // Methods
     // --------------------
 
-
-    public static EBluetoothDeviceType fromString(String name) {
+    public static EDevice fromString(String name) {
         if (name != null) {
-            for (EBluetoothDeviceType b : EBluetoothDeviceType.values()) {
+            for (EDevice b : EDevice.values()) {
                 if (name.equalsIgnoreCase(b.getName())) {
                     return b;
                 }

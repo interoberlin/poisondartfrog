@@ -3,10 +3,10 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
@@ -19,10 +19,10 @@ import java.util.List;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
-import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
-import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
+import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
+import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
-import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
+import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -94,9 +94,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivIcon = (ImageView) llCard.findViewById(R.id.ivIcon);
         final LinearLayout llComponents = (LinearLayout) llCard.findViewById(R.id.llComponents);
         final ImageView ivDetach = (ImageView) llCard.findViewById(R.id.ivDetach);
-        final ImageView ivRead = (ImageView) llCard.findViewById(R.id.ivRead);
-        final ImageView ivSubscribe = (ImageView) llCard.findViewById(R.id.ivSubscribe);
-        final ImageView ivLed = (ImageView) llCard.findViewById(R.id.ivLed);
+        final ImageView ivSubscribe = (ImageView) llCard.findViewById(R.id.ivSubscribeData);
+        final ImageView ivLedState = (ImageView) llCard.findViewById(R.id.ivLedState);
 
         // Set values
         tvName.setText(device.getName());
@@ -107,8 +106,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         llComponents.removeAllViews();
 
-        if (EBluetoothDeviceType.fromString(device.getName()) != null) {
-            switch (EBluetoothDeviceType.fromString(device.getName())) {
+        if (EDevice.fromString(device.getName()) != null) {
+            switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_HTU: {
                     ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
                     break;
@@ -134,9 +133,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        llComponents.addView(new ServicesComponent(context, device));
+        llComponents.addView(new DataComponent(context, device));
+        // llComponents.addView(new ServicesComponent(context, device));
 
-        ivRead.setImageDrawable(device.isReading() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         // Add actions
@@ -147,39 +146,41 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             }
         });
 
-        ivRead.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                device.read(DirectConnectionService.CHARACTERISTIC_SENSOR_DATA);
-            }
-        });
+        // DATA
+        if (device.containsCharacteristic(ECharacteristic.DATA)) {
+            ivSubscribe.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
-        ivSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DevicesActivity devicesActivity = ((DevicesActivity) activity);
-
-                if (!device.isSubscribing()) {
-                    device.setSubscribing(true);
-                    deviceSubscription = device.subscribe(DirectConnectionService.CHARACTERISTIC_SENSOR_DATA);
-                    devicesActivity.updateListView();
-                    devicesActivity.snack("Started subscription");
-                } else {
-                    device.setSubscribing(false);
-                    devicesActivity.updateListView();
-                    devicesActivity.snack("Stopped subscription");
-                    deviceSubscription.unsubscribe();
+                    if (!device.isSubscribing()) {
+                        device.setSubscribing(true);
+                        deviceSubscription = device.subscribe(ECharacteristic.DATA.getId());
+                        devicesActivity.updateListView();
+                        devicesActivity.snack("Started subscription");
+                    } else {
+                        device.setSubscribing(false);
+                        devicesActivity.updateListView();
+                        devicesActivity.snack("Stopped subscription");
+                        deviceSubscription.unsubscribe();
+                    }
                 }
-            }
-        });
+            });
+        }else {
+            ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
+        }
 
-        ivLed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "ping");
-                device.write(DirectConnectionService.CHARACTERISTIC_SENSOR_LED_STATE);
-            }
-        });
+        // LED STATE
+        if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+            ivLedState.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    device.write(ECharacteristic.LED_STATE.getId(), true);
+                }
+            });
+        } else {
+            ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
+        }
 
         return llCard;
     }

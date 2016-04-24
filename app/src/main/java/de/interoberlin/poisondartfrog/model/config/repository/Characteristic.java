@@ -1,23 +1,12 @@
-package de.interoberlin.poisondartfrog.model.config;
+package de.interoberlin.poisondartfrog.model.config.repository;
+
+import de.interoberlin.poisondartfrog.model.config.EFormat;
 
 public class Characteristic {
     private String id;
     private String name;
     private EFormat format;
     private ERead read = ERead.ONCE;
-
-    public enum EFormat {
-        STRING,
-        UINT8,
-        UINT16,
-        UINT32,
-        SINT8,
-        SINT16,
-        SINT32,
-        SFLOAT,
-        FLOAT,
-        RELAYR;
-    }
 
     public enum ERead {
         NEVER,

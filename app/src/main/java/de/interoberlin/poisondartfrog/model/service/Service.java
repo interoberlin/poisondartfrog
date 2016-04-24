@@ -19,7 +19,6 @@ import rx.functions.Func1;
 import static android.bluetooth.BluetoothDevice.BOND_NONE;
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SFLOAT;
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT16;
-import static de.interoberlin.poisondartfrog.model.util.Utils.getCharacteristicInServices;
 import static rx.Observable.error;
 import static rx.Observable.just;
 
@@ -27,10 +26,18 @@ public class Service {
     protected BluetoothGatt mBluetoothGatt;
     protected final BluetoothGattReceiver mBluetoothGattReceiver;
 
+    // --------------------
+    // Constructors
+    // --------------------
+
     protected Service(BluetoothGatt gatt, BluetoothGattReceiver receiver) {
         mBluetoothGatt = gatt;
         mBluetoothGattReceiver = receiver;
     }
+
+    // --------------------
+    // Methods
+    // --------------------
 
     public BluetoothGatt getGatt() {
         return mBluetoothGatt;
@@ -69,7 +76,7 @@ public class Service {
     protected Observable<BluetoothGattCharacteristic> write(byte[] bytes,
                                                             String serviceUuid,
                                                             String characteristicUuid) {
-        BluetoothGattCharacteristic characteristic = getCharacteristicInServices(
+        BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
                 mBluetoothGatt.getServices(), serviceUuid, characteristicUuid);
         if (characteristic == null) {
             return error(new CharacteristicNotFoundException(characteristicUuid));
@@ -81,7 +88,7 @@ public class Service {
     protected Observable<BluetoothGatt> longWrite(final byte[] data, String serviceUuid,
                                                   final String characteristicUuid) {
 
-        final BluetoothGattCharacteristic characteristic = getCharacteristicInServices(
+        final BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
                 mBluetoothGatt.getServices(), serviceUuid, characteristicUuid);
 
         if (characteristic == null)
@@ -135,8 +142,7 @@ public class Service {
     public Observable<BluetoothGattCharacteristic> readCharacteristic(String serviceUuid,
                                                                          String characteristicUuid,
                                                                          final String what) {
-
-        BluetoothGattCharacteristic characteristic = getCharacteristicInServices(
+        BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
                 mBluetoothGatt.getServices(), serviceUuid, characteristicUuid);
         if (characteristic == null) {
             return error(new CharacteristicNotFoundException(what));

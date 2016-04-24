@@ -2,14 +2,14 @@ package de.interoberlin.poisondartfrog.model.service;
 
 import com.google.gson.Gson;
 
-import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
+import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.parser.AccelGyroscope;
 import de.interoberlin.poisondartfrog.model.parser.DataPackage;
 import de.interoberlin.poisondartfrog.model.parser.LightColorProx;
 
 public abstract class BleDataParser {
 
-    public static String getFormattedValue(EBluetoothDeviceType type, byte[] value) {
+    public static String getFormattedValue(EDevice type, byte[] value) {
         if (value == null) return "";
         switch (type) {
             case WUNDERBAR_LIGHT: {
@@ -34,7 +34,7 @@ public abstract class BleDataParser {
 
     private static String getLIGHTSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
-        dataPackage.modelId = EBluetoothDeviceType.WUNDERBAR_LIGHT.getId();
+        dataPackage.modelId = EDevice.WUNDERBAR_LIGHT.getId();
         dataPackage.received = System.currentTimeMillis();
 
         int red = (byteToUnsignedInt(value[1]) << 8) | byteToUnsignedInt(value[0]);
@@ -54,7 +54,7 @@ public abstract class BleDataParser {
 
     private static String getGYROSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
-        dataPackage.modelId = EBluetoothDeviceType.WUNDERBAR_GYRO.getId();
+        dataPackage.modelId = EDevice.WUNDERBAR_GYRO.getId();
         dataPackage.received = System.currentTimeMillis();
 
         int gyroscopeX = byteToUnsignedInt(value[0]) |
@@ -91,7 +91,7 @@ public abstract class BleDataParser {
 
     private static String getHTUSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
-        dataPackage.modelId = EBluetoothDeviceType.WUNDERBAR_HTU.getId();
+        dataPackage.modelId = EDevice.WUNDERBAR_HTU.getId();
         dataPackage.received = System.currentTimeMillis();
 
         int temperature = (byteToUnsignedInt(value[1]) << 8) | byteToUnsignedInt(value[0]);
@@ -104,7 +104,7 @@ public abstract class BleDataParser {
 
     private static String getMICSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
-        dataPackage.modelId = EBluetoothDeviceType.WUNDERBAR_MIC.getId();
+        dataPackage.modelId = EDevice.WUNDERBAR_MIC.getId();
         dataPackage.received = System.currentTimeMillis();
 
         int noiseLevel = (byteToUnsignedInt(value[1]) << 8) | byteToUnsignedInt(value[0]);
@@ -115,7 +115,7 @@ public abstract class BleDataParser {
 
     private static String getBridgeSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
-        dataPackage.modelId = EBluetoothDeviceType.WUNDERBAR_BRIDG.getId();
+        dataPackage.modelId = EDevice.WUNDERBAR_BRIDG.getId();
         dataPackage.received = System.currentTimeMillis();
 
         dataPackage.readings.add(new DataPackage.Data(dataPackage.received, "up_ch_payload", "", value));

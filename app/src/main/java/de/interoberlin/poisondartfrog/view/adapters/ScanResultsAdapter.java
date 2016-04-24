@@ -19,7 +19,7 @@ import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.EBluetoothDeviceType;
+import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     public static final String TAG = ScanResultFilter.class.getSimpleName();
@@ -95,8 +95,8 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
 
         if (device.getName() == null || device.getName().isEmpty())
             tvName.setText(R.string.unknown_device);
-        if (EBluetoothDeviceType.fromString(device.getName()) != null) {
-            switch (EBluetoothDeviceType.fromString(device.getName())) {
+        if (EDevice.fromString(device.getName()) != null) {
+            switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_HTU: {
                     ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
                     break;
