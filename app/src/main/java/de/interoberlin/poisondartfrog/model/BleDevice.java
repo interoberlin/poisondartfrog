@@ -6,10 +6,13 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
+import com.google.common.collect.EvictingQueue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
@@ -33,6 +36,8 @@ import rx.functions.Func1;
 public class BleDevice {
     public static final String TAG = BleDevice.class.getSimpleName();
 
+    public static final int READING_HISTORY = 10;
+
     private final Activity activity;
     private final BluetoothDevice device;
     private final String name;
@@ -45,7 +50,8 @@ public class BleDevice {
     private List<BluetoothGattService> services;
     private List<BluetoothGattCharacteristic> characteristics;
 
-    private Map<String, String> readings;
+    private Map<String, Queue<Reading>> readings;
+    private Map<String, Reading> latestReadings;
 
     private boolean reading;
     private boolean subscribing;
@@ -67,6 +73,7 @@ public class BleDevice {
         this.services = new ArrayList<>();
         this.characteristics = new ArrayList<>();
         this.readings = new HashMap<>();
+        this.latestReadings = new HashMap<>();
 
         this.reading = false;
         this.subscribing = false;
@@ -181,7 +188,17 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        readings.put(reading.meaning, reading.value.toString());
+                        Queue<Reading> queue;
+                        if (readings.containsKey(reading.meaning)) {
+                            queue = readings.get(reading.meaning);
+                        } else {
+                            queue = EvictingQueue.create(READING_HISTORY);
+                        }
+
+                        queue.add(reading);
+                        readings.put(reading.meaning, queue);
+                        latestReadings.put(reading.meaning, reading);
+
                         setCharacteristicValue(id, reading.toString());
 
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
@@ -402,11 +419,15 @@ public class BleDevice {
         this.characteristics = characteristics;
     }
 
-    public Map<String, String> getReadings() {
+    public Map<String, Queue<Reading>> getReadings() {
         return readings;
     }
 
-    public void setValues(Map<String, String> readings) {
+    public Map<String, Reading> getLatestReadings() {
+        return latestReadings;
+    }
+
+    public void setValues(Map<String, Queue<Reading>> readings) {
         this.readings = readings;
     }
 

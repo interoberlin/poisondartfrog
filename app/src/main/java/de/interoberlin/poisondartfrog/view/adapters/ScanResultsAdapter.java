@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -77,60 +78,58 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
         LayoutInflater vi;
         vi = LayoutInflater.from(getContext());
 
-        if (v != null) {
-            // Load views
-            v = vi.inflate(R.layout.item_scan_result, parent, false);
-            final TextView tvName = (TextView) v.findViewById(R.id.tvName);
-            final TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
-            final ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+        // Load views
+        final RelativeLayout rlItemScanResult = (RelativeLayout) vi.inflate(R.layout.item_scan_result, parent, false);
+        final TextView tvName = (TextView) rlItemScanResult.findViewById(R.id.tvName);
+        final TextView tvAddress = (TextView) rlItemScanResult.findViewById(R.id.tvAddress);
+        final ImageView ivIcon = (ImageView) rlItemScanResult.findViewById(R.id.ivIcon);
 
-            // Set values
-            tvName.setText(device.getName());
-            tvAddress.setText(device.getAddress());
+        // Set values
+        tvName.setText(device.getName());
+        tvAddress.setText(device.getAddress());
 
-            if (device.getName() == null || device.getName().isEmpty())
-                tvName.setText(R.string.unknown_device);
-            if (EDevice.fromString(device.getName()) != null) {
-                switch (EDevice.fromString(device.getName())) {
-                    case WUNDERBAR_HTU: {
-                        ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
-                        break;
-                    }
-                    case WUNDERBAR_GYRO: {
-                        ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
-                        break;
-                    }
-                    case WUNDERBAR_LIGHT: {
-                        ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                        break;
-                    }
-                    case WUNDERBAR_MIC: {
-                        ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
-                        break;
-                    }
-                    default: {
-                        ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
-                        break;
-                    }
+        if (device.getName() == null || device.getName().isEmpty())
+            tvName.setText(R.string.unknown_device);
+        if (EDevice.fromString(device.getName()) != null) {
+            switch (EDevice.fromString(device.getName())) {
+                case WUNDERBAR_HTU: {
+                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                    break;
                 }
-            } else {
-                ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                case WUNDERBAR_GYRO: {
+                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                    break;
+                }
+                case WUNDERBAR_LIGHT: {
+                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                    break;
+                }
+                case WUNDERBAR_MIC: {
+                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                    break;
+                }
+                default: {
+                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                    break;
+                }
             }
-
-            // Add actions
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (activity instanceof OnCompleteListener) {
-                        ((OnCompleteListener) activity).onAttachDevice(device);
-                    }
-
-                    dialog.dismiss();
-                }
-            });
+        } else {
+            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        return v;
+        // Add actions
+        rlItemScanResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity instanceof OnCompleteListener) {
+                    ((OnCompleteListener) activity).onAttachDevice(device);
+                }
+
+                dialog.dismiss();
+            }
+        });
+
+        return rlItemScanResult;
     }
 
     // --------------------
