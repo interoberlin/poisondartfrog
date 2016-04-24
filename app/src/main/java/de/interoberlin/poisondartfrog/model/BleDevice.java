@@ -7,12 +7,14 @@ import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
-import de.interoberlin.poisondartfrog.model.parser.RelayrDataParser;
+import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
 import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
@@ -43,6 +45,8 @@ public class BleDevice {
     private List<BluetoothGattService> services;
     private List<BluetoothGattCharacteristic> characteristics;
 
+    private Map<String, String> readings;
+
     private boolean reading;
     private boolean subscribing;
 
@@ -61,7 +65,11 @@ public class BleDevice {
         this.serviceObservable = DirectConnectionService.connect(this, device).cache();
 
         this.services = new ArrayList<>();
+        this.characteristics = new ArrayList<>();
+        this.readings = new HashMap<>();
+
         this.reading = false;
+        this.subscribing = false;
     }
 
     // --------------------
@@ -173,11 +181,8 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        Log.i(TAG, reading.meaning + " " + reading.value.toString());
-                        for (BluetoothGattCharacteristic c : getCharacteristics()) {
-                            if (c.getUuid().toString().contains(id))
-                                c.setValue(reading.value.toString());
-                        }
+                        readings.put(reading.meaning, reading.value.toString());
+                        setCharacteristicValue(id, reading.toString());
 
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
                         devicesActivity.updateListView();
@@ -268,7 +273,7 @@ public class BleDevice {
                 value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
                 break;
             case RELAYR:
-                value = RelayrDataParser.getFormattedValue(EDevice.fromString(device.getName()), characteristic.getValue());
+                value = BleDataParser.getFormattedValue(EDevice.fromString(device.getName()), characteristic.getValue());
                 value = value.replaceAll(",", ",\n");
                 break;
         }
@@ -346,6 +351,23 @@ public class BleDevice {
         return false;
     }
 
+    public BluetoothGattCharacteristic getCharacteristic(ECharacteristic characteristic) {
+        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+            if (c.getUuid().toString().equals(characteristic.getId())) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    public void setCharacteristicValue(String id, String value) {
+        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+            if (c.getUuid().toString().contains(id))
+                c.setValue(value);
+        }
+    }
+
     // --------------------
     // Getters / Setters
     // --------------------
@@ -378,6 +400,14 @@ public class BleDevice {
 
     public void setCharacteristics(List<BluetoothGattCharacteristic> characteristics) {
         this.characteristics = characteristics;
+    }
+
+    public Map<String, String> getReadings() {
+        return readings;
+    }
+
+    public void setValues(Map<String, String> readings) {
+        this.readings = readings;
     }
 
     public boolean isReading() {

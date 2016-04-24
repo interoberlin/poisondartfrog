@@ -11,6 +11,7 @@ import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDescriptor;
 import de.interoberlin.poisondartfrog.model.config.EService;
+import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
 import de.interoberlin.poisondartfrog.model.parser.DataPackage;
 import de.interoberlin.poisondartfrog.model.service.error.CharacteristicNotFoundException;
 import de.interoberlin.poisondartfrog.model.util.BleUtils;

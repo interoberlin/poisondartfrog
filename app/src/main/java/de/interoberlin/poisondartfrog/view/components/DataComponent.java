@@ -6,11 +6,14 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.Map;
+
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.BleDevice;
-import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 
 public class DataComponent extends LinearLayout {
+    public static final String TAG = DataComponent.class.getSimpleName();
+
     // --------------------
     // Constructors
     // --------------------
@@ -26,17 +29,33 @@ public class DataComponent extends LinearLayout {
         lp.setMargins(0, (int) context.getResources().getDimension(R.dimen.card_margin), 0, 0);
         setLayoutParams(lp);
 
-        if (device.getCharacteristics().contains(ECharacteristic.DATA.getId())) {
-            // String value = device.getCharacteristics().get(ECharacteristic.DATA.getId()).getValue();
+        if (device.getReadings() != null) {
+            for (Map.Entry<String, String> r : device.getReadings().entrySet()) {
+                // LayoutInflater inflater = LayoutInflater.from(context);
+                // LinearLayout llData = (LinearLayout) inflater.inflate(R.layout.component_data, this);
+                // TextView tvMeaning = (TextView) llData.findViewById(R.id.tvMeaning);
+                // TextView tvValue = (TextView) llData.findViewById(R.id.tvValue);
+                LinearLayout llData = new LinearLayout(context);
+                TextView tvMeaning = new TextView(context);
+                TextView tvValue= new TextView(context);
 
-            TextView tvData = new TextView(context);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                tvData.setTextAppearance(android.R.style.TextAppearance_Large);
-            } else {
-                tvData.setTextAppearance(context, android.R.style.TextAppearance_Large);
+                llData.setOrientation(VERTICAL);
+
+                tvMeaning.setText(r.getKey());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    tvValue.setTextAppearance(android.R.style.TextAppearance_Material_Display3);
+                }
+
+                tvValue.setText(r.getValue());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    tvValue.setTextAppearance(android.R.style.TextAppearance_Material_Large);
+                }
+
+                llData.addView(tvMeaning);
+                llData.addView(tvValue);
+
+                addView(llData);
             }
-
-            addView(tvData);
         }
     }
 }

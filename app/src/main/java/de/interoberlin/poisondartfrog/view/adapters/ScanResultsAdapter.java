@@ -4,14 +4,12 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -73,68 +71,66 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BluetoothDevice bleDevice = getItem(position);
+        final BluetoothDevice device = getItem(position);
 
-        return getScanResultView(position, bleDevice, parent);
-    }
-
-    private View getScanResultView(final int position, final BluetoothDevice device, final ViewGroup parent) {
         // Layout inflater
         LayoutInflater vi;
         vi = LayoutInflater.from(getContext());
 
-        // Load views
-        final RelativeLayout rlScanResult = (RelativeLayout) vi.inflate(R.layout.item_scan_result, parent, false);
-        final TextView tvName = (TextView) rlScanResult.findViewById(R.id.tvName);
-        final TextView tvAddress = (TextView) rlScanResult.findViewById(R.id.tvAddress);
-        final ImageView ivIcon = (ImageView) rlScanResult.findViewById(R.id.ivIcon);
+        if (v != null) {
+            // Load views
+            v = vi.inflate(R.layout.item_scan_result, parent, false);
+            final TextView tvName = (TextView) v.findViewById(R.id.tvName);
+            final TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+            final ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
 
-        // Set values
-        tvName.setText(device.getName());
-        tvAddress.setText(device.getAddress());
+            // Set values
+            tvName.setText(device.getName());
+            tvAddress.setText(device.getAddress());
 
-        if (device.getName() == null || device.getName().isEmpty())
-            tvName.setText(R.string.unknown_device);
-        if (EDevice.fromString(device.getName()) != null) {
-            switch (EDevice.fromString(device.getName())) {
-                case WUNDERBAR_HTU: {
-                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
-                    break;
+            if (device.getName() == null || device.getName().isEmpty())
+                tvName.setText(R.string.unknown_device);
+            if (EDevice.fromString(device.getName()) != null) {
+                switch (EDevice.fromString(device.getName())) {
+                    case WUNDERBAR_HTU: {
+                        ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_GYRO: {
+                        ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_LIGHT: {
+                        ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_MIC: {
+                        ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                        break;
+                    }
+                    default: {
+                        ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                        break;
+                    }
                 }
-                case WUNDERBAR_GYRO: {
-                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_LIGHT: {
-                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_MIC: {
-                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
-                    break;
-                }
-                default: {
-                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
-                    break;
-                }
+            } else {
+                ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
             }
-        } else {
-            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+
+            // Add actions
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (activity instanceof OnCompleteListener) {
+                        ((OnCompleteListener) activity).onAttachDevice(device);
+                    }
+
+                    dialog.dismiss();
+                }
+            });
         }
 
-        // Add actions
-        rlScanResult.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activity instanceof OnCompleteListener) {
-                    ((OnCompleteListener) activity).onAttachDevice(device);
-                }
-
-                dialog.dismiss();
-            }
-        });
-
-        return rlScanResult;
+        return v;
     }
 
     // --------------------
@@ -165,14 +161,6 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
      */
     protected boolean filterBleDevice(BluetoothDevice bleDevice) {
         return bleDevice != null;
-    }
-
-    // --------------------
-    // Methods - Util
-    // --------------------
-
-    private Resources getResources() {
-        return activity.getResources();
     }
 
     // --------------------

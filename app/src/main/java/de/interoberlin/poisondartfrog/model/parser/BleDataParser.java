@@ -4,22 +4,22 @@ import com.google.gson.Gson;
 
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
-public abstract class RelayrDataParser {
+public abstract class BleDataParser {
 
     public static String getFormattedValue(EDevice type, byte[] value) {
         if (value == null) return "";
         switch (type) {
             case WUNDERBAR_LIGHT: {
-                return RelayrDataParser.getLIGHTSensorData(value);
+                return BleDataParser.getLIGHTSensorData(value);
             }
             case WUNDERBAR_GYRO: {
-                return RelayrDataParser.getGYROSensorData(value);
+                return BleDataParser.getGYROSensorData(value);
             }
             case WUNDERBAR_HTU: {
-                return RelayrDataParser.getHTUSensorData(value);
+                return BleDataParser.getHTUSensorData(value);
             }
             case WUNDERBAR_MIC: {
-                return RelayrDataParser.getMICSensorData(value);
+                return BleDataParser.getMICSensorData(value);
             }
             case WUNDERBAR_BRIDG: {
                 return getBridgeSensorData(value);
