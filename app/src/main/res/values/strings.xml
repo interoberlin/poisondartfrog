@@ -1,33 +1,20 @@
 <resources>
     <string name="app_name">Poison Dart Frog</string>
     <string name="title_activity_devices">Devices</string>
-    <string name="sensor_scanning_error">Scanning error</string>
-    <string name="found">found</string>
-    <string name="scanning_for_ble_devices">Scanning for BLE devices</string>
     <string name="bt_not_supported">Bluetooth not supported</string>
-    <string name="okay">Okay</string>
     <string name="cancel">Cancel</string>
     <string name="address">address</string>
     <string name="name">name</string>
     <string name="scan_result_icon">scan result icon</string>
-    <string name="scanned_devices">Devices</string>
     <string name="devices">Devices</string>
     <string name="no_devices_found">No devices found</string>
-    <string name="luminosity">luminosity</string>
-    <string name="color">color</string>
-    <string name="proximity">proximity</string>
-    <string name="temperature">temperature</string>
-    <string name="humidity">humidity</string>
-    <string name="empty"></string>
-    <string name="meaning">meaning</string>
     <string name="unknown_device">unknown device</string>
     <string name="scan">scan</string>
-    <string name="stopped_scanning">Stopped scanning</string>
-    <string name="started_scanning">Started scanning</string>
     <string name="no_value">-</string>
     <string name="attached_device">Attached device</string>
     <string name="failed_to_attach_device">Failed to attach device</string>
     <string name="detached_device">Detached device</string>
     <string name="failed_to_detach_device">Failed to detach device</string>
+    <string name="meaning">meaning</string>
     <string name="value">value</string>
 </resources>
