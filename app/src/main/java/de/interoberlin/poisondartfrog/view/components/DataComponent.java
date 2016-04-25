@@ -2,11 +2,14 @@ package de.interoberlin.poisondartfrog.view.components;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.txusballesteros.SnakeView;
+import org.eazegraph.lib.charts.ValueLineChart;
+import org.eazegraph.lib.models.ValueLinePoint;
+import org.eazegraph.lib.models.ValueLineSeries;
 
 import java.util.Map;
 import java.util.Queue;
@@ -38,7 +41,7 @@ public class DataComponent extends LinearLayout {
                 LinearLayout llData = new LinearLayout(context);
                 TextView tvMeaning = new TextView(context);
                 TextView tvValue = new TextView(context);
-                SnakeView sv = new SnakeView(context);
+                ValueLineChart vlcValues = new ValueLineChart(context);
 
                 llData.setOrientation(VERTICAL);
 
@@ -46,19 +49,17 @@ public class DataComponent extends LinearLayout {
                 Reading latest = device.getLatestReadings().get(e.getKey());
                 boolean numeric;
 
-
-                sv.setMinValue(0);
-                sv.setMaxValue(1024);
-                sv.setMinimumHeight(200);
-                sv.setMaximumNumberOfValues(10);
+                ValueLineSeries series = new ValueLineSeries();
+                series.setColor(context.getResources().getColor(R.color.colorAccent));
 
                 try {
                     for (Reading r : q) {
                         float value = Float.parseFloat(r.value.toString());
-                        sv.addValue(value);
+                        series.addPoint(new ValueLinePoint("", value));
                     }
                     numeric = true;
                 } catch (NumberFormatException nfe) {
+                    Log.e(TAG, nfe.getMessage());
                     numeric = false;
                 }
 
@@ -75,8 +76,16 @@ public class DataComponent extends LinearLayout {
 
                 llData.addView(tvMeaning);
                 llData.addView(tvValue);
-                if (numeric)
-                    llData.addView(sv);
+                if (numeric) {
+                    vlcValues.setUseDynamicScaling(true);
+                    vlcValues.setMinimumHeight(400);
+                    vlcValues.setTop(50);
+                    vlcValues.setUseCubic(true);
+                    vlcValues.addSeries(series);
+                    llData.addView(vlcValues);
+                }
+
+
                 addView(llData);
             }
         }

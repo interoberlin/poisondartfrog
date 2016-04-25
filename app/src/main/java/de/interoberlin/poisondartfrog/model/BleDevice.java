@@ -36,7 +36,7 @@ import rx.functions.Func1;
 public class BleDevice {
     public static final String TAG = BleDevice.class.getSimpleName();
 
-    public static final int READING_HISTORY = 10;
+    public static final int READING_HISTORY = 40;
 
     private final Activity activity;
     private final BluetoothDevice device;
@@ -192,7 +192,11 @@ public class BleDevice {
                         if (readings.containsKey(reading.meaning)) {
                             queue = readings.get(reading.meaning);
                         } else {
+                            // Init queue and add dummy values
                             queue = EvictingQueue.create(READING_HISTORY);
+                            for (int i = 0; i < READING_HISTORY; i++) {
+                                queue.add(new Reading(0, 0, reading.meaning, reading.path, "0.0"));
+                            }
                         }
 
                         queue.add(reading);
