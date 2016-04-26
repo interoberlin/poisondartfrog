@@ -1,5 +1,3 @@
-ext.javadocDir = project.hasProperty('javadoc') ? project.getProperty('javadoc') : 'javadoc'
-
 android.applicationVariants.all { variant ->
     // Tidy javadoc dir
     task "tidyJavadoc${variant.name}"(type: Delete) {

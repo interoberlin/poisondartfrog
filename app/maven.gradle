@@ -1,5 +1,3 @@
-def version = versionMajor + '.' + versionMinor + '.' + versionPatch
-
 uploadArchives {
     repositories {
         mavenDeployer {
