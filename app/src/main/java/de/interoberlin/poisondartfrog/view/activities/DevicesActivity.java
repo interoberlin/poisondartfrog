@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -49,8 +50,12 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private BluetoothAdapter bluetoothAdapter;
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
-    private final static int REQUEST_ENABLE_BT = 2;
-    private final static int REQUEST_ENABLE_LOCATION = 3;
+    private static final int PERMISSION_VIBRATE = 2;
+    private final static int REQUEST_ENABLE_BT = 3;
+    private final static int REQUEST_ENABLE_LOCATION = 4;
+
+    // Properties
+    private static int VIBRATION_DURATION;
 
     private Handler handler;
 
@@ -112,8 +117,11 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
 
+        VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
+
         requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         requestPermission(Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
+        requestPermission(Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -200,6 +208,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
+        vibrate(VIBRATION_DURATION);;
         if (devicesController.attach(bluetoothLeService, new BleDevice(this, device, BleDeviceManager.getInstance()))) {
             updateListView();
             snack(R.string.attached_device);
@@ -210,6 +219,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onDetachDevice(BleDevice device) {
+        vibrate(VIBRATION_DURATION);
         if (devicesController.detach(bluetoothLeService, device)) {
             updateListView();
             snack(R.string.detached_device);
@@ -221,6 +231,10 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     // --------------------
     // Methods
     // --------------------
+
+    private void vibrate(int duration) {
+        ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(duration);
+    }
 
     private void checkBleSupport() {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -298,6 +312,8 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @SuppressWarnings("deprecation")
     private void scanLeDevice(final boolean enable, final long scanPeriod) {
+        vibrate(VIBRATION_DURATION);
+
         if (enable) {
             devicesController.getScannedDevices().clear();
             handler = new Handler();

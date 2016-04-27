@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Vibrator;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private List<BleDevice> originalItems = new ArrayList<>();
     private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
 
+    // Properties
+    private static int VIBRATION_DURATION;
+
     private final Object lock = new Object();
 
     // --------------------
@@ -62,6 +66,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         this.context = context;
         this.activity = activity;
         this.ocListener = (OnCompleteListener) activity;
+
+        VIBRATION_DURATION = activity.getResources().getInteger(R.integer.vibration_duration);
 
         filter();
     }
@@ -159,6 +165,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
                     DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
                     if (!device.isSubscribing()) {
@@ -183,6 +190,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
                     device.write(ECharacteristic.LED_STATE.getId(), true);
                 }
             });
@@ -191,6 +199,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         }
 
         return llCardDevice;
+    }
+
+    private void vibrate(int VIBRATION_DURATION) {
+        ((Vibrator) activity.getSystemService(Activity.VIBRATOR_SERVICE)).vibrate(VIBRATION_DURATION);
     }
 
     // --------------------
