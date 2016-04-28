@@ -103,6 +103,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
+        final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
 
         // Set values
         tvName.setText(device.getName());
@@ -196,6 +197,18 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             });
         } else {
             ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
+        }
+
+        // Send
+        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)) {
+            ivSendTemperature.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        } else {
+            ((ViewManager) ivSendTemperature.getParent()).removeView(ivSendTemperature);
         }
 
         return llCardDevice;

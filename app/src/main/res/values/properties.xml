@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="vibration_duration">50</integer>
+    <string name="golem_temperature_url">http://golem.de/projekte/ot/temp.php</string>
+    <string name="golem_temperature_token">a54a54bad9a51bd059ba4746157eef21</string>
 </resources>
