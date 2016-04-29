@@ -1,6 +1,7 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.os.Build;
 import android.os.Vibrator;
@@ -16,13 +17,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
+import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
+import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import rx.Subscription;
@@ -199,12 +205,35 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
         }
 
-        // Send
-        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)) {
+        // Send temperature
+        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU) && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
             ivSendTemperature.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
 
+                    if (activity instanceof HttpGetTask.OnCompleteListener) {
+                        HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
+                        String url = activity.getResources().getString(R.string.golem_temperature_url);
+
+                        if (device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
+                            String temperature = device.getLatestReadings().get("temperature").value.toString();
+
+                            Map<EHttpParameter, String> values = new LinkedHashMap<>();
+                            values.put(EHttpParameter.DBG, "0");
+                            values.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
+                            values.put(EHttpParameter.CITY, "Berlin");
+                            values.put(EHttpParameter.COUNTRY, "DE");
+                            values.put(EHttpParameter.TYPE, "other");
+                            values.put(EHttpParameter.TEMP, temperature);
+
+                            try {
+                                new HttpGetTask(listener, url).execute(values).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             });
         } else {
@@ -212,6 +241,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         }
 
         return llCardDevice;
+    }
+
+    private void vibrate() {
+        vibrate(Notification.DEFAULT_VIBRATE);
     }
 
     private void vibrate(int VIBRATION_DURATION) {

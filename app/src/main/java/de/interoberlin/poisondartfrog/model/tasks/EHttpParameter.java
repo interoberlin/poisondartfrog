@@ -1,7 +1,7 @@
 package de.interoberlin.poisondartfrog.model.tasks;
 
 public enum EHttpParameter {
-    DGG("dbg"),
+    DBG("dbg"),
     TOKEN("token"),
     CITY("city"),
     ZIP("zip"),

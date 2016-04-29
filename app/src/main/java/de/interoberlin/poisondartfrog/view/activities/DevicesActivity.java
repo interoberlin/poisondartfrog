@@ -34,11 +34,12 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
+import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Model
@@ -51,8 +52,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_VIBRATE = 2;
-    private final static int REQUEST_ENABLE_BT = 3;
-    private final static int REQUEST_ENABLE_LOCATION = 4;
+    private static final int PERMISSION_REQUEST_INTERNET = 3;
+    private final static int REQUEST_ENABLE_BT = 4;
+    private final static int REQUEST_ENABLE_LOCATION = 5;
 
     // Properties
     private static int VIBRATION_DURATION;
@@ -122,6 +124,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         requestPermission(Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
         requestPermission(Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
+        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_INTERNET);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -208,7 +211,8 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onAttachDevice(BluetoothDevice device) {
-        vibrate(VIBRATION_DURATION);;
+        vibrate(VIBRATION_DURATION);
+        ;
         if (devicesController.attach(bluetoothLeService, new BleDevice(this, device, BleDeviceManager.getInstance()))) {
             updateListView();
             snack(R.string.attached_device);
@@ -226,6 +230,11 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         } else {
             snack(R.string.failed_to_detach_device);
         }
+    }
+
+    @Override
+    public void onHttpGetExecuted(String response) {
+        snack(response);
     }
 
     // --------------------
@@ -284,7 +293,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
      * @param permission permission to ask for
      * @param callBack   callback
      */
-    private void requestPermission(String permission, int callBack) {
+    public void requestPermission(String permission, int callBack) {
         if (ContextCompat.checkSelfPermission(this,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {

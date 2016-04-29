@@ -4,10 +4,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,8 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     public static final String TAG = HttpGetTask.class.toString();
 
     private static final String HTTP_METHOD = "GET";
+    private static final String ENCODING = "UTF-8";
+    private static final String CONTENT_TYPE = "text/plain";
     private static final int RESPONSE_CODE_OKAY = 200;
 
     private static OnCompleteListener ocListener;
@@ -44,7 +47,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
 
         if (values != null && !values.isEmpty()) {
             try {
-                return callGolemTemperatureURL(values);
+                return callURL(values);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,23 +75,19 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     /**
      *
      */
-    private static String callGolemTemperatureURL(Map<EHttpParameter, String> values) throws Exception {
-        // projekte/ot/temp.php?dbg=1&token=a54a54bad9a51bd059ba4746157eef21&city=Berlin&zip=133&
-        // country=DE&lat=0.0&long=0.0&type=other&temp=
-
+    private static String callURL(Map<EHttpParameter, String> values) throws Exception {
         // Connection
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection con = (HttpURLConnection) new URL(url + getParamString(values)).openConnection();
 
         // Request header
         con.setRequestMethod(HTTP_METHOD);
         con.setDoOutput(true);
+        con.setRequestProperty("Content-Type", CONTENT_TYPE + "; charset=" + ENCODING);
+        con.setRequestProperty("Accept-Charset", ENCODING);
+
+        Log.i(TAG, url + getParamString(values));
 
         // Execute request
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(getParamString(values));
-        wr.flush();
-        wr.close();
-
         try {
             if (con.getResponseCode() != RESPONSE_CODE_OKAY) {
                 Log.e(TAG, "Error after executing http call");
@@ -115,7 +114,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
                 Log.e(TAG, response.toString());
                 return null;
             } else {
-                return response.toString();
+                return String.valueOf(con.getResponseCode());
             }
         } finally {
             con.disconnect();
@@ -125,9 +124,15 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     public static String getParamString(Map<EHttpParameter, String> values) {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("?");
+
         // Append params
         for (Map.Entry<EHttpParameter, String> v : values.entrySet()) {
-            sb.append(v.getKey().getParam()).append("=").append(v.getValue()).append("&");
+            try {
+                sb.append(v.getKey().getParam()).append("=").append(URLEncoder.encode(v.getValue(), ENCODING)).append("&");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         // Remove trailing ampersand
