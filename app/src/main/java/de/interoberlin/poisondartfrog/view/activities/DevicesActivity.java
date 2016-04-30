@@ -1,6 +1,7 @@
 package de.interoberlin.poisondartfrog.view.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -11,6 +12,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,7 +43,7 @@ import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener {
+public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Model
@@ -52,9 +56,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_VIBRATE = 2;
-    private static final int PERMISSION_REQUEST_INTERNET = 3;
-    private final static int REQUEST_ENABLE_BT = 4;
-    private final static int REQUEST_ENABLE_LOCATION = 5;
+
+    private final static int REQUEST_ENABLE_BT = 100;
+    private final static int REQUEST_ENABLE_LOCATION = 101;
 
     // Properties
     private static int VIBRATION_DURATION;
@@ -110,6 +114,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         }
     };
 
+    private LocationManager locationManager;
+    private Location currentLocation;
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
@@ -120,11 +127,11 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         setContentView(R.layout.activity_devices);
 
         VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
-        requestPermission(Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
-        requestPermission(Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
-        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_INTERNET);
+        requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        requestPermission(this, Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
+        requestPermission(this, Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -212,7 +219,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     @Override
     public void onAttachDevice(BluetoothDevice device) {
         vibrate(VIBRATION_DURATION);
-        ;
+
+        getSingleLocation();
+
         if (devicesController.attach(bluetoothLeService, new BleDevice(this, device, BleDeviceManager.getInstance()))) {
             updateListView();
             snack(R.string.attached_device);
@@ -237,9 +246,34 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         snack(response);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        this.currentLocation = location;
+        Log.i(TAG, "Location " + location.getLongitude() + " / " + location.getLatitude());
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
     // --------------------
     // Methods
     // --------------------
+
+    public void getSingleLocation() {
+        String provider = locationManager.getBestProvider(new Criteria(), false);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestSingleUpdate(provider, this, null);
+        }
+    }
 
     private void vibrate(int duration) {
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(duration);
@@ -290,18 +324,19 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     /**
      * Asks user for permission
      *
+     * @param activity   activity
      * @param permission permission to ask for
      * @param callBack   callback
      */
-    public void requestPermission(String permission, int callBack) {
-        if (ContextCompat.checkSelfPermission(this,
+    public static void requestPermission(Activity activity, String permission, int callBack) {
+        if (ContextCompat.checkSelfPermission(activity,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "Permission not granted");
 
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(activity,
                     permission)) {
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions(activity,
                         new String[]{permission},
                         callBack);
             }
@@ -383,5 +418,13 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
         devicesAdapter.filter();
         lv.invalidateViews();
+    }
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    public Location getCurrentLocation() {
+        return currentLocation;
     }
 }

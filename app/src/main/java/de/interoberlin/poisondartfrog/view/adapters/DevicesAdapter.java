@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.Context;
+import android.location.Location;
 import android.os.Build;
 import android.os.Vibrator;
 import android.support.v4.content.ContextCompat;
@@ -173,18 +174,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 @Override
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
-                    DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                    if (activity instanceof DevicesActivity) {
+                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
-                    if (!device.isSubscribing()) {
-                        device.setSubscribing(true);
-                        deviceSubscription = device.subscribe(ECharacteristic.DATA.getId());
-                        devicesActivity.updateListView();
-                        devicesActivity.snack("Started subscription");
-                    } else {
-                        device.setSubscribing(false);
-                        devicesActivity.updateListView();
-                        devicesActivity.snack("Stopped subscription");
-                        deviceSubscription.unsubscribe();
+                        if (!device.isSubscribing()) {
+                            device.setSubscribing(true);
+                            deviceSubscription = device.subscribe(ECharacteristic.DATA.getId());
+                            devicesActivity.updateListView();
+                            devicesActivity.snack("Started subscription");
+                        } else {
+                            device.setSubscribing(false);
+                            devicesActivity.updateListView();
+                            devicesActivity.snack("Stopped subscription");
+                            deviceSubscription.unsubscribe();
+                        }
                     }
                 }
             });
@@ -212,6 +215,14 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
 
+                    Location location = null;
+                    if (activity instanceof DevicesActivity) {
+                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                        devicesActivity.getSingleLocation();
+                        location = devicesActivity.getCurrentLocation();
+                    }
+
+                    // Call webservice
                     if (activity instanceof HttpGetTask.OnCompleteListener) {
                         HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
                         String url = activity.getResources().getString(R.string.golem_temperature_url);
@@ -220,15 +231,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                             String temperature = device.getLatestReadings().get("temperature").value.toString();
 
                             Map<EHttpParameter, String> values = new LinkedHashMap<>();
-                            values.put(EHttpParameter.DBG, "0");
+                            values.put(EHttpParameter.DBG, "1");
                             values.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
                             values.put(EHttpParameter.CITY, "Berlin");
                             values.put(EHttpParameter.COUNTRY, "DE");
                             values.put(EHttpParameter.TYPE, "other");
                             values.put(EHttpParameter.TEMP, temperature);
 
+                            if (location != null) {
+                                values.put(EHttpParameter.LAT, String.valueOf(location.getLatitude()));
+                                values.put(EHttpParameter.LONG, String.valueOf(location.getLongitude()));
+                            }
+
                             try {
-                                new HttpGetTask(listener, url).execute(values).get();
+                                new HttpGetTask(activity, listener, url).execute(values).get();
                             } catch (InterruptedException | ExecutionException e) {
                                 e.printStackTrace();
                             }
