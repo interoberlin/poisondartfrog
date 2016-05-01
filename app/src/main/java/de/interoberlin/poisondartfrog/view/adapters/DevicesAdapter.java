@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
@@ -54,8 +57,12 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private List<BleDevice> originalItems = new ArrayList<>();
     private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
 
+    // Timers
+    private Timer timer;
+
     // Properties
     private static int VIBRATION_DURATION;
+    private static int GOLEM_SEND_PERIOD;
 
     private final Object lock = new Object();
 
@@ -74,7 +81,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         this.activity = activity;
         this.ocListener = (OnCompleteListener) activity;
 
+        this.timer = new Timer();
+
         VIBRATION_DURATION = activity.getResources().getInteger(R.integer.vibration_duration);
+        GOLEM_SEND_PERIOD = activity.getResources().getInteger(R.integer.golem_send_period);
 
         filter();
     }
@@ -164,6 +174,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         ivDetach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                timer.cancel();
                 ocListener.onDetachDevice(device);
             }
         });
@@ -187,6 +198,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                             devicesActivity.updateListView();
                             devicesActivity.snack("Stopped subscription");
                             deviceSubscription.unsubscribe();
+
+                            timer.cancel();
+                            devicesActivity.snack("Cancelled timer");
                         }
                     }
                 }
@@ -215,41 +229,52 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
 
-                    Location location = null;
-                    if (activity instanceof DevicesActivity) {
-                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                        devicesActivity.getSingleLocation();
-                        location = devicesActivity.getCurrentLocation();
-                    }
+                    timer.purge();
+                    timer.scheduleAtFixedRate(new TimerTask() {
+                        synchronized public void run() {
+                            Location location = null;
+                            if (activity instanceof DevicesActivity) {
+                                DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                                devicesActivity.snack("Started timer");
 
-                    // Call webservice
-                    if (activity instanceof HttpGetTask.OnCompleteListener) {
-                        HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
-                        String url = activity.getResources().getString(R.string.golem_temperature_url);
-
-                        if (device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
-                            String temperature = device.getLatestReadings().get("temperature").value.toString();
-
-                            Map<EHttpParameter, String> values = new LinkedHashMap<>();
-                            values.put(EHttpParameter.DBG, "1");
-                            values.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
-                            values.put(EHttpParameter.CITY, "Berlin");
-                            values.put(EHttpParameter.COUNTRY, "DE");
-                            values.put(EHttpParameter.TYPE, "other");
-                            values.put(EHttpParameter.TEMP, temperature);
-
-                            if (location != null) {
-                                values.put(EHttpParameter.LAT, String.valueOf(location.getLatitude()));
-                                values.put(EHttpParameter.LONG, String.valueOf(location.getLongitude()));
+                                // Update location
+                                devicesActivity.getSingleLocation();
+                                location = devicesActivity.getCurrentLocation();
                             }
 
-                            try {
-                                new HttpGetTask(activity, listener, url).execute(values).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
+                            if (activity instanceof HttpGetTask.OnCompleteListener) {
+                                HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
+                                String url = activity.getResources().getString(R.string.golem_temperature_url);
+
+                                if (device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
+                                    String temperature = device.getLatestReadings().get("temperature").value.toString();
+
+                                    // Add parameters
+                                    Map<EHttpParameter, String> parameters = new LinkedHashMap<>();
+                                    parameters.put(EHttpParameter.DBG, "1");
+                                    parameters.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
+                                    parameters.put(EHttpParameter.CITY, "Berlin");
+                                    parameters.put(EHttpParameter.COUNTRY, "DE");
+                                    parameters.put(EHttpParameter.TYPE, "other");
+                                    parameters.put(EHttpParameter.TEMP, temperature);
+
+                                    // Add location parameters
+                                    if (location != null) {
+                                        parameters.put(EHttpParameter.LAT, String.valueOf(location.getLatitude()));
+                                        parameters.put(EHttpParameter.LONG, String.valueOf(location.getLongitude()));
+                                    }
+
+                                    // Call webservice
+                                    try {
+                                        new HttpGetTask(activity, listener, url).execute(parameters).get();
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
                         }
-                    }
+
+                    }, TimeUnit.MINUTES.toMillis(0), TimeUnit.MINUTES.toMillis(GOLEM_SEND_PERIOD));
                 }
             });
         } else {

@@ -51,8 +51,8 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     }
 
     @Override
-    protected String doInBackground(Map<EHttpParameter, String>... params) {
-        Map<EHttpParameter, String> values = params[0];
+    protected String doInBackground(Map<EHttpParameter, String>... parameters) {
+        Map<EHttpParameter, String> values = parameters[0];
 
         if (values != null && !values.isEmpty()) {
             try {

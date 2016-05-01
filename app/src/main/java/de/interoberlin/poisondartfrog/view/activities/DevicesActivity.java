@@ -243,7 +243,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onHttpGetExecuted(String response) {
-        snack(response);
+        toast(response);
     }
 
     @Override
@@ -390,7 +390,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     }
 
     /**
-     * Displays a snack with a given {@code text}
+     * Displays a snack with a given {@code text resource}
      *
      * @param text text resource
      */
@@ -408,6 +408,22 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     public void snack(String text) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
+     * Displays a toast with a give {@code text resource}
+     * @param text
+     */
+    public void toast(int text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Displays a toast with a give {@code text resource}
+     * @param text
+     */
+    public void toast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
     /**
