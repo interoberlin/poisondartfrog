@@ -243,7 +243,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     @Override
     public void onHttpGetExecuted(String response) {
-        toast(response);
+        toast("Webservice response " + response);
     }
 
     @Override

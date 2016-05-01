@@ -3,5 +3,10 @@
     <integer name="vibration_duration">25</integer>
     <integer name="golem_send_period">15</integer>
     <string name="golem_temperature_url">http://golem.de/projekte/ot/temp.php</string>
+
+    <integer name="golem_temperature_dbg">0</integer>
     <string name="golem_temperature_token">a54a54bad9a51bd059ba4746157eef21</string>
+    <string name="golem_temperature_city">Berlin</string>
+    <string name="golem_temperature_county">DE</string>
+    <string name="golem_temperature_type">other</string>
 </resources>

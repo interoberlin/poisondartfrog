@@ -251,11 +251,11 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                                     // Add parameters
                                     Map<EHttpParameter, String> parameters = new LinkedHashMap<>();
-                                    parameters.put(EHttpParameter.DBG, "1");
+                                    parameters.put(EHttpParameter.DBG, String.valueOf(activity.getResources().getInteger(R.integer.golem_temperature_dbg)));
                                     parameters.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
-                                    parameters.put(EHttpParameter.CITY, "Berlin");
-                                    parameters.put(EHttpParameter.COUNTRY, "DE");
-                                    parameters.put(EHttpParameter.TYPE, "other");
+                                    parameters.put(EHttpParameter.CITY, activity.getResources().getString(R.string.golem_temperature_city));
+                                    parameters.put(EHttpParameter.COUNTRY, activity.getResources().getString(R.string.golem_temperature_county));
+                                    parameters.put(EHttpParameter.TYPE, activity.getResources().getString(R.string.golem_temperature_type));
                                     parameters.put(EHttpParameter.TEMP, temperature);
 
                                     // Add location parameters
