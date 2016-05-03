@@ -139,7 +139,8 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
         // Append params
         for (Map.Entry<EHttpParameter, String> v : values.entrySet()) {
             try {
-                sb.append(v.getKey().getParam()).append("=").append(URLEncoder.encode(v.getValue(), ENCODING)).append("&");
+                if (v.getValue() != null)
+                    sb.append(v.getKey().getParam()).append("=").append(URLEncoder.encode(v.getValue(), ENCODING)).append("&");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

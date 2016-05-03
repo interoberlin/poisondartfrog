@@ -3,9 +3,12 @@ package de.interoberlin.poisondartfrog.view.adapters;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +53,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private Subscription deviceSubscription = Subscriptions.empty();
 
     // Controllers
-    DevicesController devicesController;
+    private DevicesController devicesController;
+
+    private SharedPreferences prefs;
+    private Resources res;
 
     // Filter
     private List<BleDevice> filteredItems = new ArrayList<>();
@@ -59,6 +65,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
     // Timers
     private Timer timer;
+
+    // Tasks
+    private HttpGetTask httpGetTask;
 
     // Properties
     private static int VIBRATION_DURATION;
@@ -74,6 +83,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
 
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        this.res = activity.getResources();
+
         this.filteredItems = items;
         this.originalItems = items;
 
@@ -84,7 +96,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         this.timer = new Timer();
 
         VIBRATION_DURATION = activity.getResources().getInteger(R.integer.vibration_duration);
-        GOLEM_SEND_PERIOD = activity.getResources().getInteger(R.integer.golem_send_period);
+        GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
+        if (GOLEM_SEND_PERIOD < 5) GOLEM_SEND_PERIOD = 5;
 
         filter();
     }
@@ -175,6 +188,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             @Override
             public void onClick(View v) {
                 timer.cancel();
+                timer = new Timer();
+                if (httpGetTask != null) httpGetTask.cancel(true);
+
                 ocListener.onDetachDevice(device);
             }
         });
@@ -200,6 +216,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                             deviceSubscription.unsubscribe();
 
                             timer.cancel();
+                            timer = new Timer();
+                            if (httpGetTask != null) httpGetTask.cancel(true);
                             devicesActivity.snack("Cancelled timer");
                         }
                     }
@@ -244,18 +262,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                             if (activity instanceof HttpGetTask.OnCompleteListener) {
                                 HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
-                                String url = activity.getResources().getString(R.string.golem_temperature_url);
+                                String url = prefs.getString(res.getString(R.string.pref_golem_temperature_url), null);
 
                                 if (device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
                                     String temperature = device.getLatestReadings().get("temperature").value.toString();
 
                                     // Add parameters
                                     Map<EHttpParameter, String> parameters = new LinkedHashMap<>();
-                                    parameters.put(EHttpParameter.DBG, String.valueOf(activity.getResources().getInteger(R.integer.golem_temperature_dbg)));
-                                    parameters.put(EHttpParameter.TOKEN, activity.getResources().getString(R.string.golem_temperature_token));
-                                    parameters.put(EHttpParameter.CITY, activity.getResources().getString(R.string.golem_temperature_city));
-                                    parameters.put(EHttpParameter.COUNTRY, activity.getResources().getString(R.string.golem_temperature_county));
-                                    parameters.put(EHttpParameter.TYPE, activity.getResources().getString(R.string.golem_temperature_type));
+
+                                    parameters.put(EHttpParameter.DBG, String.valueOf(prefs.getBoolean(res.getString(R.string.pref_golem_temperature_dbg), true) ? "1" : "0"));
+                                    parameters.put(EHttpParameter.TOKEN, prefs.getString(res.getString(R.string.pref_golem_temperature_token), null));
+                                    parameters.put(EHttpParameter.TYPE, prefs.getString(res.getString(R.string.pref_golem_temperature_type), res.getString(R.string.pref_default_golem_temperature_type)));
+                                    parameters.put(EHttpParameter.COUNTRY, prefs.getString(res.getString(R.string.pref_golem_temperature_country), null));
+                                    parameters.put(EHttpParameter.CITY, prefs.getString(res.getString(R.string.pref_golem_temperature_city), null));
+                                    parameters.put(EHttpParameter.ZIP, prefs.getString(res.getString(R.string.pref_golem_temperature_zip), null));
                                     parameters.put(EHttpParameter.TEMP, temperature);
 
                                     // Add location parameters
@@ -266,7 +286,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                                     // Call webservice
                                     try {
-                                        new HttpGetTask(activity, listener, url).execute(parameters).get();
+                                        httpGetTask = new HttpGetTask(activity, listener, url);
+                                        httpGetTask.execute(parameters).get();
                                     } catch (InterruptedException | ExecutionException e) {
                                         e.printStackTrace();
                                     }

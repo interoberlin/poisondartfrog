@@ -1,0 +1,66 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_golem_temperature_url"
+        android:inputType="textUri"
+        android:key="@string/pref_golem_temperature_url"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_url" />
+
+    <EditTextPreference
+        android:defaultValue="@integer/pref_default_golem_temperature_send_period"
+        android:inputType="number"
+        android:key="@string/pref_golem_temperature_send_period"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_send_period" />
+
+    <SwitchPreference
+        android:defaultValue="@bool/pref_default_golem_temperature_dbg"
+        android:key="@string/pref_golem_temperature_dbg"
+        android:title="@string/pref_title_golem_temperature_dbg" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="@string/pref_golem_temperature_token"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_token" />
+
+    <ListPreference
+        android:defaultValue="@string/pref_default_golem_temperature_type"
+        android:entries="@array/golem_temperature_type_titles"
+        android:entryValues="@array/golem_temperature_type_values"
+        android:inputType="text"
+        android:key="@string/pref_golem_temperature_type"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_type" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="@string/pref_golem_temperature_country"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_country" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="@string/pref_golem_temperature_city"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_city" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="@string/pref_golem_temperature_zip"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_golem_temperature_zip" />
+</PreferenceScreen>

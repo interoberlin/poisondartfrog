@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_header_golem_temperature">golem.de temperature</string>
+
+    <integer name="vibration_duration">25</integer>
+
+    <string name="pref_golem_temperature_url">pref_golem_temperature_url</string>
+    <string name="pref_golem_temperature_send_period">pref_golem_temperature_send_period</string>
+    <string name="pref_golem_temperature_dbg">pref_golem_temperature_dbg</string>
+    <string name="pref_golem_temperature_token">pref_golem_temperature_token</string>
+    <string name="pref_golem_temperature_type">pref_golem_temperature_type</string>
+    <string name="pref_golem_temperature_country">pref_golem_temperature_county</string>
+    <string name="pref_golem_temperature_city">pref_golem_temperature_city</string>
+    <string name="pref_golem_temperature_zip">pref_golem_temperature_zip</string>
+
+    <string name="pref_title_golem_temperature_url">Golem URL</string>
+    <string name="pref_title_golem_temperature_send_period">Send Period</string>
+    <string name="pref_title_golem_temperature_dbg">Debug</string>
+    <string name="pref_title_golem_temperature_token">Token</string>
+    <string name="pref_title_golem_temperature_type">Type</string>
+    <string name="pref_title_golem_temperature_country">Country</string>
+    <string name="pref_title_golem_temperature_city">City</string>
+    <string name="pref_title_golem_temperature_zip">ZIP</string>
+
+    <integer name="pref_default_golem_temperature_send_period">15</integer>
+    <string name="pref_default_golem_temperature_url">http://golem.de/projekte/ot/temp.php</string>
+    <bool name="pref_default_golem_temperature_dbg">true</bool>
+    <string name="pref_default_golem_temperature_type">other</string>
+
+    <integer-array name="golem_temperature_dbg_titles">
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+
+    <integer-array name="golem_temperature_dbg_values">
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+
+    <string-array name="golem_temperature_type_titles">
+        <item>Arduino</item>
+        <item>SBC</item>
+        <item>WifiMcu</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="golem_temperature_type_values">
+        <item>ard</item>
+        <item>sbc</item>
+        <item>wifimcu</item>
+        <item>other</item>
+    </string-array>
+</resources>
