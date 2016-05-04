@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,8 +71,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // Tasks
     private HttpGetTask httpGetTask;
 
-    private Location location;
-
     // Properties
     private static int VIBRATION_DURATION;
     private static int GOLEM_SEND_PERIOD;
@@ -99,7 +99,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         VIBRATION_DURATION = activity.getResources().getInteger(R.integer.vibration_duration);
         GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
-        if (GOLEM_SEND_PERIOD < 5) GOLEM_SEND_PERIOD = 5;
+        if (GOLEM_SEND_PERIOD < 1) GOLEM_SEND_PERIOD = 5;
 
         filter();
     }
@@ -247,19 +247,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
 
-                    if (activity instanceof DevicesActivity) {
-                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                        devicesActivity.snack("Started timer");
-
-                        // Update location
-                        devicesActivity.getSingleLocation();
-                        location = devicesActivity.getCurrentLocation();
-                    }
-
                     timer = new Timer();
                     timer.purge();
                     timer.scheduleAtFixedRate(new TimerTask() {
                         synchronized public void run() {
+                            Location location = null;
+                            if (activity instanceof DevicesActivity) {
+                                DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                                devicesActivity.snack("Started timer");
+
+                                // Update location
+                                devicesActivity.getSingleLocation();
+                                location = devicesActivity.getCurrentLocation();
+                            }
+
                             if (activity instanceof HttpGetTask.OnCompleteListener) {
                                 HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
                                 String url = prefs.getString(res.getString(R.string.pref_golem_temperature_url), null);
@@ -280,8 +281,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                                     // Add location parameters
                                     if (location != null) {
-                                        parameters.put(EHttpParameter.LAT, String.valueOf(location.getLatitude()));
-                                        parameters.put(EHttpParameter.LONG, String.valueOf(location.getLongitude()));
+                                        parameters.put(EHttpParameter.LAT, String.valueOf(round(location.getLatitude(), 2)));
+                                        parameters.put(EHttpParameter.LONG, String.valueOf(round(location.getLongitude(), 2)));
                                     }
 
                                     // Call webservice
@@ -311,6 +312,14 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
     private void vibrate(int VIBRATION_DURATION) {
         ((Vibrator) activity.getSystemService(Activity.VIBRATOR_SERVICE)).vibrate(VIBRATION_DURATION);
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     // --------------------
