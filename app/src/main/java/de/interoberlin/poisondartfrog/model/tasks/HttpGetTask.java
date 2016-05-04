@@ -54,7 +54,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     protected String doInBackground(Map<EHttpParameter, String>... parameters) {
         Map<EHttpParameter, String> values = parameters[0];
 
-        if (values != null && !values.isEmpty()) {
+        if (url != null && values != null && !values.isEmpty()) {
             try {
                 requestPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_INTERNET);
                 return callURL(values);

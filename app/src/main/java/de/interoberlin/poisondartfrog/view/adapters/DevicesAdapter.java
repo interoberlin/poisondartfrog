@@ -69,6 +69,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // Tasks
     private HttpGetTask httpGetTask;
 
+    private Location location;
+
     // Properties
     private static int VIBRATION_DURATION;
     private static int GOLEM_SEND_PERIOD;
@@ -187,8 +189,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         ivDetach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                timer.cancel();
-                timer = new Timer();
+                if (timer != null) timer.cancel();
                 if (httpGetTask != null) httpGetTask.cancel(true);
 
                 ocListener.onDetachDevice(device);
@@ -215,8 +216,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                             devicesActivity.snack("Stopped subscription");
                             deviceSubscription.unsubscribe();
 
-                            timer.cancel();
-                            timer = new Timer();
+                            if (timer != null) timer.cancel();
                             if (httpGetTask != null) httpGetTask.cancel(true);
                             devicesActivity.snack("Cancelled timer");
                         }
@@ -247,19 +247,19 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
 
+                    if (activity instanceof DevicesActivity) {
+                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                        devicesActivity.snack("Started timer");
+
+                        // Update location
+                        devicesActivity.getSingleLocation();
+                        location = devicesActivity.getCurrentLocation();
+                    }
+
+                    timer = new Timer();
                     timer.purge();
                     timer.scheduleAtFixedRate(new TimerTask() {
                         synchronized public void run() {
-                            Location location = null;
-                            if (activity instanceof DevicesActivity) {
-                                DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                                devicesActivity.snack("Started timer");
-
-                                // Update location
-                                devicesActivity.getSingleLocation();
-                                location = devicesActivity.getCurrentLocation();
-                            }
-
                             if (activity instanceof HttpGetTask.OnCompleteListener) {
                                 HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
                                 String url = prefs.getString(res.getString(R.string.pref_golem_temperature_url), null);
