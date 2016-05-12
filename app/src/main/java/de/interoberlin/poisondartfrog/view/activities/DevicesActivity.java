@@ -167,26 +167,22 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         fab.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
-                if (devicesController.getAttachedDevices().isEmpty()) {
-                    switch (arg1.getAction()) {
-                        case MotionEvent.ACTION_DOWN: {
-                            times[0] = System.currentTimeMillis();
-                            break;
-                        }
-                        case MotionEvent.ACTION_CANCEL: {
-                            break;
-                        }
-                        case MotionEvent.ACTION_UP: {
-                            times[1] = System.currentTimeMillis();
-                            long diff = times[1] - times[0];
-                            final long scanPeriod = diff < 1000 ? 1000 : diff;
-
-                            scanLeDevice(true, scanPeriod);
-                            break;
-                        }
+                switch (arg1.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        times[0] = System.currentTimeMillis();
+                        break;
                     }
-                } else {
-                    snack("Detach device first");
+                    case MotionEvent.ACTION_CANCEL: {
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        times[1] = System.currentTimeMillis();
+                        long diff = times[1] - times[0];
+                        final long scanPeriod = diff < 1000 ? 1000 : diff;
+
+                        scanLeDevice(true, scanPeriod);
+                        break;
+                    }
                 }
                 return true;
             }
@@ -436,6 +432,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     /**
      * Displays a toast with a give {@code text resource}
+     *
      * @param text
      */
     public void toast(int text) {
@@ -444,6 +441,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     /**
      * Displays a toast with a give {@code text resource}
+     *
      * @param text
      */
     public void toast(String text) {
