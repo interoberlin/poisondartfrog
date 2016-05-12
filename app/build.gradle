@@ -26,12 +26,14 @@ repositories {
     }
 }
 
-println project.hasProperty('patch') ? "has" : "not"
-
 ext.versionPatch = project.hasProperty('patch') ? project.getProperty('patch') : versionPatch
 ext.javadocDir = project.hasProperty('javadoc') ? project.getProperty('javadoc') : 'javadoc'
 ext.fdroidDir = project.hasProperty('fdroid') ? project.getProperty('fdroid') : null
 ext.fdroidMessage = project.hasProperty('message') ? project.getProperty('message') : "git log --format=%B -n 1".execute().text.trim()
+
+ext.apkName = 'app-release'
+ext.apkNameMaven = artifactId + '-' + version
+ext.apkNameFrdoid = (System.getenv("GIT_COMMIT") == null) ? apkNameMaven : apkNameMaven + '.' + System.getenv("GIT_COMMIT").substring(0, 8)
 
 android {
     compileSdkVersion 23
@@ -98,10 +100,6 @@ task injectProperties() {
     def propertiesContent = matcherVersionPatch.replaceAll("versionPatch=" + versionPatch)
     propertiesFile.write(propertiesContent)
 }
-
-def apkName = 'app-release'
-def apkNameMaven = artifactId + '-' + version
-def apkNameFrdoid = (System.getenv("GIT_COMMIT") == null) ? apkNameMaven : apkNameMaven + '.' + System.getenv("GIT_COMMIT").substring(0, 8)
 
 // Run update command
 task publishFdroid(type: Exec, dependsOn: "updateMetadata") {

@@ -10,12 +10,30 @@ public class AccelGyroscope {
         public float x;
         public float y;
         public float z;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("x ").append(x).append("\n");
+            sb.append("y ").append(y).append("\n");
+            sb.append("z ").append(z).append("\n");
+
+            return sb.toString();
+        }
     }
 
     public static class AngularSpeed {
         public float x;
         public float y;
         public float z;
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("x ").append(x).append("\n");
+            sb.append("y ").append(y).append("\n");
+            sb.append("z ").append(z).append("\n");
+
+            return sb.toString();
+        }
     }
 
 }

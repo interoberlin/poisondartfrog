@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public abstract class BleDataParser {
+    public static final String TAG = BleDataParser.class.getSimpleName();
 
     public static String getFormattedValue(EDevice type, byte[] value) {
         if (value == null) return "";
@@ -84,6 +85,14 @@ public abstract class BleDataParser {
         dataPackage.readings.add(new DataPackage.Data(dataPackage.received, "angularSpeed", "", angularSpeed));
 
         return new Gson().toJson(dataPackage);
+    }
+
+    public static AccelGyroscope.Acceleration getAcceleration(String value) {
+        return new Gson().fromJson(value, AccelGyroscope.Acceleration.class);
+    }
+
+    public static AccelGyroscope.AngularSpeed getAngularSpeed(String value) {
+        return new Gson().fromJson(value, AccelGyroscope.AngularSpeed.class);
     }
 
     private static String getHTUSensorData(byte[] value) {

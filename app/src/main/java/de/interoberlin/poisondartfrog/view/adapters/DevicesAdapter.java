@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +37,7 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
+import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
@@ -180,7 +182,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        llComponents.addView(new DataComponent(context, device));
+        for (Map.Entry<String, Queue<Reading>> r : device.getReadings().entrySet()) {
+            llComponents.addView(new DataComponent(context, device, r.getKey(), r.getValue()));
+        }
+
         // llComponents.addView(new ServicesComponent(context, device));
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
