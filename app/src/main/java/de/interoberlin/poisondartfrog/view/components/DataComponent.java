@@ -66,32 +66,36 @@ public class DataComponent extends LinearLayout {
                     String value = r.value.toString();
 
                     if (meaning.equals("acceleration")) {
-                        if (value.startsWith("{")) {
+                        if (value.isEmpty()) {
+                            series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                            series.get(1).addPoint(new ValueLinePoint("", 0.0f));
+                            series.get(2).addPoint(new ValueLinePoint("", 0.0f));
+                        } else if (value.startsWith("{")) {
                             AccelGyroscope.Acceleration acceleration = BleDataParser.getAcceleration(value);
 
                             series.get(0).addPoint(new ValueLinePoint("", acceleration.x));
                             series.get(1).addPoint(new ValueLinePoint("", acceleration.y));
                             series.get(2).addPoint(new ValueLinePoint("", acceleration.z));
-                        } else if (value.isEmpty()) {
+                        }
+                    } else if (meaning.equals("angularSpeed")) {
+                        if (value.isEmpty()) {
                             series.get(0).addPoint(new ValueLinePoint("", 0.0f));
                             series.get(1).addPoint(new ValueLinePoint("", 0.0f));
                             series.get(2).addPoint(new ValueLinePoint("", 0.0f));
-                        }
-                    } else if (meaning.equals("angularSpeed")) {
-                        if (value.startsWith("{")) {
+                        } else if (value.startsWith("{")) {
                             AccelGyroscope.AngularSpeed angularSpeed = BleDataParser.getAngularSpeed(value);
 
                             series.get(0).addPoint(new ValueLinePoint("", angularSpeed.x));
                             series.get(1).addPoint(new ValueLinePoint("", angularSpeed.y));
                             series.get(2).addPoint(new ValueLinePoint("", angularSpeed.z));
-                        } else if (value.isEmpty()) {
-                            series.get(0).addPoint(new ValueLinePoint("", 0.0f));
-                            series.get(1).addPoint(new ValueLinePoint("", 0.0f));
-                            series.get(2).addPoint(new ValueLinePoint("", 0.0f));
                         }
                     } else {
-                        float v = Float.parseFloat(value);
-                        series.get(0).addPoint(new ValueLinePoint("", v));
+                        if (value.isEmpty()) {
+                            series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                        } else {
+                            float v = Float.parseFloat(value);
+                            series.get(0).addPoint(new ValueLinePoint("", v));
+                        }
                     }
                 }
             } catch (NumberFormatException nfe) {
