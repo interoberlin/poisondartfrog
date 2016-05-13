@@ -223,7 +223,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                             if (timer != null) timer.cancel();
                             if (httpGetTask != null) httpGetTask.cancel(true);
-                            devicesActivity.snack("Cancelled timer");
                         }
                     }
                 }

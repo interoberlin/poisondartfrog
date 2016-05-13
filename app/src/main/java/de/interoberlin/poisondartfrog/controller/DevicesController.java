@@ -70,8 +70,9 @@ public class DevicesController {
      * @return true, if it worked
      */
     public boolean detach(BluetoothLeService service, BleDevice device) {
-        if (service != null) {
+        if (service != null && device != null) {
             service.disconnect();
+            device.disconnect();
 
             if (attachedDevices.containsKey(device.getAddress()))
                 attachedDevices.remove(device.getAddress());

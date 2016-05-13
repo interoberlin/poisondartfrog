@@ -170,6 +170,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                 if (devicesController.getAttachedDevices().isEmpty()) {
                     switch (arg1.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
+                            vibrate(VIBRATION_DURATION);
                             times[0] = System.currentTimeMillis();
                             break;
                         }
@@ -436,15 +437,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     /**
      * Displays a toast with a give {@code text resource}
-     * @param text
-     */
-    public void toast(int text) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-    }
-
-    /**
-     * Displays a toast with a give {@code text resource}
-     * @param text
+     * @param text text to display
      */
     public void toast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
