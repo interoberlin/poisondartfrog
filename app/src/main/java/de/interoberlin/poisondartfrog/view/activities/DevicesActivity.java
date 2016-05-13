@@ -181,15 +181,13 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
                             times[1] = System.currentTimeMillis();
                             long diff = times[1] - times[0];
                             final long scanPeriod = diff < 1000 ? 1000 : diff;
-
                             scanLeDevice(true, scanPeriod);
                             break;
                         }
                     }
-                } else {
-                    snack("Detach device first");
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
     }
@@ -437,6 +435,7 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     /**
      * Displays a toast with a give {@code text resource}
+     *
      * @param text text to display
      */
     public void toast(String text) {
