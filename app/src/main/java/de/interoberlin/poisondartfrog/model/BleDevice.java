@@ -211,22 +211,28 @@ public class BleDevice {
                 });
     }
 
+    public Subscription write(final String serviceId, final String characteristicId, final String value) {
+        return write(serviceId, characteristicId, value.getBytes());
+    }
+
+    public Subscription write(final String serviceId, final String characteristicId, final boolean value) {
+        return write(serviceId, characteristicId, value ? new byte[]{0x01} : new byte[]{0x00});
+    }
+
     /*
      * Reads a single value from a characteristic
      *
-     * @param id uuid of the characteristic
+     * @param serviceId uuid of the service
+     * @param characteristicId uuid of the characteristic
+     * @param value to send
      * @return subscription
      */
-    public Subscription write(final String id, final boolean value) {
+    public Subscription write(final String serviceId, final String characteristicId, final byte[] value) {
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
                     public Observable<BluetoothGattCharacteristic> call(BaseService baseService) {
-                        if (id.equals(ECharacteristic.LED_STATE.getId())) {
-                            return ((DirectConnectionService) baseService).turnLed(value);
-                        }
-
-                        return null;
+                        return baseService.write(value, serviceId, characteristicId);
                     }
                 }).doOnUnsubscribe(new Action0() {
                     @Override

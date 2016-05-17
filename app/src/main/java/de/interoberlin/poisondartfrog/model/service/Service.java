@@ -73,7 +73,7 @@ public class Service {
                 });
     }
 
-    protected Observable<BluetoothGattCharacteristic> write(byte[] bytes,
+    public Observable<BluetoothGattCharacteristic> write(byte[] bytes,
                                                             String serviceUuid,
                                                             String characteristicUuid) {
         BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
