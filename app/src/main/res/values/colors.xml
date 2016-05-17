@@ -6,10 +6,93 @@
 
     <color name="background">@color/md_grey_200</color>
 
-    <array name="series_color">
+    <array name="colorSeries">
         <item>@color/colorAccent</item>
         <item>@color/colorPrimary</item>
         <item>@color/colorPrimaryDark</item>
+    </array>
+
+    <array name="colorSentient">
+        <!-- reds -->
+        <item>@color/md_red_A100</item>
+        <item>@color/md_red_A200</item>
+        <item>@color/md_red_A400</item>
+        <item>@color/md_red_A700</item>
+        <!-- pinks -->
+        <item>@color/md_pink_A100</item>
+        <item>@color/md_pink_A200</item>
+        <item>@color/md_pink_A400</item>
+        <item>@color/md_pink_A700</item>
+        <!-- purples -->
+        <item>@color/md_purple_A100</item>
+        <item>@color/md_purple_A200</item>
+        <item>@color/md_purple_A400</item>
+        <item>@color/md_purple_A700</item>
+        <!-- deep purples -->
+        <item>@color/md_deep_purple_A100</item>
+        <item>@color/md_deep_purple_A200</item>
+        <item>@color/md_deep_purple_A400</item>
+        <item>@color/md_deep_purple_A700</item>
+        <!-- indigo -->
+        <item>@color/md_indigo_A100</item>
+        <item>@color/md_indigo_A200</item>
+        <item>@color/md_indigo_A400</item>
+        <item>@color/md_indigo_A700</item>
+        <!--blue-->
+        <item>@color/md_blue_A100</item>
+        <item>@color/md_blue_A200</item>
+        <item>@color/md_blue_A400</item>
+        <item>@color/md_blue_A700</item>
+        <!-- light blue-->
+        <item>@color/md_light_blue_A100</item>
+        <item>@color/md_light_blue_A200</item>
+        <item>@color/md_light_blue_A400</item>
+        <item>@color/md_light_blue_A700</item>
+        <!-- cyan -->
+        <item>@color/md_cyan_A100</item>
+        <item>@color/md_cyan_A200</item>
+        <item>@color/md_cyan_A400</item>
+        <item>@color/md_cyan_A700</item>
+        <!-- teal -->
+        <item>@color/md_teal_A100</item>
+        <item>@color/md_teal_A200</item>
+        <item>@color/md_teal_A400</item>
+        <item>@color/md_teal_A700</item>
+        <!-- green -->
+        <item>@color/md_green_A100</item>
+        <item>@color/md_green_A200</item>
+        <item>@color/md_green_A400</item>
+        <item>@color/md_green_A700</item>
+        <!--light green-->
+        <item>@color/md_light_green_A100</item>
+        <item>@color/md_light_green_A200</item>
+        <item>@color/md_light_green_A400</item>
+        <item>@color/md_light_green_A700</item>
+        <!-- lime-->
+        <item>@color/md_lime_A100</item>
+        <item>@color/md_lime_A200</item>
+        <item>@color/md_lime_A400</item>
+        <item>@color/md_lime_A700</item>
+        <!--yellow -->
+        <item>@color/md_yellow_A100</item>
+        <item>@color/md_yellow_A200</item>
+        <item>@color/md_yellow_A400</item>
+        <item>@color/md_yellow_A700</item>
+        <!--amber-->
+        <item>@color/md_amber_A100</item>
+        <item>@color/md_amber_A200</item>
+        <item>@color/md_amber_A400</item>
+        <item>@color/md_amber_A700</item>
+        <!--orange-->
+        <item>@color/md_orange_A100</item>
+        <item>@color/md_orange_A200</item>
+        <item>@color/md_orange_A400</item>
+        <item>@color/md_orange_A700</item>
+        <!--deep orange-->
+        <item>@color/md_deep_orange_A100</item>
+        <item>@color/md_deep_orange_A200</item>
+        <item>@color/md_deep_orange_A400</item>
+        <item>@color/md_deep_orange_A700</item>
     </array>
 
     <!-- Card -->

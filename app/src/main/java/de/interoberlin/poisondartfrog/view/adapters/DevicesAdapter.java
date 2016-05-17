@@ -42,6 +42,7 @@ import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
+import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -185,6 +186,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         for (Map.Entry<String, Queue<Reading>> r : device.getReadings().entrySet()) {
             llComponents.addView(new DataComponent(context, device, r.getKey(), r.getValue()));
         }
+
+        llComponents.addView(new SentientLightComponent(context));
 
         // llComponents.addView(new ServicesComponent(context, device));
 

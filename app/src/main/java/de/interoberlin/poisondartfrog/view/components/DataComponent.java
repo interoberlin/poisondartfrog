@@ -130,7 +130,7 @@ public class DataComponent extends LinearLayout {
 
             // Set series colors
             for (int i = 0; i < series.size(); i++) {
-                int[] colorsSeries = context.getResources().getIntArray(R.array.series_color);
+                int[] colorsSeries = context.getResources().getIntArray(R.array.colorSeries);
                 series.get(i).setColor(colorsSeries[i % colorsSeries.length]);
             }
 
