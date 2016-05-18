@@ -14,5 +14,5 @@ public enum EFormat {
     SFLOAT,
     BIT,
     FLOAT,
-    RELAYR;
+    RELAYR
 }

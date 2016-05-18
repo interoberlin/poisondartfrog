@@ -17,6 +17,8 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
 
     private BleDevice device;
 
+    private static final int COL_NUMBER = 5;
+
     // --------------------
     // Constructors
     // --------------------
@@ -37,7 +39,7 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
         LinearLayout llData = new LinearLayout(context);
         ColorPickerPalette cpp = new ColorPickerPalette(context);
 
-        cpp.init(4, this);
+        cpp.init(COL_NUMBER, this);
         cpp.drawPalette(context.getResources().getIntArray(R.array.colorSentient), 0);
 
         llData.addView(cpp);
@@ -52,7 +54,7 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
     public void onColorSelected(int color) {
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
+        int b = color & 0xFF;
 
         Log.d(TAG, debugColorComponent("r",r) + ", " + debugColorComponent("g",g) + ", " + debugColorComponent("b",b) + ", ");
 
@@ -60,7 +62,7 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
     }
 
     private byte intToByte(int value) {
-        return new Integer(value).byteValue();
+        return Integer.valueOf(value).byteValue();
     }
 
     private String intToHex(int value) {
