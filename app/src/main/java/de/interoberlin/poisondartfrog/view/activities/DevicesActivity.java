@@ -202,7 +202,9 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     protected void onDestroy() {
         super.onDestroy();
         unbindService(serviceConnection);
-        disconnectBluetooth();
+
+        disableBluetooth();
+        disableLocation();
     }
 
     @Override
@@ -336,12 +338,16 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         }
     }
 
-    /**
-     * Disables bluetooth
-     */
-    private void disconnectBluetooth() {
+    private void disableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter.isEnabled()) mBluetoothAdapter.disable();
+    }
+
+    private void disableLocation() {
+        if (isLocationEnabled()) {
+            startActivityForResult(new Intent(
+                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_ENABLE_LOCATION);
+        }
     }
 
     /**
