@@ -139,11 +139,4 @@ public class DirectConnectionService extends BaseService {
         return mBluetoothGattReceiver
                 .unsubscribeToCharacteristicChanges(mBluetoothGatt, characteristic, descriptor);
     }
-
-    public Observable<BluetoothGattCharacteristic> turnLed(boolean on) {
-        ECharacteristic c = ECharacteristic.LED_STATE;
-        EService s = EService.DIRECT_CONNECTION;
-
-        return write(on ? new byte[]{0x01} : new byte[]{0x00}, s.getId(), c.getId());
-    }
 }

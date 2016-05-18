@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
+import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
 import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
@@ -211,22 +212,28 @@ public class BleDevice {
                 });
     }
 
+    public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
+        return write(service, characteristic, value.getBytes());
+    }
+
+    public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
+        return write(service, characteristic, value ? new byte[]{0x01} : new byte[]{0x00});
+    }
+
     /*
      * Reads a single value from a characteristic
      *
-     * @param id uuid of the characteristic
+     * @param serviceId uuid of the service
+     * @param characteristicId uuid of the characteristic
+     * @param value to send
      * @return subscription
      */
-    public Subscription write(final String id, final boolean value) {
+    public Subscription write(final EService service, final ECharacteristic characteristic, final byte[] value) {
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
                     public Observable<BluetoothGattCharacteristic> call(BaseService baseService) {
-                        if (id.equals(ECharacteristic.LED_STATE.getId())) {
-                            return ((DirectConnectionService) baseService).turnLed(value);
-                        }
-
-                        return null;
+                        return baseService.write(value, service.getId(), characteristic.getId());
                     }
                 }).doOnUnsubscribe(new Action0() {
                     @Override

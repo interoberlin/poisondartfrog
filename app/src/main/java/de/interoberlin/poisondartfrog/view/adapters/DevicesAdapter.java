@@ -37,11 +37,13 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
+import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
+import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -182,13 +184,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
-        for (Map.Entry<String, Queue<Reading>> r : device.getReadings().entrySet()) {
-            llComponents.addView(new DataComponent(context, device, r.getKey(), r.getValue()));
-        }
-
-        // llComponents.addView(new ServicesComponent(context, device));
-
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
+
+        switch (EDevice.fromString(device.getName())) {
+            case INTEROBERLIN_SENTIENT_LIGHT: {
+                llComponents.addView(new SentientLightComponent(context, device));
+                break;
+            }
+            default: {
+                for (Map.Entry<String, Queue<Reading>> r : device.getReadings().entrySet()) {
+                    llComponents.addView(new DataComponent(context, device, r.getKey(), r.getValue()));
+                }
+                break;
+            }
+        }
 
         // Add actions
         ivDetach.setOnClickListener(new View.OnClickListener() {
@@ -237,7 +246,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 @Override
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
-                    device.write(ECharacteristic.LED_STATE.getId(), true);
+                    device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
         } else {

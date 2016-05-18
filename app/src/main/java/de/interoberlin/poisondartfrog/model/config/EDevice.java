@@ -6,7 +6,9 @@ public enum EDevice {
     WUNDERBAR_LIGHT("a7ec1b21-8582-4304-b1cf-15a1fc66d1e8","WunderbarLIGHT"),
     WUNDERBAR_MIC("4f38b6c6-a8e9-4f93-91cd-2ac4064b7b5a","WunderbarMIC"),
     WUNDERBAR_BRIDG("ebd828dd-250c-4baf-807d-69d85bed065b","WunderbarBRIDG"),
-    WUNDERBAR_IR("bab45b9c-1c44-4e71-8e98-a321c658df47","WunderbarIR");
+    WUNDERBAR_IR("bab45b9c-1c44-4e71-8e98-a321c658df47","WunderbarIR"),
+
+    INTEROBERLIN_SENTIENT_LIGHT("be73d68c-1d33-11e6-b6ba-3e1d05defe78","InteroberlinSentientLight");
 
     private final String id;
     private final String name;
