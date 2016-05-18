@@ -188,7 +188,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         switch (EDevice.fromString(device.getName())) {
             case INTEROBERLIN_SENTIENT_LIGHT: {
-                llComponents.addView(new SentientLightComponent(context, activity));
+                llComponents.addView(new SentientLightComponent(context, device));
                 break;
             }
             default: {

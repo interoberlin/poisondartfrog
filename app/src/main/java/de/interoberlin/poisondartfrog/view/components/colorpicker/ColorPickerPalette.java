@@ -39,9 +39,6 @@ public class ColorPickerPalette extends TableLayout {
     private int mMarginSize;
     private int mNumColumns;
 
-    public static final int SIZE_LARGE = 1;
-    public static final int SIZE_SMALL = 2;
-
     // ------------------
     // Constructors
     // ------------------

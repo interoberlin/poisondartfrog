@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 import com.google.common.collect.EvictingQueue;
+import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -209,6 +210,10 @@ public class BleDevice {
                         devicesActivity.updateListView();
                     }
                 });
+    }
+
+    public Subscription write(final String serviceId, final String characteristicId, final int value) {
+        return write(serviceId, characteristicId, Ints.toByteArray(value));
     }
 
     public Subscription write(final String serviceId, final String characteristicId, final String value) {
