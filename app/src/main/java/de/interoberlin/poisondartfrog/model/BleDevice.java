@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 import com.google.common.collect.EvictingQueue;
-import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
+import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
 import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
@@ -212,16 +212,12 @@ public class BleDevice {
                 });
     }
 
-    public Subscription write(final String serviceId, final String characteristicId, final int value) {
-        return write(serviceId, characteristicId, Ints.toByteArray(value));
+    public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
+        return write(service, characteristic, value.getBytes());
     }
 
-    public Subscription write(final String serviceId, final String characteristicId, final String value) {
-        return write(serviceId, characteristicId, value.getBytes());
-    }
-
-    public Subscription write(final String serviceId, final String characteristicId, final boolean value) {
-        return write(serviceId, characteristicId, value ? new byte[]{0x01} : new byte[]{0x00});
+    public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
+        return write(service, characteristic, value ? new byte[]{0x01} : new byte[]{0x00});
     }
 
     /*
@@ -232,12 +228,12 @@ public class BleDevice {
      * @param value to send
      * @return subscription
      */
-    public Subscription write(final String serviceId, final String characteristicId, final byte[] value) {
+    public Subscription write(final EService service, final ECharacteristic characteristic, final byte[] value) {
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
                     public Observable<BluetoothGattCharacteristic> call(BaseService baseService) {
-                        return baseService.write(value, serviceId, characteristicId);
+                        return baseService.write(value, service.getId(), characteristic.getId());
                     }
                 }).doOnUnsubscribe(new Action0() {
                     @Override

@@ -53,8 +53,25 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = (color >> 0) & 0xFF;
-        Log.d(TAG, "r:" + r + " , g:" + g + ", b:" + b);
 
-        device.write(EService.SENTIENT_LIGHT.getId(), ECharacteristic.LED_COLOR.getId(), color);
+        Log.d(TAG, debugColorComponent("r",r) + ", " + debugColorComponent("g",g) + ", " + debugColorComponent("b",b) + ", ");
+
+        device.write(EService.SENTIENT_LIGHT, ECharacteristic.LED_COLOR, new byte[]{intToByte(r), intToByte(g), intToByte(b)});
+    }
+
+    private byte intToByte(int value) {
+        return new Integer(value).byteValue();
+    }
+
+    private String intToHex(int value) {
+        return byteToHex(intToByte(value));
+    }
+
+    private String byteToHex(byte value) {
+        return String.format("%02X ", value);
+    }
+
+    private String debugColorComponent(String component, int value) {
+        return component + ":" + value + " (" + intToHex(value) + ")";
     }
 }

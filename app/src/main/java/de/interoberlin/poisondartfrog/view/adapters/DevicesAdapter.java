@@ -246,7 +246,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 @Override
                 public void onClick(View v) {
                     vibrate(VIBRATION_DURATION);
-                    device.write(EService.DIRECT_CONNECTION.getId(), ECharacteristic.LED_STATE.getId(), true);
+                    device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
         } else {

@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.model.config;
 public enum EFormat {
     BOOLEAN,
     STRING,
+    BYTEARRAY,
     UINT8,
     UINT16,
     UINT32,
