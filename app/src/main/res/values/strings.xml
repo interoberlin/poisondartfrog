@@ -28,5 +28,8 @@
     <string name="color_swatch_description">Color</string>
     <!-- Content description for a selected color square. -->
     <string name="color_swatch_description_selected">Color selected</string>
+    <string name="luminosity">luminosity</string>
+    <string name="proximity">proximity</string>
+    <string name="color">color</string>
 
 </resources>

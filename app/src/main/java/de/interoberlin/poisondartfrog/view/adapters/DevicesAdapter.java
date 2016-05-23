@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -38,11 +37,12 @@ import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.config.EService;
-import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
+import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
+import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -186,32 +186,40 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
+        llComponents.addView(new DataComponent(context, activity, device));
+
         switch (EDevice.fromString(device.getName())) {
+            case WUNDERBAR_LIGHT: {
+                llComponents.addView(new LightProximityComponent(context, activity, device));
+                break;
+            }
             case INTEROBERLIN_SENTIENT_LIGHT: {
-                llComponents.addView(new SentientLightComponent(context, device));
+                llComponents.addView(new SentientLightComponent(context, activity, device));
                 break;
             }
             default: {
-                for (Map.Entry<String, Queue<Reading>> r : device.getReadings().entrySet()) {
-                    llComponents.addView(new DataComponent(context, device, r.getKey(), r.getValue()));
-                }
+                    llComponents.addView(new LineChartComponent(context, activity, device));
                 break;
             }
         }
 
         // Add actions
         ivDetach.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (timer != null) timer.cancel();
-                if (httpGetTask != null) httpGetTask.cancel(true);
+                                        @Override
+                                        public void onClick(View v) {
+                                            if (timer != null) timer.cancel();
+                                            if (httpGetTask != null) httpGetTask.cancel(true);
 
-                ocListener.onDetachDevice(device);
-            }
-        });
+                                            ocListener.onDetachDevice(device);
+                                        }
+                                    }
+
+        );
 
         // DATA
-        if (device.containsCharacteristic(ECharacteristic.DATA)) {
+        if (device.containsCharacteristic(ECharacteristic.DATA))
+
+        {
             ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -236,12 +244,16 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     }
                 }
             });
-        } else {
+        } else
+
+        {
             ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
         }
 
         // LED STATE
-        if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+        if (device.containsCharacteristic(ECharacteristic.LED_STATE))
+
+        {
             ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -249,12 +261,24 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
-        } else {
+        } else
+
+        {
             ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
         }
 
         // Send temperature
-        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU) && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
+        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).
+
+                equals(EDevice.WUNDERBAR_HTU)
+
+                && device.getLatestReadings() != null && device.getLatestReadings().
+
+                containsKey("temperature")
+
+                )
+
+        {
             ivSendTemperature.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -312,7 +336,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     }, TimeUnit.MINUTES.toMillis(0), TimeUnit.MINUTES.toMillis(GOLEM_SEND_PERIOD));
                 }
             });
-        } else {
+        } else
+
+        {
             ((ViewManager) ivSendTemperature.getParent()).removeView(ivSendTemperature);
         }
 
@@ -367,17 +393,17 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         return reading != null;
     }
 
-    // --------------------
-    // Callback interfaces
-    // --------------------
+// --------------------
+// Callback interfaces
+// --------------------
 
     public interface OnCompleteListener {
         void onDetachDevice(BleDevice device);
     }
 
-    // --------------------
-    // Inner classes
-    // --------------------
+// --------------------
+// Inner classes
+// --------------------
 
     public class BluetoothDeviceReadingFilter extends Filter {
         @Override

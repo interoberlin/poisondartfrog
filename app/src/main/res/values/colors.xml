@@ -7,9 +7,9 @@
     <color name="background">@color/md_grey_200</color>
 
     <array name="colorSeries">
-        <item>@color/colorAccent</item>
-        <item>@color/colorPrimary</item>
-        <item>@color/colorPrimaryDark</item>
+        <item>@color/md_red_700</item>
+        <item>@color/md_green_700</item>
+        <item>@color/md_blue_900</item>
     </array>
 
     <array name="colorSentient">

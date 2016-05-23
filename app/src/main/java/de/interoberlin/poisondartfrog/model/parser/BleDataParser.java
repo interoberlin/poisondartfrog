@@ -50,6 +50,10 @@ public abstract class BleDataParser {
         return new Gson().toJson(dataPackage);
     }
 
+    public static LightColorProx.Color getColor(String value) {
+        return new Gson().fromJson(value, LightColorProx.Color.class);
+    }
+
     private static String getGYROSensorData(byte[] value) {
         DataPackage dataPackage = new DataPackage();
         dataPackage.modelId = EDevice.WUNDERBAR_GYRO.getId();
