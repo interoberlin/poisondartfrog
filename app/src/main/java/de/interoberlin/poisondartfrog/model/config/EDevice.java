@@ -8,7 +8,8 @@ public enum EDevice {
     WUNDERBAR_BRIDG("ebd828dd-250c-4baf-807d-69d85bed065b","WunderbarBRIDG"),
     WUNDERBAR_IR("bab45b9c-1c44-4e71-8e98-a321c658df47","WunderbarIR"),
 
-    INTEROBERLIN_SENTIENT_LIGHT("be73d68c-1d33-11e6-b6ba-3e1d05defe78","InteroberlinSentientLight");
+    INTEROBERLIN_SENTIENT_LIGHT("be73d68c-1d33-11e6-b6ba-3e1d05defe78","InteroberlinSentientLight"),
+    UNKNOWN("", "");
 
     private final String id;
     private final String name;
@@ -31,7 +32,7 @@ public enum EDevice {
             }
         }
 
-        return null;
+        return EDevice.UNKNOWN;
     }
 
     // --------------------
