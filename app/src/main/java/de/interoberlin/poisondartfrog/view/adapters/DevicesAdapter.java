@@ -40,6 +40,7 @@ import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
+import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComponent;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
@@ -191,6 +192,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         switch (EDevice.fromString(device.getName())) {
             case WUNDERBAR_LIGHT: {
                 llComponents.addView(new LightProximityComponent(context, activity, device));
+                break;
+            }
+            case WUNDERBAR_GYRO: {
+                llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
                 break;
             }
             case INTEROBERLIN_SENTIENT_LIGHT: {

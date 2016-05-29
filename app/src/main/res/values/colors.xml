@@ -111,6 +111,8 @@
         <item>@color/md_deep_orange_900</item>
     </array>
 
+    <color name="diagram_outline">@color/md_grey_900</color>
+
     <!-- Card -->
     <color name="stroke">@color/md_grey_400</color>
 </resources>

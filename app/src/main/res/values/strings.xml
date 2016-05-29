@@ -31,5 +31,7 @@
     <string name="luminosity">luminosity</string>
     <string name="proximity">proximity</string>
     <string name="color">color</string>
+    <string name="gyroscope">gyroscope</string>
+    <string name="accelerometer">accelerometer</string>
 
 </resources>
