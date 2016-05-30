@@ -20,6 +20,8 @@ import de.interoberlin.poisondartfrog.model.geo.Vector2;
 public class SpiderWebChart extends ImageView {
     public static final String TAG = SpiderWebChart.class.getSimpleName();
 
+    private final float MIN_VALUE = 0.05f;
+
     // --------------------
     // Constructors
     // --------------------
@@ -165,13 +167,14 @@ public class SpiderWebChart extends ImageView {
 
         for (int i = 0; i < values.size(); i++) {
             int angle = 360 / values.size() * i;
+            float value = (values.get(i) + offset + (maxValue * MIN_VALUE)) / maxValue;
 
             Vector2 p = new Vector2();
             p.setX((float) Math.sin(Math.toRadians(angle)));
             p.setY((float) -Math.cos(Math.toRadians(angle)));
             p.normalize();
             p.scale((float) smallerSide / 2);
-            p.scale(((values.get(i) + offset + (maxValue * 0.05f)) / maxValue));
+            p.scale(value < maxValue ? value : maxValue);
             p.add(c);
 
             points.add(p);
