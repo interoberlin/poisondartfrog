@@ -138,7 +138,7 @@ public class LineChartComponent extends LinearLayout {
                 // Build value line chart
                 if (!series.isEmpty()) {
                     vlcValues.setUseDynamicScaling(true);
-                    vlcValues.setMinimumHeight(displayWidth / 2);
+                    vlcValues.setMinimumHeight(displayWidth / 3);
                     vlcValues.setTop(50);
                     vlcValues.setUseCubic(true);
 

@@ -44,7 +44,7 @@ public class MicrophoneComponent extends TableLayout {
         activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         final int displayWidth = displaymetrics.widthPixels;
 
-        int colCount = 2;
+        int colCount = 3;
         int colWidth = (int) (displayWidth * 0.8 / colCount);
         int colHeight = (int) (displayWidth * 0.8 / colCount);
 
