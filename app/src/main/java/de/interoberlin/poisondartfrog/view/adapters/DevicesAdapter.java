@@ -44,6 +44,7 @@ import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComp
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
+import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -196,6 +197,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             }
             case WUNDERBAR_GYRO: {
                 llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
+                break;
+            }
+            case WUNDERBAR_MIC: {
+                llComponents.addView(new MicrophoneComponent(context, activity, device));
                 break;
             }
             case INTEROBERLIN_SENTIENT_LIGHT: {
