@@ -201,6 +201,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             }
             case WUNDERBAR_MIC: {
                 llComponents.addView(new MicrophoneComponent(context, activity, device));
+                llComponents.addView(new LineChartComponent(context, activity, device));
                 break;
             }
             case INTEROBERLIN_SENTIENT_LIGHT: {
@@ -208,7 +209,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 break;
             }
             default: {
-                    llComponents.addView(new LineChartComponent(context, activity, device));
+                llComponents.addView(new LineChartComponent(context, activity, device));
                 break;
             }
         }

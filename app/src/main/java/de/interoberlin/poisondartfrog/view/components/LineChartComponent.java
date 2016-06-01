@@ -2,6 +2,7 @@ package de.interoberlin.poisondartfrog.view.components;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
@@ -41,6 +42,11 @@ public class LineChartComponent extends LinearLayout {
         setLayoutParams(lp);
         setOrientation(VERTICAL);
 
+        // Get display width
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        final int displayWidth = displaymetrics.widthPixels;
+
         for (Map.Entry<String, Queue<Reading>> reading : device.getReadings().entrySet()) {
             if (reading != null) {
                 String meaning = reading.getKey();
@@ -66,48 +72,56 @@ public class LineChartComponent extends LinearLayout {
                     for (Reading r : queue) {
                         String value = r.value.toString();
 
-                        if (meaning.equals("acceleration")) {
-                            if (value.isEmpty()) {
-                                series.get(0).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(1).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(2).addPoint(new ValueLinePoint("", 0.0f));
-                            } else if (value.startsWith("{")) {
-                                AccelGyroscope.Acceleration acceleration = BleDataParser.getAcceleration(value);
+                        switch (meaning) {
+                            case "acceleration": {
+                                if (value.isEmpty()) {
+                                    series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(1).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(2).addPoint(new ValueLinePoint("", 0.0f));
+                                } else if (value.startsWith("{")) {
+                                    AccelGyroscope.Acceleration acceleration = BleDataParser.getAcceleration(value);
 
-                                series.get(0).addPoint(new ValueLinePoint("", acceleration.x));
-                                series.get(1).addPoint(new ValueLinePoint("", acceleration.y));
-                                series.get(2).addPoint(new ValueLinePoint("", acceleration.z));
+                                    series.get(0).addPoint(new ValueLinePoint("", acceleration.x));
+                                    series.get(1).addPoint(new ValueLinePoint("", acceleration.y));
+                                    series.get(2).addPoint(new ValueLinePoint("", acceleration.z));
+                                }
+                                break;
                             }
-                        } else if (meaning.equals("angularSpeed")) {
-                            if (value.isEmpty()) {
-                                series.get(0).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(1).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(2).addPoint(new ValueLinePoint("", 0.0f));
-                            } else if (value.startsWith("{")) {
-                                AccelGyroscope.AngularSpeed angularSpeed = BleDataParser.getAngularSpeed(value);
+                            case "angularSpeed": {
+                                if (value.isEmpty()) {
+                                    series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(1).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(2).addPoint(new ValueLinePoint("", 0.0f));
+                                } else if (value.startsWith("{")) {
+                                    AccelGyroscope.AngularSpeed angularSpeed = BleDataParser.getAngularSpeed(value);
 
-                                series.get(0).addPoint(new ValueLinePoint("", angularSpeed.x));
-                                series.get(1).addPoint(new ValueLinePoint("", angularSpeed.y));
-                                series.get(2).addPoint(new ValueLinePoint("", angularSpeed.z));
+                                    series.get(0).addPoint(new ValueLinePoint("", angularSpeed.x));
+                                    series.get(1).addPoint(new ValueLinePoint("", angularSpeed.y));
+                                    series.get(2).addPoint(new ValueLinePoint("", angularSpeed.z));
+                                }
+                                break;
                             }
-                        } else if (meaning.equals("color")) {
-                            if (value.isEmpty()) {
-                                series.get(0).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(1).addPoint(new ValueLinePoint("", 0.0f));
-                                series.get(2).addPoint(new ValueLinePoint("", 0.0f));
-                            } else if (value.startsWith("{")) {
-                                LightColorProx.Color color = BleDataParser.getColor(value);
+                            case "color": {
+                                if (value.isEmpty()) {
+                                    series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(1).addPoint(new ValueLinePoint("", 0.0f));
+                                    series.get(2).addPoint(new ValueLinePoint("", 0.0f));
+                                } else if (value.startsWith("{")) {
+                                    LightColorProx.Color color = BleDataParser.getColor(value);
 
-                                series.get(0).addPoint(new ValueLinePoint("", color.red));
-                                series.get(1).addPoint(new ValueLinePoint("", color.green));
-                                series.get(2).addPoint(new ValueLinePoint("", color.blue));
+                                    series.get(0).addPoint(new ValueLinePoint("", color.red));
+                                    series.get(1).addPoint(new ValueLinePoint("", color.green));
+                                    series.get(2).addPoint(new ValueLinePoint("", color.blue));
+                                }
+                                break;
                             }
-                        } else {
-                            if (value.isEmpty()) {
-                                series.get(0).addPoint(new ValueLinePoint("", 0.0f));
-                            } else {
-                                float v = Float.parseFloat(value);
-                                series.get(0).addPoint(new ValueLinePoint("", v));
+                            default: {
+                                if (value.isEmpty()) {
+                                    series.get(0).addPoint(new ValueLinePoint("", 0.0f));
+                                } else {
+                                    float v = Float.parseFloat(value);
+                                    series.get(0).addPoint(new ValueLinePoint("", v));
+                                }
                             }
                         }
                     }
@@ -124,7 +138,7 @@ public class LineChartComponent extends LinearLayout {
                 // Build value line chart
                 if (!series.isEmpty()) {
                     vlcValues.setUseDynamicScaling(true);
-                    vlcValues.setMinimumHeight(200);
+                    vlcValues.setMinimumHeight(displayWidth / 2);
                     vlcValues.setTop(50);
                     vlcValues.setUseCubic(true);
 
