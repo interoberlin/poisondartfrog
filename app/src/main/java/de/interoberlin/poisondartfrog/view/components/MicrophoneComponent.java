@@ -17,8 +17,8 @@ public class MicrophoneComponent extends TableLayout {
     // private static final String TAG = LightProximityComponent.class.getCanonicalName();
 
     private static final String CHARA_NOISE = "noiseLevel";
-    private static final float MIN_NOISE = 0;
-    private static final float MAX_NOISE = 1023;
+    private static final float MIN_NOISE = 0.0f;
+    private static final float MAX_NOISE = 1023.0f;
 
     // --------------------
     // Constructors
@@ -30,7 +30,7 @@ public class MicrophoneComponent extends TableLayout {
 
     public MicrophoneComponent(Context context, Activity activity, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_accelerometer_gyroscope, this);
+        inflate(activity, R.layout.component_table, this);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);
 
@@ -48,6 +48,6 @@ public class MicrophoneComponent extends TableLayout {
         int colWidth = (int) (displayWidth * 0.8 / colCount);
         int colHeight = (int) (displayWidth * 0.8 / colCount);
 
-        tr.addView(new CircleDiagram(context, colWidth, colHeight, 0, 100, R.color.colorPrimary, R.color.colorPrimaryDark, MIN_NOISE, MAX_NOISE, noi));
+        tr.addView(new CircleDiagram(context, colWidth, colHeight, R.color.colorPrimary, R.color.colorPrimaryDark, 0.0f, 1.0f, MIN_NOISE, MAX_NOISE, noi));
     }
 }

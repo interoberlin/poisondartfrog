@@ -7,12 +7,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class CircleDiagram extends ImageView {
     public static final String TAG = CircleDiagram.class.getSimpleName();
-
-    private final float MIN_VALUE = 0.05f;
 
     // --------------------
     // Constructors
@@ -25,28 +24,51 @@ public class CircleDiagram extends ImageView {
     /**
      * Generates a circle diagram by using {@code value}
      *
-     * @param context   context
-     * @param width     diagram width
-     * @param height    diagram height
-     * @param minRadius minimum radius
-     * @param maxRadius maximum radius
-     * @param minColor  minimum color
-     * @param maxColor  maximum color
-     * @param minValue  minimum value
-     * @param maxValue  maximum value
-     * @param value     value
+     * @param context          context
+     * @param width            diagram width
+     * @param height           diagram height
+     * @param minRadius        minimum radius
+     * @param maxRadius        maximum radius
+     * @param minColorResource minimum color
+     * @param maxColorResource maximum color
+     * @param minValue         minimum value
+     * @param maxValue         maximum value
+     * @param value            value
      */
-    public CircleDiagram(Context context, int width, int height, int minRadius, int maxRadius, int minColor, int maxColor, float minValue, float maxValue, Float value) {
+    public CircleDiagram(Context context, int width, int height, int minColorResource, int maxColorResource, float minRadius, float maxRadius, float minValue, float maxValue, Float value) {
         super(context);
+
+        int minColor = ContextCompat.getColor(context, minColorResource);
+        int maxColor = ContextCompat.getColor(context, maxColorResource);
+
+        init(width, height, minColor, maxColor, minRadius, maxRadius, minValue, maxValue, value);
+    }
+
+    /**
+     * Generates a circle diagram by using {@code color}
+     *
+     * @param context context
+     * @param width   diagram width
+     * @param height  diagram height
+     * @param color   color
+     */
+    public CircleDiagram(Context context, int width, int height, int color) {
+        super(context);
+
+        init(width, height, color, color, 1.0f, 1.0f, 100.0f, 100.0f, 100.0f);
+    }
+
+    private void init(int width, int height, int minColor, int maxColor, float minRadius, float maxRadius, float minValue, float maxValue, Float value) {
+        final float MIN_VALUE = 0.05f;
 
         Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bmp);
 
         // Set fill color
         Paint paintMin = new Paint();
-        paintMin.setColor(ContextCompat.getColor(context, minColor));
+        paintMin.setColor(minColor);
         Paint paintMax = new Paint();
-        paintMax.setColor(ContextCompat.getColor(context, maxColor));
+        paintMax.setColor(maxColor);
 
         Paint paint = getPaint(paintMin, paintMax, minValue, maxValue, value);
         paint.setStyle(Paint.Style.FILL);
@@ -61,8 +83,13 @@ public class CircleDiagram extends ImageView {
         float nValue = -(1 / (maxValue - minValue)) * minValue;
         float pValue = mValue * value + nValue;
 
-        float mRadius = (maxRadius - minRadius) / 100;
+        maxRadius = (maxRadius > 1) ? 1 : (maxRadius < 0) ? 0 : maxRadius;
+        minRadius = (minRadius > 1) ? 1 : (minRadius < 0) ? 0 : minRadius;
+
+        float mRadius = maxRadius - minRadius;
         float pRadius = mRadius * ((pValue + MIN_VALUE) > 1.0f ? 1.0f : (pValue + MIN_VALUE)) + minRadius;
+
+        Log.i(TAG, "" + pRadius);
 
         int radius = (int) ((smallerSide / 2) * pRadius);
 

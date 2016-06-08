@@ -18,7 +18,7 @@ import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.SpiderWebChart;
 
 public class AccelerometerGyroscopeComponent extends TableLayout {
-    private static final String TAG = LightProximityComponent.class.getCanonicalName();
+    // private static final String TAG = LightProximityComponent.class.getCanonicalName();
 
     private static final float MIN_ACCELERATION = 0;
     private static final float MAX_ACCELERATION = 655;
@@ -35,7 +35,7 @@ public class AccelerometerGyroscopeComponent extends TableLayout {
 
     public AccelerometerGyroscopeComponent(Context context, Activity activity, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_accelerometer_gyroscope, this);
+        inflate(activity, R.layout.component_table, this);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);
 
