@@ -2,7 +2,6 @@ package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +17,10 @@ import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
-public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
+public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     public static final String TAG = ScanResultFilter.class.getSimpleName();
 
     // Context
@@ -32,8 +32,8 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     DevicesController devicesController;
 
     // Filter
-    private List<BluetoothDevice> filteredItems = new ArrayList<>();
-    private List<BluetoothDevice> originalItems = new ArrayList<>();
+    private List<BleDevice> filteredItems = new ArrayList<>();
+    private List<BleDevice> originalItems = new ArrayList<>();
     private ScanResultFilter scanResultFilter;
     private final Object lock = new Object();
 
@@ -41,7 +41,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Constructors
     // --------------------
 
-    public ScanResultsAdapter(Context context, Activity activity, DialogFragment dialog, int resource, List<BluetoothDevice> items) {
+    public ScanResultsAdapter(Context context, Activity activity, DialogFragment dialog, int resource, List<BleDevice> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
 
@@ -65,14 +65,14 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     }
 
     @Override
-    public BluetoothDevice getItem(int position) {
+    public BleDevice getItem(int position) {
         return filteredItems.get(position);
     }
 
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BluetoothDevice device = getItem(position);
+        final BleDevice device = getItem(position);
 
         // Layout inflater
         LayoutInflater vi;
@@ -125,6 +125,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
                     ((OnCompleteListener) activity).onAttachDevice(device);
                 }
 
+                devicesController.stopScan();
                 dialog.dismiss();
             }
         });
@@ -136,7 +137,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // Methods - Filter
     // --------------------
 
-    public List<BluetoothDevice> getFilteredItems() {
+    public List<BleDevice> getFilteredItems() {
         return filteredItems;
     }
 
@@ -158,7 +159,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
      * @param bleDevice bleDevice
      * @return true if item is visible
      */
-    protected boolean filterBleDevice(BluetoothDevice bleDevice) {
+    protected boolean filterBleDevice(BleDevice bleDevice) {
         return bleDevice != null;
     }
 
@@ -167,7 +168,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
     // --------------------
 
     public interface OnCompleteListener {
-        void onAttachDevice(BluetoothDevice device);
+        void onAttachDevice(BleDevice device);
     }
 
     // --------------------
@@ -182,16 +183,16 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
             // Copy items
             originalItems = devicesController.getScannedDevicesAsList();
 
-            ArrayList<BluetoothDevice> values;
+            ArrayList<BleDevice> values;
             synchronized (lock) {
                 values = new ArrayList<>(originalItems);
             }
 
             final int count = values.size();
-            final ArrayList<BluetoothDevice> newValues = new ArrayList<>();
+            final ArrayList<BleDevice> newValues = new ArrayList<>();
 
             for (int i = 0; i < count; i++) {
-                final BluetoothDevice value = values.get(i);
+                final BleDevice value = values.get(i);
                 if (filterBleDevice(value)) {
                     newValues.add(value);
                 }
@@ -206,7 +207,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BluetoothDevice> {
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredItems = (List<BluetoothDevice>) results.values;
+            filteredItems = (List<BleDevice>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged();

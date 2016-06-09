@@ -39,7 +39,7 @@ public class BleDevice {
 
     public static final int READING_HISTORY = 50;
 
-    private final Activity activity;
+    private Activity activity;
     private final BluetoothDevice device;
     private final String name;
     private final String address;
@@ -399,6 +399,10 @@ public class BleDevice {
     // --------------------
     // Getters / Setters
     // --------------------
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 
     public List<BluetoothGattService> getServices() {
         return services;
