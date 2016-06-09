@@ -11,11 +11,20 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.controller.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 
-public class ScanResultsDialog extends DialogFragment {
+public class ScanResultsDialog extends DialogFragment implements BleScannerFilter.BleFilteredScanCallback {
     public static final String TAG = ScanResultsDialog.class.getSimpleName();
+
+    // View
+    private ScanResultsAdapter scanResultsAdapter;
+    private ListView lvScanResults;
+
+    // Controller
+    private DevicesController devicesController;
 
     // --------------------
     // Methods - Lifecycle
@@ -24,16 +33,18 @@ public class ScanResultsDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DevicesController devicesController = DevicesController.getInstance();
+        devicesController = DevicesController.getInstance();
+        devicesController.getScannedDevices().clear();
+
         final Resources res = getActivity().getResources();
 
-        ScanResultsAdapter wunderbarScanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
+        scanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
 
         // Load layout
         final View v = View.inflate(getActivity(), R.layout.dialog_scan_results, null);
 
-        ListView lvScanResults = (ListView) v.findViewById(R.id.lvScanResults);
-        lvScanResults.setAdapter(wunderbarScanResultsAdapter);
+        lvScanResults = (ListView) v.findViewById(R.id.lvScanResults);
+        lvScanResults.setAdapter(scanResultsAdapter);
 
         // Get arguments
         Bundle bundle = this.getArguments();
@@ -52,6 +63,8 @@ public class ScanResultsDialog extends DialogFragment {
             }
         });
 
+        devicesController.startScan(this);
+
         return builder.create();
     }
 
@@ -68,5 +81,36 @@ public class ScanResultsDialog extends DialogFragment {
                 dismiss();
             }
         });
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        devicesController.stopScan();
+    }
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    /**
+     * Updates the list view
+     */
+    public void updateListView() {
+        scanResultsAdapter.filter();
+        lvScanResults.invalidateViews();
+    }
+
+    // --------------------
+    // Methods - Callback
+    // --------------------
+
+    @Override
+    public void onLeScan(BleDevice device, int rssi) {
+        if (!devicesController.getScannedDevices().containsKey(device.getAddress()) &&
+                !devicesController.getAttachedDevices().containsKey(device.getAddress())) {
+            devicesController.getScannedDevices().put(device.getAddress(), device);
+            updateListView();
+        }
     }
 }

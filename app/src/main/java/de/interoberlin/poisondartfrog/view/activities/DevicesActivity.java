@@ -3,7 +3,6 @@ package de.interoberlin.poisondartfrog.view.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -17,7 +16,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
@@ -39,13 +37,12 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
-import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Model
@@ -64,8 +61,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
 
     // Properties
     private static int VIBRATION_DURATION;
-
-    private Handler handler;
 
     private BluetoothLeService bluetoothLeService;
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -162,31 +157,15 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         requestEnableLocation();
 
         // Add actions
-        final long[] times = new long[2];
-
         fab.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
-                if (devicesController.getAttachedDevices().isEmpty()) {
-                    switch (arg1.getAction()) {
-                        case MotionEvent.ACTION_DOWN: {
-                            vibrate(VIBRATION_DURATION);
-                            times[0] = System.currentTimeMillis();
-                            break;
-                        }
-                        case MotionEvent.ACTION_CANCEL: {
-                            break;
-                        }
-                        case MotionEvent.ACTION_UP: {
-                            times[1] = System.currentTimeMillis();
-                            long diff = times[1] - times[0];
-                            final long scanPeriod = diff < 1000 ? 1000 : diff;
-                            scanLeDevice(true, scanPeriod);
-                            break;
-                        }
-                    }
-                    return true;
-                }
+                vibrate(VIBRATION_DURATION);
+                ScanResultsDialog dialog = new ScanResultsDialog();
+                Bundle b = new Bundle();
+                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                dialog.setArguments(b);
+                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
                 return false;
             }
         });
@@ -234,20 +213,14 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
     // --------------------
 
     @Override
-    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        if (!devicesController.getAttachedDevices().containsKey(device.getAddress())) {
-            Log.i(TAG, device.toString() + " \t " + device.getName() + " \t " + rssi);
-            devicesController.getScannedDevices().put(device.getAddress(), device);
-        }
-    }
-
-    @Override
-    public void onAttachDevice(BluetoothDevice device) {
+    public void onAttachDevice(BleDevice device) {
         vibrate(VIBRATION_DURATION);
 
         getSingleLocation();
 
-        if (devicesController.attach(bluetoothLeService, new BleDevice(this, device, BleDeviceManager.getInstance()))) {
+        device.setActivity(this);
+
+        if (devicesController.attach(bluetoothLeService, device)) {
             updateListView();
             snack(R.string.attached_device);
         } else {
@@ -381,41 +354,6 @@ public class DevicesActivity extends AppCompatActivity implements BluetoothAdapt
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void scanLeDevice(final boolean enable, final long scanPeriod) {
-        vibrate(VIBRATION_DURATION);
-
-        if (enable) {
-            devicesController.getScannedDevices().clear();
-            handler = new Handler();
-
-            // Stops scanning after a pre-defined scan period.
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothAdapter.stopLeScan(DevicesActivity.this);
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            if (!devicesController.getScannedDevices().isEmpty()) {
-                                ScanResultsDialog dialog = new ScanResultsDialog();
-                                Bundle b = new Bundle();
-                                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-                                dialog.setArguments(b);
-                                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
-                            } else {
-                                snack(R.string.no_devices_found);
-                            }
-                        }
-                    }, 0);
-                }
-            }, scanPeriod);
-
-            bluetoothAdapter.startLeScan(this);
-        } else {
-            bluetoothAdapter.stopLeScan(this);
-        }
     }
 
     /**
