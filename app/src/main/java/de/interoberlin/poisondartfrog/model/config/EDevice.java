@@ -9,6 +9,7 @@ public enum EDevice {
     WUNDERBAR_IR("bab45b9c-1c44-4e71-8e98-a321c658df47","WunderbarIR"),
 
     INTEROBERLIN_SENTIENT_LIGHT("be73d68c-1d33-11e6-b6ba-3e1d05defe78","InteroberlinSentientLight"),
+    NRFDUINO("e3598c73-6f6e-4be6-9861-ee6fb9378dcc","nRFduino"),
     UNKNOWN("", "");
 
     private final String id;
