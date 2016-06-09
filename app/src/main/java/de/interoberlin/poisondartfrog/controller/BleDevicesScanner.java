@@ -19,7 +19,7 @@ import java.util.List;
 class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
-    public static final long DEFAULT_SCAN_PERIOD = 5;//seconds
+    public static final long DEFAULT_SCAN_PERIOD = 60;//seconds
 
     private BluetoothAdapter bluetoothAdapter;
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());

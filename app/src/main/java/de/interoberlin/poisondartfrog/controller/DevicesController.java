@@ -54,6 +54,10 @@ public class DevicesController {
     // Methods
     // --------------------
 
+    public void startScan(BleScannerFilter.BleFilteredScanCallback callback) {
+        startScan(callback, -1);
+    }
+
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
         scan(callback, scanPeriod)
                 .filter(new Func1<List<BleDevice>, Boolean>() {

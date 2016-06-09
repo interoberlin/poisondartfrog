@@ -63,7 +63,7 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
             }
         });
 
-        devicesController.startScan(this, 10);
+        devicesController.startScan(this);
 
         return builder.create();
     }
