@@ -34,6 +34,8 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         devicesController = DevicesController.getInstance();
+        devicesController.getScannedDevices().clear();
+
         final Resources res = getActivity().getResources();
 
         scanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
@@ -105,7 +107,10 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
 
     @Override
     public void onLeScan(BleDevice device, int rssi) {
-        devicesController.getScannedDevices().put(device.getAddress(), device);
-        updateListView();
+        if (!devicesController.getScannedDevices().containsKey(device.getAddress()) &&
+                !devicesController.getAttachedDevices().containsKey(device.getAddress())) {
+            devicesController.getScannedDevices().put(device.getAddress(), device);
+            updateListView();
+        }
     }
 }
