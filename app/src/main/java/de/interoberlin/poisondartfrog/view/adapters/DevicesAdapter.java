@@ -177,7 +177,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
                     break;
                 }
-                case NRFDUINO : {
+                case NRFDUINO: {
                     ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
                     break;
                 }

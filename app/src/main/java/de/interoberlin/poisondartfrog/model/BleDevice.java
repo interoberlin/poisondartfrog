@@ -339,9 +339,9 @@ public class BleDevice {
         sb.append("services=\n");
 
         for (BluetoothGattService service : getServices()) {
-            sb.append("  service ").append(service.getUuid()).append("\n");
+            sb.append("  service ").append(service.getUuid().toString().substring(4,8)).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid()).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
+                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4,8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
             }
         }
         return sb.toString();

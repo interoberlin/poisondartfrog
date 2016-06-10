@@ -37,14 +37,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.activities.SettingsActivity"
+            android:label="@string/title_activity_settings"/>
+        <activity
+            android:name="de.interoberlin.mate.lib.view.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".model.BluetoothLeService"
             android:enabled="true" />
-
-        <activity
-            android:name=".view.activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

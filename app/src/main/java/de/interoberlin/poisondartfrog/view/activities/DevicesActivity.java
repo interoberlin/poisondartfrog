@@ -33,6 +33,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
@@ -196,8 +197,11 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_settings: {
-                Intent i = new Intent(DevicesActivity.this, SettingsActivity.class);
-                startActivity(i);
+                startActivity(new Intent(DevicesActivity.this, SettingsActivity.class));
+                break;
+            }
+            case R.id.menu_about: {
+                startActivity(new Intent(DevicesActivity.this, AboutActivity.class));
                 break;
             }
             default: {
