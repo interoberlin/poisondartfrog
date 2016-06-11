@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
@@ -46,6 +47,8 @@ import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
+import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -142,6 +145,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
         final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
+        final ImageView ivMore = (ImageView) llCardDevice.findViewById(R.id.ivMore);
 
         // Set values
         tvName.setText(device.getName());
@@ -228,13 +232,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                                             ocListener.onDetachDevice(device);
                                         }
                                     }
-
         );
 
         // DATA
-        if (device.containsCharacteristic(ECharacteristic.DATA))
-
-        {
+        if (device.containsCharacteristic(ECharacteristic.DATA)) {
             ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -259,16 +260,12 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     }
                 }
             });
-        } else
-
-        {
+        } else {
             ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
         }
 
         // LED STATE
-        if (device.containsCharacteristic(ECharacteristic.LED_STATE))
-
-        {
+        if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
             ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -276,24 +273,13 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
-        } else
-
-        {
+        } else {
             ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
         }
 
         // Send temperature
-        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).
-
-                equals(EDevice.WUNDERBAR_HTU)
-
-                && device.getLatestReadings() != null && device.getLatestReadings().
-
-                containsKey("temperature")
-
-                )
-
-        {
+        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)
+                && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
             ivSendTemperature.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -351,11 +337,28 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                     }, TimeUnit.MINUTES.toMillis(0), TimeUnit.MINUTES.toMillis(GOLEM_SEND_PERIOD));
                 }
             });
-        } else
-
-        {
+        } else {
             ((ViewManager) ivSendTemperature.getParent()).removeView(ivSendTemperature);
         }
+
+        // Characteristics
+        if (device != null && device.getCharacteristics() != null) {
+            ivMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
+                    CharacteristicsDialog dialog = new CharacteristicsDialog();
+                    Bundle b = new Bundle();
+                    b.putCharSequence(activity.getResources().getString(R.string.bundle_dialog_title), activity.getResources().getString(R.string.characteristics));
+                    b.putCharSequence(activity.getResources().getString(R.string.bundle_device_address), device.getAddress());
+                    dialog.setArguments(b);
+                    dialog.show(activity.getFragmentManager(), ScanResultsDialog.TAG);
+                }
+            });
+        } else {
+            ((ViewManager) ivMore.getParent()).removeView(ivMore);
+        }
+
 
         return llCardDevice;
     }
@@ -408,17 +411,17 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         return reading != null;
     }
 
-// --------------------
-// Callback interfaces
-// --------------------
+    // --------------------
+    // Callback interfaces
+    // --------------------
 
     public interface OnCompleteListener {
         void onDetachDevice(BleDevice device);
     }
 
-// --------------------
-// Inner classes
-// --------------------
+    // --------------------
+    // Inner classes
+    // --------------------
 
     public class BluetoothDeviceReadingFilter extends Filter {
         @Override
