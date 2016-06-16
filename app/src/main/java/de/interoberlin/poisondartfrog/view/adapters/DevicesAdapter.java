@@ -252,9 +252,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                             devicesActivity.snack(R.string.started_subscription);
                         } else {
                             device.unsubscribe(ECharacteristic.DATA.getId());
-
                             device.disconnect();
-                            device.close();
 
                             devicesActivity.updateListView();
                             devicesActivity.snack(R.string.stopped_subscription);
