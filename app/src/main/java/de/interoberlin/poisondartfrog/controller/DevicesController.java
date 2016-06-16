@@ -1,7 +1,9 @@
 package de.interoberlin.poisondartfrog.controller;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
 
@@ -59,6 +61,8 @@ public class DevicesController {
     }
 
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
+        Log.d(TAG, "Start scan");
+
         scan(callback, scanPeriod)
                 .filter(new Func1<List<BleDevice>, Boolean>() {
                     @Override
@@ -98,6 +102,8 @@ public class DevicesController {
     }
 
     public void stopScan() {
+        Log.d(TAG, "Stop scan");
+
         if (bleDeviceScanner != null)
             bleDeviceScanner.stop();
     }
@@ -107,6 +113,10 @@ public class DevicesController {
         if (bluetoothManager == null) {
             Log.e(TAG, "Unable to initialize BluetoothManager.");
             return null;
+        }
+
+        for (BluetoothDevice d : bluetoothManager.getConnectedDevices(BluetoothProfile.GATT_SERVER)) {
+            Log.i(TAG, "Already connected " + d.getName());
         }
 
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
@@ -174,9 +184,13 @@ public class DevicesController {
      * @return true, if it worked
      */
     public boolean detach(BluetoothLeService service, BleDevice device) {
-        if (service != null && device != null) {
-            service.disconnect();
+        Log.d(TAG, "Detach" + device.getName());
+
+        if (service != null) {
             device.disconnect();
+            device.close();
+            service.disconnect();
+            service.close();
 
             if (attachedDevices.containsKey(device.getAddress()))
                 attachedDevices.remove(device.getAddress());
@@ -188,7 +202,7 @@ public class DevicesController {
     }
 
     public boolean disconnect(BluetoothLeService service, BleDevice device) {
-        Log.d(TAG, "disconnect " + device.getName());
+        Log.d(TAG, "Disconnect " + device.getName());
 
         if (service != null) {
             device.disconnect();

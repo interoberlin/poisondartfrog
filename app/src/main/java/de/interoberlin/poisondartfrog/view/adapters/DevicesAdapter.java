@@ -49,8 +49,6 @@ import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     public static final String TAG = DevicesAdapter.class.getSimpleName();
@@ -59,9 +57,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private final Context context;
     private final Activity activity;
     private OnCompleteListener ocListener;
-
-    // Model
-    private Subscription deviceSubscription = Subscriptions.empty();
 
     // Controllers
     private DevicesController devicesController;
@@ -254,11 +249,15 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                         if (!device.isSubscribing()) {
                             device.subscribe(ECharacteristic.DATA.getId());
                             devicesActivity.updateListView();
-                            devicesActivity.snack("Started subscription");
+                            devicesActivity.snack(R.string.started_subscription);
                         } else {
                             device.unsubscribe(ECharacteristic.DATA.getId());
+
+                            device.disconnect();
+                            device.close();
+
                             devicesActivity.updateListView();
-                            devicesActivity.snack("Stopped subscription");
+                            devicesActivity.snack(R.string.stopped_subscription);
 
                             if (timer != null) timer.cancel();
                             if (httpGetTask != null) httpGetTask.cancel(true);

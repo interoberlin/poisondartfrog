@@ -192,7 +192,7 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public boolean connect(final String address) {
-        Log.d(TAG, "Connected " + address);
+        Log.d(TAG, "Connect " + address);
 
         if (bluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
@@ -226,6 +226,8 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public void disconnect() {
+        Log.d(TAG, "Disconnect");
+
         if (bluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -238,11 +240,15 @@ public class BluetoothLeService extends Service {
      * released properly.
      */
     public void close() {
+        Log.d(TAG, "Close");
+
         if (mBluetoothGatt == null) {
             return;
         }
         mBluetoothGatt.close();
         mBluetoothGatt = null;
+
+        broadcastUpdate(ACTION_GATT_DISCONNECTED);
     }
 
     /**

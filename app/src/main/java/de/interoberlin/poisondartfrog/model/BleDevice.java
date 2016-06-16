@@ -2,6 +2,7 @@ package de.interoberlin.poisondartfrog.model;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
@@ -47,6 +48,7 @@ public class BleDevice {
 
     private final BleDeviceManager deviceManager;
     private final Observable<? extends BaseService> serviceObservable;
+    private BluetoothGatt gatt;
 
     private List<BluetoothGattService> services;
     private List<BluetoothGattCharacteristic> characteristics;
@@ -63,9 +65,10 @@ public class BleDevice {
     // Constructors
     // --------------------
 
-    public BleDevice(Activity activity, BluetoothDevice device, BleDeviceManager manager) {
+    public BleDevice(Activity activity, BluetoothDevice device, BluetoothGatt gatt, BleDeviceManager manager) {
         this.activity = activity;
         this.device = device;
+        this.gatt = gatt;
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
@@ -94,6 +97,8 @@ public class BleDevice {
      * @return observable containing a base service
      */
     public Observable<? extends BaseService> connect() {
+        Log.d(TAG, "Connect");
+
         setConnected(true);
         return serviceObservable;
     }
@@ -101,9 +106,11 @@ public class BleDevice {
     /**
      * Disconnects the device
      *
-     * @return observable conatinung the device
+     * @return observable containing the device
      */
     public Observable<BleDevice> disconnect() {
+        Log.d(TAG, "Disconnect");
+
         setConnected(false);
         deviceManager.removeDevice(this);
         return serviceObservable
@@ -116,12 +123,24 @@ public class BleDevice {
     }
 
     /**
+     * Disconnects gatt connection and closes it
+     */
+    public void close() {
+        Log.d(TAG, "Close");
+
+        gatt.disconnect();
+        gatt.close();
+    }
+
+    /**
      * Reads a single value from a characteristic
      *
      * @param id uuid of the characteristic
      * @return subscription
      */
     public Subscription read(final String id) {
+        Log.d(TAG, "Read " + id);
+
         return connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
@@ -168,6 +187,8 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription subscribe(final String id) {
+        Log.d(TAG, "Subscribe " + id);
+
         Subscription subscription = connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
@@ -223,8 +244,14 @@ public class BleDevice {
         return subscription;
     }
 
+    /**
+     * Stops subscription to a characteristic with a given {@code id}
+     *
+     * @param id uuid of the characteristic
+     */
     public void unsubscribe(String id) {
-        Log.d(TAG, "unsubscribe " + id);
+        Log.d(TAG, "Unsubscribe " + id);
+
         Subscription subscription = subscriptions.get(id);
 
         if (subscription != null && !subscription.isUnsubscribed()) {
@@ -245,7 +272,7 @@ public class BleDevice {
     }
 
     /*
-     * Reads a single value from a characteristic
+     * Writes a single value to a characteristic
      *
      * @param serviceId uuid of the service
      * @param characteristicId uuid of the characteristic
@@ -253,6 +280,8 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription write(final EService service, final ECharacteristic characteristic, final byte[] value) {
+        Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
+
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
@@ -426,6 +455,10 @@ public class BleDevice {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public void setGatt(BluetoothGatt gatt) {
+        this.gatt = gatt;
     }
 
     public List<BluetoothGattService> getServices() {

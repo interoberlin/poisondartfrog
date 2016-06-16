@@ -12,6 +12,8 @@
     <string name="no_devices_found">No devices found</string>
     <string name="unknown_device">unknown device</string>
     <string name="unknown_characteristic">unknown characteristic</string>
+    <string name="started_subscription">Started subscription</string>
+    <string name="stopped_subscription">Stopped subscription</string>
     <string name="connected">connected</string>
     <string name="scan">scan</string>
     <string name="no_value">-</string>
