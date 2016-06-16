@@ -21,7 +21,7 @@ public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
 
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        BleDevice bleDevice = new BleDevice(null, device, null, deviceManager);
+        BleDevice bleDevice = new BleDevice(device, deviceManager);
 
         // TODO do filter stuff
 

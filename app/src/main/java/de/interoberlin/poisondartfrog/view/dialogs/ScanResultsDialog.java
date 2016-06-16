@@ -96,7 +96,7 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
     /**
      * Updates the list view
      */
-    public void updateListView() {
+    public void updateView() {
         scanResultsAdapter.filter();
         lvScanResults.invalidateViews();
     }
@@ -110,7 +110,7 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
         if (!devicesController.getScannedDevices().containsKey(device.getAddress()) &&
                 !devicesController.getAttachedDevices().containsKey(device.getAddress())) {
             devicesController.getScannedDevices().put(device.getAddress(), device);
-            updateListView();
+            updateView();
         }
     }
 }

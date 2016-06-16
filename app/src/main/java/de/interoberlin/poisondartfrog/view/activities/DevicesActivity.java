@@ -43,7 +43,7 @@ import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Model
@@ -79,7 +79,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             }
 
             devicesController = DevicesController.getInstance();
-            updateListView();
+            update();
         }
 
         @Override
@@ -88,7 +88,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             bluetoothLeService = null;
 
             devicesController = DevicesController.getInstance();
-            updateListView();
+            update();
         }
     };
 
@@ -109,7 +109,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
                 devicesController.disconnect(bluetoothLeService, device);
 
-                updateListView();
+                update();
             }
         }
     };
@@ -224,10 +224,10 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
         // getSingleLocation();
 
-        device.setActivity(this);
+        device.registerOnChangeListener(this);
 
         if (devicesController.attach(bluetoothLeService, device)) {
-            updateListView();
+            update();
             snack(R.string.attached_device);
         } else {
             snack(R.string.failed_to_attach_device);
@@ -241,11 +241,16 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         vibrate(VIBRATION_DURATION);
 
         if (devicesController.detach(bluetoothLeService, device)) {
-            updateListView();
+            update();
             snack(R.string.detached_device);
         } else {
             snack(R.string.failed_to_detach_device);
         }
+    }
+
+    @Override
+    public void onChange(BleDevice device) {
+        update();
     }
 
     @Override
@@ -396,9 +401,9 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     }
 
     /**
-     * Updates the list view
+     * Updates view
      */
-    public void updateListView() {
+    public void update() {
         final ListView lv = (ListView) findViewById(R.id.lv);
 
         devicesAdapter.filter();

@@ -1,6 +1,5 @@
 package de.interoberlin.poisondartfrog.model;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -24,7 +23,6 @@ import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
-import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -40,7 +38,7 @@ public class BleDevice {
 
     public static final int READING_HISTORY = 50;
 
-    private Activity activity;
+    private OnChangeListener ocListener;
     private final BluetoothDevice device;
     private final String name;
     private final String address;
@@ -65,10 +63,8 @@ public class BleDevice {
     // Constructors
     // --------------------
 
-    public BleDevice(Activity activity, BluetoothDevice device, BluetoothGatt gatt, BleDeviceManager manager) {
-        this.activity = activity;
+    public BleDevice(BluetoothDevice device, BleDeviceManager manager) {
         this.device = device;
-        this.gatt = gatt;
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
@@ -176,8 +172,7 @@ public class BleDevice {
                                 c.setValue(reading.value.toString());
                         }
 
-                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                        devicesActivity.updateListView();
+                        if (ocListener != null) ocListener.onChange(BleDevice.this);
                     }
                 });
     }
@@ -235,8 +230,7 @@ public class BleDevice {
 
                         setCharacteristicValue(id, reading.toString());
 
-                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                        devicesActivity.updateListView();
+                        if (ocListener != null) ocListener.onChange(BleDevice.this);
                     }
                 });
 
@@ -470,10 +464,6 @@ public class BleDevice {
     // Getters / Setters
     // --------------------
 
-    public void setActivity(Activity activity) {
-        this.activity = activity;
-    }
-
     public void setGatt(BluetoothGatt gatt) {
         this.gatt = gatt;
     }
@@ -558,5 +548,17 @@ public class BleDevice {
 
     public EDevice getType() {
         return type;
+    }
+
+    // --------------------
+    // Callback interfaces
+    // --------------------
+
+    public interface OnChangeListener {
+        void onChange(BleDevice device);
+    }
+
+    public void registerOnChangeListener(OnChangeListener ocListener) {
+        this.ocListener = ocListener;
     }
 }

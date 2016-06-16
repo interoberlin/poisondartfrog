@@ -89,9 +89,9 @@ public class CharacteristicsDialog extends DialogFragment {
     // --------------------
 
     /**
-     * Updates the list view
+     * Updates the view
      */
-    public void updateListView() {
+    public void updateView() {
         lvCharacteristics.invalidateViews();
     }
 }
