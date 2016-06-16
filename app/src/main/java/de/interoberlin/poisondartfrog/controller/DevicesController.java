@@ -152,7 +152,7 @@ public class DevicesController {
      * @return true, if it worked
      */
     public boolean attach(BluetoothLeService service, BleDevice device) {
-        Log.i(TAG, "Attach " + device.getName());
+        Log.d(TAG, "Attach " + device.getName());
 
         if (service != null) {
             service.connect(device.getAddress());
@@ -187,8 +187,16 @@ public class DevicesController {
         return false;
     }
 
-    public BleDevice getAttachedDeviceByAdress(String address) {
-        return getAttachedDevices().get(address);
+    public boolean disconnect(BluetoothLeService service, BleDevice device) {
+        Log.d(TAG, "disconnect " + device.getName());
+
+        if (service != null) {
+            device.disconnect();
+            service.disconnect();
+            return true;
+        }
+
+        return false;
     }
 
     // --------------------
@@ -205,6 +213,10 @@ public class DevicesController {
 
     public Map<String, BleDevice> getAttachedDevices() {
         return attachedDevices;
+    }
+
+    public BleDevice getAttachedDeviceByAdress(String address) {
+        return getAttachedDevices().get(address);
     }
 
     public List<BleDevice> getAttachedDevicesAsList() {

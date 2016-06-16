@@ -141,6 +141,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final TextView tvAddress = (TextView) llCardDevice.findViewById(R.id.tvAddress);
         final ImageView ivIcon = (ImageView) llCardDevice.findViewById(R.id.ivIcon);
         final LinearLayout llComponents = (LinearLayout) llCardDevice.findViewById(R.id.llComponents);
+        final ImageView ivConnected = (ImageView) llCardDevice.findViewById(R.id.ivConnected);
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
@@ -194,6 +195,13 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
+        } else {
+            if (!device.isConnected())
+                ((ViewManager) ivConnected.getParent()).removeView(ivConnected);
+        }
+
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         llComponents.addView(new DataComponent(context, activity, device));
@@ -244,15 +252,13 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
                         if (!device.isSubscribing()) {
-                            device.setSubscribing(true);
-                            deviceSubscription = device.subscribe(ECharacteristic.DATA.getId());
+                            device.subscribe(ECharacteristic.DATA.getId());
                             devicesActivity.updateListView();
                             devicesActivity.snack("Started subscription");
                         } else {
-                            device.setSubscribing(false);
+                            device.unsubscribe(ECharacteristic.DATA.getId());
                             devicesActivity.updateListView();
                             devicesActivity.snack("Stopped subscription");
-                            deviceSubscription.unsubscribe();
 
                             if (timer != null) timer.cancel();
                             if (httpGetTask != null) httpGetTask.cancel(true);

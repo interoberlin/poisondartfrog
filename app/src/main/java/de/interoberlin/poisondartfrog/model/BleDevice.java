@@ -53,7 +53,9 @@ public class BleDevice {
 
     private Map<String, Queue<Reading>> readings;
     private Map<String, Reading> latestReadings;
+    private Map<String, Subscription> subscriptions;
 
+    private boolean connected;
     private boolean reading;
     private boolean subscribing;
 
@@ -75,7 +77,9 @@ public class BleDevice {
         this.characteristics = new ArrayList<>();
         this.readings = new HashMap<>();
         this.latestReadings = new HashMap<>();
+        this.subscriptions = new HashMap<>();
 
+        this.connected = false;
         this.reading = false;
         this.subscribing = false;
     }
@@ -90,6 +94,7 @@ public class BleDevice {
      * @return observable containing a base service
      */
     public Observable<? extends BaseService> connect() {
+        setConnected(true);
         return serviceObservable;
     }
 
@@ -99,6 +104,7 @@ public class BleDevice {
      * @return observable conatinung the device
      */
     public Observable<BleDevice> disconnect() {
+        setConnected(false);
         deviceManager.removeDevice(this);
         return serviceObservable
                 .flatMap(new Func1<BaseService, Observable<BleDevice>>() {
@@ -143,7 +149,7 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        Log.i(TAG, reading.meaning + " " + reading.value.toString());
+                        Log.d(TAG, reading.meaning + " " + reading.value.toString());
                         for (BluetoothGattCharacteristic c : getCharacteristics()) {
                             if (c.getUuid().toString().contains(id))
                                 c.setValue(reading.value.toString());
@@ -162,7 +168,7 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription subscribe(final String id) {
-        return connect()
+        Subscription subscription = connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
                     public Observable<Reading> call(BaseService baseService) {
@@ -210,6 +216,24 @@ public class BleDevice {
                         devicesActivity.updateListView();
                     }
                 });
+
+        subscriptions.put(id, subscription);
+        setSubscribing(true);
+
+        return subscription;
+    }
+
+    public void unsubscribe(String id) {
+        Log.d(TAG, "unsubscribe " + id);
+        Subscription subscription = subscriptions.get(id);
+
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            Log.d(TAG, "unsubscribed " + id);
+            subscription.unsubscribe();
+            subscriptions.remove(id);
+        }
+
+        setSubscribing(false);
     }
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
@@ -255,7 +279,7 @@ public class BleDevice {
 
                     @Override
                     public void onNext(BluetoothGattCharacteristic characteristic) {
-                        Log.i(TAG, characteristic.getUuid() + " " + characteristic.getValue());
+                        Log.d(TAG, characteristic.getUuid() + " " + characteristic.getValue());
                     }
                 });
     }
@@ -339,9 +363,9 @@ public class BleDevice {
         sb.append("services=\n");
 
         for (BluetoothGattService service : getServices()) {
-            sb.append("  service ").append(service.getUuid().toString().substring(4,8)).append("\n");
+            sb.append("  service ").append(service.getUuid().toString().substring(4, 8)).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4,8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
+                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
             }
         }
         return sb.toString();
@@ -442,8 +466,20 @@ public class BleDevice {
         return latestReadings;
     }
 
+    public Map<String, Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
     public void setValues(Map<String, Queue<Reading>> readings) {
         this.readings = readings;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
     public boolean isReading() {

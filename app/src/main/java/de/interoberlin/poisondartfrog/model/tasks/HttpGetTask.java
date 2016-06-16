@@ -95,7 +95,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
         con.setRequestProperty("Content-Type", CONTENT_TYPE + "; charset=" + ENCODING);
         con.setRequestProperty("Accept-Charset", ENCODING);
 
-        Log.i(TAG, url + getParamString(values));
+        Log.d(TAG, url + getParamString(values));
 
         // Execute request
         try {
@@ -175,7 +175,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
                         callBack);
             }
         } else {
-            Log.i(TAG, "Permission granted");
+            Log.d(TAG, "Permission granted");
         }
     }
 
