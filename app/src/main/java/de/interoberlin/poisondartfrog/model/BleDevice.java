@@ -264,10 +264,14 @@ public class BleDevice {
     }
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
+        Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
+
         return write(service, characteristic, value.getBytes());
     }
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
+        Log.d(TAG, "Write " + characteristic.getId() + " : " + bytesToHex(value ? new byte[]{0x01} : new byte[]{0x00}));
+
         return write(service, characteristic, value ? new byte[]{0x01} : new byte[]{0x00});
     }
 
@@ -280,8 +284,6 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription write(final EService service, final ECharacteristic characteristic, final byte[] value) {
-        Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
-
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
@@ -304,6 +306,7 @@ public class BleDevice {
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage());
                     }
 
                     @Override
@@ -311,6 +314,18 @@ public class BleDevice {
                         Log.d(TAG, characteristic.getUuid() + " " + characteristic.getValue());
                     }
                 });
+    }
+
+
+    private String bytesToHex(byte[] bytes) {
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
     /**

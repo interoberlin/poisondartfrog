@@ -74,8 +74,8 @@ public class Service {
     }
 
     public Observable<BluetoothGattCharacteristic> write(byte[] bytes,
-                                                            String serviceUuid,
-                                                            String characteristicUuid) {
+                                                         String serviceUuid,
+                                                         String characteristicUuid) {
         BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
                 mBluetoothGatt.getServices(), serviceUuid, characteristicUuid);
         if (characteristic == null) {
@@ -129,7 +129,8 @@ public class Service {
 
         Observable.create(
                 new Observable.OnSubscribe<Object>() {
-                    @Override public void call(Subscriber<? super Object> s) {
+                    @Override
+                    public void call(Subscriber<? super Object> s) {
                         sendPayload(parser, characteristic, subscriber);
                     }
                 })
@@ -140,8 +141,8 @@ public class Service {
     }
 
     public Observable<BluetoothGattCharacteristic> readCharacteristic(String serviceUuid,
-                                                                         String characteristicUuid,
-                                                                         final String what) {
+                                                                      String characteristicUuid,
+                                                                      final String what) {
         BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(
                 mBluetoothGatt.getServices(), serviceUuid, characteristicUuid);
         if (characteristic == null) {
