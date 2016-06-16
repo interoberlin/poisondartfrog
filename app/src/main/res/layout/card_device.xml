@@ -145,6 +145,15 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true">
 
+                        <!-- Heart rate measurement -->
+                        <ImageView
+                            android:id="@+id/ivHeartRateMeasurement"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_favorite_black_36dp" />
+
                         <!-- Send golem.de temperature -->
                         <ImageView
                             android:id="@+id/ivSendTemperature"

@@ -140,6 +140,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
+        final ImageView ivHeartRateMeasurement = (ImageView) llCardDevice.findViewById(R.id.ivHeartRateMeasurement);
         final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
         final ImageView ivMore = (ImageView) llCardDevice.findViewById(R.id.ivMore);
 
@@ -278,6 +279,19 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             });
         } else {
             ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
+        }
+
+        // LED STATE
+        if (device.containsCharacteristic(ECharacteristic.HEART_RATE_MEASUREMENT)) {
+            ivHeartRateMeasurement.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
+                    device.write(EService.DIRECT_CONNECTION, ECharacteristic.HEART_RATE_MEASUREMENT, true);
+                }
+            });
+        } else {
+            ((ViewManager) ivHeartRateMeasurement.getParent()).removeView(ivHeartRateMeasurement);
         }
 
         // Send temperature
