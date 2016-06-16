@@ -2,6 +2,7 @@ package de.interoberlin.poisondartfrog.model;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
@@ -47,13 +48,16 @@ public class BleDevice {
 
     private final BleDeviceManager deviceManager;
     private final Observable<? extends BaseService> serviceObservable;
+    private BluetoothGatt gatt;
 
     private List<BluetoothGattService> services;
     private List<BluetoothGattCharacteristic> characteristics;
 
     private Map<String, Queue<Reading>> readings;
     private Map<String, Reading> latestReadings;
+    private Map<String, Subscription> subscriptions;
 
+    private boolean connected;
     private boolean reading;
     private boolean subscribing;
 
@@ -61,9 +65,10 @@ public class BleDevice {
     // Constructors
     // --------------------
 
-    public BleDevice(Activity activity, BluetoothDevice device, BleDeviceManager manager) {
+    public BleDevice(Activity activity, BluetoothDevice device, BluetoothGatt gatt, BleDeviceManager manager) {
         this.activity = activity;
         this.device = device;
+        this.gatt = gatt;
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
@@ -75,7 +80,9 @@ public class BleDevice {
         this.characteristics = new ArrayList<>();
         this.readings = new HashMap<>();
         this.latestReadings = new HashMap<>();
+        this.subscriptions = new HashMap<>();
 
+        this.connected = false;
         this.reading = false;
         this.subscribing = false;
     }
@@ -90,15 +97,21 @@ public class BleDevice {
      * @return observable containing a base service
      */
     public Observable<? extends BaseService> connect() {
+        Log.d(TAG, "Connect");
+
+        setConnected(true);
         return serviceObservable;
     }
 
     /**
      * Disconnects the device
      *
-     * @return observable conatinung the device
+     * @return observable containing the device
      */
     public Observable<BleDevice> disconnect() {
+        Log.d(TAG, "Disconnect");
+
+        setConnected(false);
         deviceManager.removeDevice(this);
         return serviceObservable
                 .flatMap(new Func1<BaseService, Observable<BleDevice>>() {
@@ -110,12 +123,24 @@ public class BleDevice {
     }
 
     /**
+     * Disconnects gatt connection and closes it
+     */
+    public void close() {
+        Log.d(TAG, "Close");
+
+        gatt.disconnect();
+        gatt.close();
+    }
+
+    /**
      * Reads a single value from a characteristic
      *
      * @param id uuid of the characteristic
      * @return subscription
      */
     public Subscription read(final String id) {
+        Log.d(TAG, "Read " + id);
+
         return connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
@@ -143,7 +168,7 @@ public class BleDevice {
 
                     @Override
                     public void onNext(Reading reading) {
-                        Log.i(TAG, reading.meaning + " " + reading.value.toString());
+                        Log.d(TAG, reading.meaning + " " + reading.value.toString());
                         for (BluetoothGattCharacteristic c : getCharacteristics()) {
                             if (c.getUuid().toString().contains(id))
                                 c.setValue(reading.value.toString());
@@ -162,7 +187,9 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription subscribe(final String id) {
-        return connect()
+        Log.d(TAG, "Subscribe " + id);
+
+        Subscription subscription = connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
                     public Observable<Reading> call(BaseService baseService) {
@@ -210,6 +237,30 @@ public class BleDevice {
                         devicesActivity.updateListView();
                     }
                 });
+
+        subscriptions.put(id, subscription);
+        setSubscribing(true);
+
+        return subscription;
+    }
+
+    /**
+     * Stops subscription to a characteristic with a given {@code id}
+     *
+     * @param id uuid of the characteristic
+     */
+    public void unsubscribe(String id) {
+        Log.d(TAG, "Unsubscribe " + id);
+
+        Subscription subscription = subscriptions.get(id);
+
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            Log.d(TAG, "unsubscribed " + id);
+            subscription.unsubscribe();
+            subscriptions.remove(id);
+        }
+
+        setSubscribing(false);
     }
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
@@ -221,7 +272,7 @@ public class BleDevice {
     }
 
     /*
-     * Reads a single value from a characteristic
+     * Writes a single value to a characteristic
      *
      * @param serviceId uuid of the service
      * @param characteristicId uuid of the characteristic
@@ -229,6 +280,8 @@ public class BleDevice {
      * @return subscription
      */
     public Subscription write(final EService service, final ECharacteristic characteristic, final byte[] value) {
+        Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
+
         return connect()
                 .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
@@ -255,7 +308,7 @@ public class BleDevice {
 
                     @Override
                     public void onNext(BluetoothGattCharacteristic characteristic) {
-                        Log.i(TAG, characteristic.getUuid() + " " + characteristic.getValue());
+                        Log.d(TAG, characteristic.getUuid() + " " + characteristic.getValue());
                     }
                 });
     }
@@ -339,9 +392,9 @@ public class BleDevice {
         sb.append("services=\n");
 
         for (BluetoothGattService service : getServices()) {
-            sb.append("  service ").append(service.getUuid().toString().substring(4,8)).append("\n");
+            sb.append("  service ").append(service.getUuid().toString().substring(4, 8)).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4,8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
+                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
             }
         }
         return sb.toString();
@@ -404,6 +457,10 @@ public class BleDevice {
         this.activity = activity;
     }
 
+    public void setGatt(BluetoothGatt gatt) {
+        this.gatt = gatt;
+    }
+
     public List<BluetoothGattService> getServices() {
         return services;
     }
@@ -442,8 +499,20 @@ public class BleDevice {
         return latestReadings;
     }
 
+    public Map<String, Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
     public void setValues(Map<String, Queue<Reading>> readings) {
         this.readings = readings;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
     public boolean isReading() {

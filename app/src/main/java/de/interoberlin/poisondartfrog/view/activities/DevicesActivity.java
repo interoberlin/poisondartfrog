@@ -67,7 +67,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.i(TAG, "Service connected");
+            Log.d(TAG, "Service connected");
             if (service != null) {
                 bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             } else {
@@ -84,7 +84,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.i(TAG, "Service disconnected");
+            Log.d(TAG, "Service disconnected");
             bluetoothLeService = null;
 
             devicesController = DevicesController.getInstance();
@@ -98,14 +98,16 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             final String action = intent.getAction();
             final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                Log.i(TAG, "Gatt connected");
+                Log.d(TAG, "Gatt connected to " + deviceAddress);
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.i(TAG, "Gatt disconnected from " + deviceAddress);
+                Log.d(TAG, "Gatt disconnected from " + deviceAddress);
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                Log.i(TAG, "Gatt services discovered");
+                Log.d(TAG, "Gatt services discovered");
                 BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
                 device.setServices(bluetoothLeService.getSupportedGattServices());
-                Log.i(TAG, device.toString());
+                Log.d(TAG, device.toString());
+
+                devicesController.disconnect(bluetoothLeService, device);
 
                 updateListView();
             }
@@ -183,8 +185,8 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         super.onDestroy();
         unbindService(serviceConnection);
 
-        disableBluetooth();
-        disableLocation();
+        // disableBluetooth();
+        // disableLocation();
     }
 
     @Override
@@ -220,7 +222,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     public void onAttachDevice(BleDevice device) {
         vibrate(VIBRATION_DURATION);
 
-        getSingleLocation();
+        // getSingleLocation();
 
         device.setActivity(this);
 
@@ -234,7 +236,10 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
     @Override
     public void onDetachDevice(BleDevice device) {
+        Log.d(TAG, "onDetachDevice " + device.getName());
+
         vibrate(VIBRATION_DURATION);
+
         if (devicesController.detach(bluetoothLeService, device)) {
             updateListView();
             snack(R.string.detached_device);
@@ -251,7 +256,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     @Override
     public void onLocationChanged(Location location) {
         this.currentLocation = location;
-        Log.i(TAG, "Location " + location.getLongitude() + " / " + location.getLatitude());
+        Log.d(TAG, "Location " + location.getLongitude() + " / " + location.getLatitude());
     }
 
     @Override
@@ -347,7 +352,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                         callBack);
             }
         } else {
-            Log.i(TAG, "Permission granted");
+            Log.d(TAG, "Permission granted");
         }
     }
 

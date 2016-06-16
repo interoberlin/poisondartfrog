@@ -48,6 +48,7 @@ public class DirectConnectionService extends BaseService {
                 .map(new Func1<BluetoothGatt, DirectConnectionService>() {
                     @Override
                     public DirectConnectionService call(BluetoothGatt gatt) {
+                        bleDevice.setGatt(gatt);
                         return new DirectConnectionService(bleDevice, gatt, receiver);
                     }
                 });

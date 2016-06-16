@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.ImageView;
 
 public class CircleDiagram extends ImageView {
@@ -88,8 +87,6 @@ public class CircleDiagram extends ImageView {
 
         float mRadius = maxRadius - minRadius;
         float pRadius = mRadius * ((pValue + MIN_VALUE) > 1.0f ? 1.0f : (pValue + MIN_VALUE)) + minRadius;
-
-        Log.i(TAG, "" + pRadius);
 
         int radius = (int) ((smallerSide / 2) * pRadius);
 
