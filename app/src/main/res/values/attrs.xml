@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BatteryDiagram">
+        <attr name="minColor" format="integer" />
+        <attr name="maxColor" format="integer" />
+        <attr name="value" format="integer" />
+    </declare-styleable>
+</resources>

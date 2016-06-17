@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:interoberlin="http://schemas.android.com/apk/res-auto"
     android:id="@+id/surface"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -37,12 +38,12 @@
                         android:layout_width="@dimen/connection_indicator_icon_size"
                         android:layout_height="@dimen/connection_indicator_icon_size"
                         android:layout_alignParentEnd="true"
+                        android:layout_gravity="center_vertical"
                         android:layout_margin="@dimen/connection_indicator_icon_margin"
                         android:contentDescription="@string/scan_result_icon"
                         android:gravity="center_vertical"
                         android:src="@drawable/connection_indicator"
-                        android:tint="@color/md_grey_400"
-                        android:layout_gravity="center_vertical" />
+                        android:tint="@color/md_grey_400" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -89,6 +90,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <!-- Status bar -->
+                <RelativeLayout
+                    android:id="@+id/llStatusBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:gravity="start"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/llBatteryLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:orientation="horizontal">
+
+                        <!-- Battery Icon -->
+                        <de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram
+                            android:id="@+id/ivBattery"
+                            android:layout_width="@dimen/battery_icon_size"
+                            android:layout_height="@dimen/battery_icon_size"
+                            android:layout_margin="@dimen/icon_margin"
+                            android:contentDescription="@string/battery"
+                            interoberlin:maxColor="?android:attr/textColorTertiary"
+                            interoberlin:minColor="?android:attr/textColorTertiary"
+                            interoberlin:value="50" />
+
+                        <TextView
+                            android:id="@+id/tvBatteryLevel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/icon_padding"
+                            android:text="@string/battery_level"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
+
+                        <TextView
+                            android:id="@+id/tvBatteryLevelValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/icon_padding"
+                            android:text="@string/percentage"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
+
+                    </LinearLayout>
+                </RelativeLayout>
 
                 <!-- Divider -->
                 <View

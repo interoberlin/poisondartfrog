@@ -137,6 +137,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivIcon = (ImageView) llCardDevice.findViewById(R.id.ivIcon);
         final LinearLayout llComponents = (LinearLayout) llCardDevice.findViewById(R.id.llComponents);
         final ImageView ivConnected = (ImageView) llCardDevice.findViewById(R.id.ivConnected);
+
+        final TextView tvBatteryLevelValue = (TextView) llCardDevice.findViewById(R.id.tvBatteryLevelValue);
+
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
@@ -196,6 +199,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             if (!device.isConnected())
                 ((ViewManager) ivConnected.getParent()).removeView(ivConnected);
         }
+
+        tvBatteryLevelValue.setText("0 %");
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 

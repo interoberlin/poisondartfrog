@@ -1,6 +1,7 @@
 package de.interoberlin.poisondartfrog.view.diagrams;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,10 +9,21 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import de.interoberlin.poisondartfrog.R;
+
 
 public class BatteryDiagram extends ImageView {
     public static final String TAG = BatteryDiagram.class.getSimpleName();
+
+    private Context context;
+    private int width;
+    private int height;
+    private int minColor;
+    private int maxColor;
+    private int value;
 
     // --------------------
     // Constructors
@@ -19,6 +31,28 @@ public class BatteryDiagram extends ImageView {
 
     public BatteryDiagram(Context context) {
         super(context);
+    }
+
+    public BatteryDiagram(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.context = context;
+        this.width = (int) getResources().getDimension(R.dimen.battery_icon_size);
+        this.height = (int) getResources().getDimension(R.dimen.battery_icon_size);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.BatteryDiagram,
+                0, 0);
+
+        try {
+            this.minColor = a.getColor(R.styleable.BatteryDiagram_minColor, ContextCompat.getColor(getContext(), R.color.md_black_1000));
+            this.maxColor = a.getColor(R.styleable.BatteryDiagram_maxColor, ContextCompat.getColor(getContext(), R.color.md_black_1000));
+            this.value = a.getInteger(R.styleable.BatteryDiagram_value, 50);
+        } finally {
+            a.recycle();
+        }
+
+        init();
     }
 
     /**
@@ -34,13 +68,25 @@ public class BatteryDiagram extends ImageView {
     public BatteryDiagram(Context context, int width, int height, int minColorResource, int maxColorResource, int value) {
         super(context);
 
-        int minColor = ContextCompat.getColor(context, minColorResource);
-        int maxColor = ContextCompat.getColor(context, maxColorResource);
+        this.context = context;
+        this.width = width;
+        this.height = height;
+        this.minColor = ContextCompat.getColor(context, minColorResource);
+        this.maxColor = ContextCompat.getColor(context, maxColorResource);
+        this.value = value;
 
-        init(width, height, minColor, maxColor, value);
+
+        init();
     }
 
-    private void init(int width, int height, int minColor, int maxColor, int value) {
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        this.width = w;
+        this.height = h;
+    }
+
+    private void init() {
         final float MIN_VALUE = 0.0f;
         final float MAX_VALUE = 100.0f;
 
