@@ -226,6 +226,8 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
         device.registerOnChangeListener(this);
 
+
+
         if (devicesController.attach(bluetoothLeService, device)) {
             update();
             snack(R.string.attached_device);

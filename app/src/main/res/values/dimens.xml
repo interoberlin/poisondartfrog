@@ -9,12 +9,14 @@
     <dimen name="connection_indicator_icon_size">12sp</dimen>
     <dimen name="connection_indicator_icon_margin">8sp</dimen>
 
-    <dimen name="battery_icon_size">18sp</dimen>
+    <dimen name="battery_icon_size">16dp</dimen>
 
     <!-- Card -->
     <dimen name="card_margin">10dp</dimen>
     <dimen name="card_padding">8dp</dimen>
+
     <dimen name="icon_padding">5dp</dimen>
+    <dimen name="icon_margin">5dp</dimen>
 
     <!-- Color picker -->
     <dimen name="color_swatch_large">64dip</dimen>
