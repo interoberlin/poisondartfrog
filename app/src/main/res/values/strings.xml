@@ -18,6 +18,9 @@
     <string name="battery">battery</string>
     <string name="battery_level">battery level</string>
     <string name="percentage">%</string>
+    <string name="refresh_cache">refresh cache</string>
+    <string name="cached_refreshed">cached refreshed</string>
+    <string name="cached_refresh_failed">cached refresh failed</string>
     <string name="scan">scan</string>
     <string name="no_value">-</string>
     <string name="attached_device">Attached device</string>

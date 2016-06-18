@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.google.common.collect.EvictingQueue;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -312,6 +313,23 @@ public class BleDevice {
                 });
     }
 
+    /**
+     * Clears ble cache
+     */
+    public void refreshCache() {
+        try {
+            if (gatt != null) {
+                Method localMethod = gatt.getClass().getMethod("refresh", new Class[0]);
+                if (localMethod != null) {
+                    ocListener.onCacheCleared(((Boolean) localMethod.invoke(gatt, new Object[0])).booleanValue());
+                }
+            }
+        } catch (Exception localException) {
+            Log.e(TAG, "An exception occured while refreshing device");
+        }
+
+        ocListener.onCacheCleared(false);
+    }
 
     private String bytesToHex(byte[] bytes) {
         char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -464,6 +482,10 @@ public class BleDevice {
     // Getters / Setters
     // --------------------
 
+    public BluetoothGatt getGatt() {
+        return gatt;
+    }
+
     public void setGatt(BluetoothGatt gatt) {
         this.gatt = gatt;
     }
@@ -556,6 +578,8 @@ public class BleDevice {
 
     public interface OnChangeListener {
         void onChange(BleDevice device);
+
+        void onCacheCleared(boolean success);
     }
 
     public void registerOnChangeListener(OnChangeListener ocListener) {

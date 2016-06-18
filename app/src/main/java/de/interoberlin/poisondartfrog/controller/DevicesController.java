@@ -213,6 +213,14 @@ public class DevicesController {
         return false;
     }
 
+    public void refreshCache(String deviceAddress){
+        refreshCache(getAttachedDeviceByAdress(deviceAddress));
+    }
+
+    public void refreshCache(BleDevice device){
+        device.refreshCache();
+    }
+
     // --------------------
     // Getters / Setters
     // --------------------

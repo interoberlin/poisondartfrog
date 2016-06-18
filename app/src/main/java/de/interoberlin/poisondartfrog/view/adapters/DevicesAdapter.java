@@ -253,13 +253,13 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
                         if (!device.isSubscribing()) {
                             device.subscribe(ECharacteristic.DATA.getId());
-                            devicesActivity.update();
+                            devicesActivity.updateView();
                             devicesActivity.snack(R.string.started_subscription);
                         } else {
                             device.unsubscribe(ECharacteristic.DATA.getId());
                             device.disconnect();
 
-                            devicesActivity.update();
+                            devicesActivity.updateView();
                             devicesActivity.snack(R.string.stopped_subscription);
 
                             if (timer != null) timer.cancel();
@@ -272,7 +272,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
         }
 
-        // LED STATE
+        // LED state
         if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
             ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -79,7 +79,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             }
 
             devicesController = DevicesController.getInstance();
-            update();
+            updateView();
         }
 
         @Override
@@ -88,7 +88,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             bluetoothLeService = null;
 
             devicesController = DevicesController.getInstance();
-            update();
+            updateView();
         }
     };
 
@@ -109,7 +109,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
                 devicesController.disconnect(bluetoothLeService, device);
 
-                update();
+                updateView();
             }
         }
     };
@@ -229,7 +229,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
 
         if (devicesController.attach(bluetoothLeService, device)) {
-            update();
+            updateView();
             snack(R.string.attached_device);
         } else {
             snack(R.string.failed_to_attach_device);
@@ -243,7 +243,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         vibrate(VIBRATION_DURATION);
 
         if (devicesController.detach(bluetoothLeService, device)) {
-            update();
+            updateView();
             snack(R.string.detached_device);
         } else {
             snack(R.string.failed_to_detach_device);
@@ -252,7 +252,12 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
     @Override
     public void onChange(BleDevice device) {
-        update();
+        updateView();
+    }
+
+    @Override
+    public void onCacheCleared(boolean success) {
+        snack(success ? R.string.cached_refreshed : R.string.cached_refresh_failed);
     }
 
     @Override
@@ -405,7 +410,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     /**
      * Updates view
      */
-    public void update() {
+    public void updateView() {
         final ListView lv = (ListView) findViewById(R.id.lv);
 
         devicesAdapter.filter();

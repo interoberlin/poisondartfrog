@@ -61,6 +61,14 @@ public class CharacteristicsDialog extends DialogFragment {
             }
         });
 
+        // Add neutral button
+        builder.setNeutralButton(R.string.refresh_cache, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                devicesController.refreshCache(deviceAddress);
+            }
+        });
+
         return builder.create();
     }
 
