@@ -38,6 +38,7 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
@@ -79,7 +80,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             }
 
             devicesController = DevicesController.getInstance();
-            update();
+            updateView();
         }
 
         @Override
@@ -88,7 +89,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
             bluetoothLeService = null;
 
             devicesController = DevicesController.getInstance();
-            update();
+            updateView();
         }
     };
 
@@ -107,9 +108,10 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 device.setServices(bluetoothLeService.getSupportedGattServices());
                 Log.d(TAG, device.toString());
 
+                device.read(ECharacteristic.BATTERY_LEVEL);
                 devicesController.disconnect(bluetoothLeService, device);
 
-                update();
+                updateView();
             }
         }
     };
@@ -227,9 +229,8 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         device.registerOnChangeListener(this);
 
 
-
         if (devicesController.attach(bluetoothLeService, device)) {
-            update();
+            updateView();
             snack(R.string.attached_device);
         } else {
             snack(R.string.failed_to_attach_device);
@@ -243,7 +244,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         vibrate(VIBRATION_DURATION);
 
         if (devicesController.detach(bluetoothLeService, device)) {
-            update();
+            updateView();
             snack(R.string.detached_device);
         } else {
             snack(R.string.failed_to_detach_device);
@@ -252,7 +253,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
     @Override
     public void onChange(BleDevice device) {
-        update();
+        updateView();
     }
 
     @Override
@@ -405,11 +406,16 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     /**
      * Updates view
      */
-    public void update() {
-        final ListView lv = (ListView) findViewById(R.id.lv);
+    public void updateView() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final ListView lv = (ListView) findViewById(R.id.lv);
 
-        devicesAdapter.filter();
-        lv.invalidateViews();
+                devicesAdapter.filter();
+                lv.invalidateViews();
+            }
+        });
     }
 
     // --------------------

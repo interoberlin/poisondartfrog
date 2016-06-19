@@ -57,22 +57,22 @@ public class DirectConnectionService extends BaseService {
     /**
      * Reads a single value from a characteristic
      *
-     * @param id uuid of the characteristic
+     * @param characteristic characteristic
      * @return observable containing reading
      */
-    public Observable<Reading> read(String id) {
-        BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(mBluetoothGatt.getServices(), EService.DIRECT_CONNECTION.getId(), id);
+    public Observable<Reading> read(final ECharacteristic characteristic) {
+        BluetoothGattCharacteristic c = BleUtils.getCharacteristicInServices(mBluetoothGatt.getServices(), characteristic.getService().getId(), characteristic.getId());
 
         if (characteristic == null) {
-            return error(new CharacteristicNotFoundException(id));
+            return error(new CharacteristicNotFoundException(characteristic.getId()));
         }
 
         return mBluetoothGattReceiver
-                .readCharacteristic(mBluetoothGatt, characteristic)
+                .readCharacteristic(mBluetoothGatt, c)
                 .map(new Func1<BluetoothGattCharacteristic, String>() {
                     @Override
-                    public String call(BluetoothGattCharacteristic characteristic) {
-                        return BleDataParser.getFormattedValue(device.getType(), characteristic.getValue());
+                    public String call(BluetoothGattCharacteristic c) {
+                        return BleDataParser.getFormattedValue(device.getType(), characteristic, c.getValue());
                     }
                 })
                 .flatMap(new Func1<String, Observable<Reading>>() {
@@ -92,21 +92,21 @@ public class DirectConnectionService extends BaseService {
                 });
     }
 
-    public Observable<Reading> subscribe(String id) {
-        BluetoothGattCharacteristic characteristic = BleUtils.getCharacteristicInServices(mBluetoothGatt.getServices(), EService.DIRECT_CONNECTION.getId(), id);
+    public Observable<Reading> subscribe(final ECharacteristic characteristic) {
+        BluetoothGattCharacteristic c = BleUtils.getCharacteristicInServices(mBluetoothGatt.getServices(), EService.DIRECT_CONNECTION.getId(), characteristic.getId());
 
         if (characteristic == null) {
-            return error(new CharacteristicNotFoundException(id));
+            return error(new CharacteristicNotFoundException(characteristic.getId()));
         }
 
         BluetoothGattDescriptor descriptor = BleUtils.getDescriptorInCharacteristic(
-                characteristic, EDescriptor.DATA_NOTIFICATIONS.getId());
+                c, EDescriptor.DATA_NOTIFICATIONS.getId());
         return mBluetoothGattReceiver
-                .subscribeToCharacteristicChanges(mBluetoothGatt, characteristic, descriptor)
+                .subscribeToCharacteristicChanges(mBluetoothGatt, c, descriptor)
                 .map(new Func1<BluetoothGattCharacteristic, String>() {
                     @Override
-                    public String call(BluetoothGattCharacteristic characteristic) {
-                        return BleDataParser.getFormattedValue(device.getType(), characteristic.getValue());
+                    public String call(BluetoothGattCharacteristic c) {
+                        return BleDataParser.getFormattedValue(device.getType(), characteristic, c.getValue());
                     }
                 })
                 .flatMap(new Func1<String, Observable<Reading>>() {
