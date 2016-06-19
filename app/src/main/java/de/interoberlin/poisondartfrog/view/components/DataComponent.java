@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.Map;
@@ -29,6 +30,10 @@ public class DataComponent extends TableLayout {
 
     public DataComponent(Context context, Activity activity, BleDevice device) {
         super(context);
+        inflate(activity, R.layout.component_table, this);
+        setStretchAllColumns(true);
+
+        TableRow tr = (TableRow) findViewById(R.id.tr);
 
         LayoutParams lp = new LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, (int) context.getResources().getDimension(R.dimen.card_margin), 0, 0);
@@ -76,11 +81,8 @@ public class DataComponent extends TableLayout {
                 llDataReading.setOrientation(VERTICAL);
                 llDataReading.addView(tvMeaning);
                 llDataReading.addView(tvValue);
-                addView(llDataReading);
+                tr.addView(llDataReading);
             }
-
         }
-
-        setStretchAllColumns(true);
     }
 }

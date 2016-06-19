@@ -224,29 +224,31 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
-        llComponents.addView(new DataComponent(context, activity, device));
+        if (!device.getReadings().isEmpty()) {
+            llComponents.addView(new DataComponent(context, activity, device));
 
-        switch (EDevice.fromString(device.getName())) {
-            case WUNDERBAR_LIGHT: {
-                llComponents.addView(new LightProximityComponent(context, activity, device));
-                break;
-            }
-            case WUNDERBAR_GYRO: {
-                llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
-                break;
-            }
-            case WUNDERBAR_MIC: {
-                llComponents.addView(new MicrophoneComponent(context, activity, device));
-                llComponents.addView(new LineChartComponent(context, activity, device));
-                break;
-            }
-            case INTEROBERLIN_SENTIENT_LIGHT: {
-                llComponents.addView(new SentientLightComponent(context, activity, device));
-                break;
-            }
-            default: {
-                llComponents.addView(new LineChartComponent(context, activity, device));
-                break;
+            switch (EDevice.fromString(device.getName())) {
+                case WUNDERBAR_LIGHT: {
+                    llComponents.addView(new LightProximityComponent(context, activity, device));
+                    break;
+                }
+                case WUNDERBAR_GYRO: {
+                    llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
+                    break;
+                }
+                case WUNDERBAR_MIC: {
+                    llComponents.addView(new MicrophoneComponent(context, activity, device));
+                    llComponents.addView(new LineChartComponent(context, activity, device));
+                    break;
+                }
+                case INTEROBERLIN_SENTIENT_LIGHT: {
+                    llComponents.addView(new SentientLightComponent(context, activity, device));
+                    break;
+                }
+                default: {
+                    llComponents.addView(new LineChartComponent(context, activity, device));
+                    break;
+                }
             }
         }
 

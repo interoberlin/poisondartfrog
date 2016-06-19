@@ -5,8 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/card_margin"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:stretchColumns="*">
+    android:paddingRight="8dp">
 
-    <TableRow android:id="@+id/tr" android:layout_width="0dp" />
+    <TableRow
+        android:id="@+id/tr"
+        android:layout_width="0dp" />
 </TableLayout>
