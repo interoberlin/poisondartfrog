@@ -38,6 +38,7 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
@@ -107,6 +108,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 device.setServices(bluetoothLeService.getSupportedGattServices());
                 Log.d(TAG, device.toString());
 
+                device.read(ECharacteristic.BATTERY_LEVEL);
                 devicesController.disconnect(bluetoothLeService, device);
 
                 updateView();
@@ -225,8 +227,6 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         // getSingleLocation();
 
         device.registerOnChangeListener(this);
-
-
 
         if (devicesController.attach(bluetoothLeService, device)) {
             updateView();
@@ -411,10 +411,14 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
      * Updates view
      */
     public void updateView() {
-        final ListView lv = (ListView) findViewById(R.id.lv);
-
-        devicesAdapter.filter();
-        lv.invalidateViews();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final ListView lv = (ListView) findViewById(R.id.lv);
+                devicesAdapter.filter();
+                lv.invalidateViews();
+            }
+        });
     }
 
     // --------------------

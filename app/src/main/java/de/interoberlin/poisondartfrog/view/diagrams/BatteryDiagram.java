@@ -2,11 +2,9 @@ package de.interoberlin.poisondartfrog.view.diagrams;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -18,11 +16,14 @@ import de.interoberlin.poisondartfrog.R;
 public class BatteryDiagram extends ImageView {
     public static final String TAG = BatteryDiagram.class.getSimpleName();
 
-    private Context context;
     private int width;
     private int height;
     private int minColor;
     private int maxColor;
+
+    private Paint paintMin;
+    private Paint paintMax;
+
     private int value;
 
     // --------------------
@@ -31,13 +32,21 @@ public class BatteryDiagram extends ImageView {
 
     public BatteryDiagram(Context context) {
         super(context);
+
+        paintMin = new Paint();
+        paintMax = new Paint();
     }
 
     public BatteryDiagram(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
+
         this.width = (int) getResources().getDimension(R.dimen.battery_icon_size);
         this.height = (int) getResources().getDimension(R.dimen.battery_icon_size);
+
+        this.width = (int) getResources().getDimension(R.dimen.battery_icon_size);
+        this.height = (int) getResources().getDimension(R.dimen.battery_icon_size);
+        this.paintMin = new Paint();
+        this.paintMax = new Paint();
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,
@@ -47,12 +56,10 @@ public class BatteryDiagram extends ImageView {
         try {
             this.minColor = a.getColor(R.styleable.BatteryDiagram_minColor, ContextCompat.getColor(getContext(), R.color.md_black_1000));
             this.maxColor = a.getColor(R.styleable.BatteryDiagram_maxColor, ContextCompat.getColor(getContext(), R.color.md_black_1000));
-            this.value = a.getInteger(R.styleable.BatteryDiagram_value, 50);
+            this.value = a.getInteger(R.styleable.BatteryDiagram_value, 0);
         } finally {
             a.recycle();
         }
-
-        init();
     }
 
     /**
@@ -68,15 +75,11 @@ public class BatteryDiagram extends ImageView {
     public BatteryDiagram(Context context, int width, int height, int minColorResource, int maxColorResource, int value) {
         super(context);
 
-        this.context = context;
         this.width = width;
         this.height = height;
         this.minColor = ContextCompat.getColor(context, minColorResource);
         this.maxColor = ContextCompat.getColor(context, maxColorResource);
         this.value = value;
-
-
-        init();
     }
 
     @Override
@@ -86,20 +89,20 @@ public class BatteryDiagram extends ImageView {
         this.height = h;
     }
 
-    private void init() {
+    // --------------------
+    // Methods
+    // --------------------
+
+    @Override
+    protected void onDraw(Canvas canvas) {
         final float MIN_VALUE = 0.0f;
         final float MAX_VALUE = 100.0f;
-
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
 
         // Dimension
         int smallerSide = (width < height) ? width : height;
 
         // Set fill color
-        Paint paintMin = new Paint();
         paintMin.setColor(minColor);
-        Paint paintMax = new Paint();
         paintMax.setColor(maxColor);
 
         Paint paintStroke = getPaint(paintMin, paintMax, MIN_VALUE, MAX_VALUE, value);
@@ -108,9 +111,6 @@ public class BatteryDiagram extends ImageView {
 
         Paint paintFill = getPaint(paintMin, paintMax, MIN_VALUE, MAX_VALUE, value);
         paintFill.setStyle(Paint.Style.FILL);
-
-        // Clear canvas
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         float mainLeft = smallerSide * 0.28f;
         float mainTop = smallerSide * 0.16f;
@@ -123,12 +123,12 @@ public class BatteryDiagram extends ImageView {
         float smallRight = smallerSide * (1 - 0.4f);
         float smallBottom = smallerSide * 0.16f;
 
-        float mValue = 1 / (MIN_VALUE - MAX_VALUE);
-        float nValue = -(1 / (MIN_VALUE - MAX_VALUE)) * MIN_VALUE;
+        float mValue = - (1 / (MIN_VALUE - MAX_VALUE));
+        float nValue = - (1 / (MIN_VALUE - MAX_VALUE)) * MIN_VALUE;
         float pValue = mValue * value + nValue;
 
-        float mFillLevel = mainTop - mainBottom;
-        float pFillLevel = mFillLevel * pValue + mainTop;
+        float mFillLevel = mainBottom - mainTop;
+        float pFillLevel = mFillLevel * (1.0f - pValue) + mainTop;
 
         // Draw rect
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -140,8 +140,6 @@ public class BatteryDiagram extends ImageView {
 
         // Fill
         canvas.drawRect(smallLeft, smallTop, smallRight, smallBottom, paintFill);
-
-        setImageBitmap(bmp);
     }
 
     /**
@@ -192,5 +190,13 @@ public class BatteryDiagram extends ImageView {
         float m = (pMax - pMin) / (vMax - vMin);
         float n = pMax - (m * vMax);
         return (int) ((m * v) + n);
+    }
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    public void setValue(int value) {
+        this.value = value;
     }
 }

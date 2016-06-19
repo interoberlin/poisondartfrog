@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
@@ -54,7 +53,7 @@ public class BleDevice {
 
     private Map<String, Queue<Reading>> readings;
     private Map<String, Reading> latestReadings;
-    private Map<String, Subscription> subscriptions;
+    private Map<ECharacteristic, Subscription> subscriptions;
 
     private boolean connected;
     private boolean reading;
@@ -134,64 +133,54 @@ public class BleDevice {
     /**
      * Reads a single value from a characteristic
      *
-     * @param id uuid of the characteristic
+     * @param characteristic characteristic
      * @return subscription
      */
-    public Subscription read(final String id) {
-        Log.d(TAG, "Read " + id);
+    public void read(final ECharacteristic characteristic) {
+        Log.d(TAG, "Read " + characteristic.getId());
 
-        return connect()
-                .flatMap(new Func1<BaseService, Observable<Reading>>() {
+        connect()
+                .flatMap(new Func1<BaseService, Observable<BluetoothGattCharacteristic>>() {
                     @Override
-                    public Observable<Reading> call(BaseService baseService) {
-                        return ((DirectConnectionService) baseService).read(id);
+                    public Observable<BluetoothGattCharacteristic> call(BaseService baseService) {
+                        return baseService.readCharacteristic(characteristic.getService().getId(), characteristic.getId(), "");
                     }
-                })
-                .doOnUnsubscribe(new Action0() {
-                    @Override
-                    public void call() {
-                        disconnect();
-                    }
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Reading>() {
-                    @Override
-                    public void onCompleted() {
-                        reading = false;
-                    }
+                }).subscribe(new Observer<BluetoothGattCharacteristic>() {
+            @Override
+            public void onCompleted() {
+                reading = false;
+            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                    }
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, e.getMessage());
+            }
 
-                    @Override
-                    public void onNext(Reading reading) {
-                        Log.d(TAG, reading.meaning + " " + reading.value.toString());
-                        for (BluetoothGattCharacteristic c : getCharacteristics()) {
-                            if (c.getUuid().toString().contains(id))
-                                c.setValue(reading.value.toString());
-                        }
+            @Override
+            public void onNext(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
+                disconnect();
 
-                        if (ocListener != null) ocListener.onChange(BleDevice.this);
-                    }
-                });
+                String value = BleDataParser.getFormattedValue(null, characteristic, bluetoothGattCharacteristic.getValue());
+                Log.d(TAG, "Read " + characteristic.getId() + " : " + value);
+                setCharacteristicValue(characteristic.getId(), value);
+            }
+        });
     }
 
     /**
      * Subscribes to a characteristic with a given {@code id}
      *
-     * @param id uuid of the characteristic
+     * @param characteristic characteristic
      * @return subscription
      */
-    public Subscription subscribe(final String id) {
-        Log.d(TAG, "Subscribe " + id);
+    public Subscription subscribe(final ECharacteristic characteristic) {
+        Log.d(TAG, "Subscribe " + characteristic.getId());
 
         Subscription subscription = connect()
                 .flatMap(new Func1<BaseService, Observable<Reading>>() {
                     @Override
                     public Observable<Reading> call(BaseService baseService) {
-                        return ((DirectConnectionService) baseService).subscribe(id);
+                        return ((DirectConnectionService) baseService).subscribe(characteristic);
                     }
                 })
                 .doOnUnsubscribe(new Action0() {
@@ -229,13 +218,11 @@ public class BleDevice {
                         readings.put(reading.meaning, queue);
                         latestReadings.put(reading.meaning, reading);
 
-                        setCharacteristicValue(id, reading.toString());
-
-                        if (ocListener != null) ocListener.onChange(BleDevice.this);
+                        setCharacteristicValue(characteristic.getId(), reading.toString());
                     }
                 });
 
-        subscriptions.put(id, subscription);
+        subscriptions.put(characteristic, subscription);
         setSubscribing(true);
 
         return subscription;
@@ -244,17 +231,16 @@ public class BleDevice {
     /**
      * Stops subscription to a characteristic with a given {@code id}
      *
-     * @param id uuid of the characteristic
+     * @param characteristic characteristic
      */
-    public void unsubscribe(String id) {
-        Log.d(TAG, "Unsubscribe " + id);
+    public void unsubscribe(ECharacteristic characteristic) {
+        Log.d(TAG, "Unsubscribe " + characteristic.getId());
 
-        Subscription subscription = subscriptions.get(id);
+        Subscription subscription = subscriptions.get(characteristic);
 
         if (subscription != null && !subscription.isUnsubscribed()) {
-            Log.d(TAG, "unsubscribed " + id);
             subscription.unsubscribe();
-            subscriptions.remove(id);
+            subscriptions.remove(characteristic.getId());
         }
 
         setSubscribing(false);
@@ -342,76 +328,6 @@ public class BleDevice {
         return new String(hexChars);
     }
 
-    /**
-     * Retrieves a value of a given {@code characteristic}
-     *
-     * @param characteristic characteristic
-     * @param device         device
-     * @return value string
-     */
-    public static String parseValue(BluetoothDevice device, BluetoothGattCharacteristic characteristic) {
-        UUID id = characteristic.getUuid();
-
-        String value = "";
-
-        switch (ECharacteristic.fromId(id.toString()).getFormat()) {
-            case STRING:
-                value = getStringValue(characteristic.getValue());
-                break;
-            case UINT8:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
-                break;
-            case UINT16:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
-                break;
-            case UINT32:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
-                break;
-            case SINT8:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
-                break;
-            case SINT16:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
-                break;
-            case SINT32:
-                value = String.valueOf(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
-                break;
-            case SFLOAT:
-                value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_SFLOAT, 0));
-                break;
-            case FLOAT:
-                value = String.valueOf(characteristic.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0));
-                break;
-            case RELAYR:
-                value = BleDataParser.getFormattedValue(EDevice.fromString(device.getName()), characteristic.getValue());
-                value = value.replaceAll(",", ",\n");
-                break;
-        }
-
-        return value;
-    }
-
-    /**
-     * Turns a byte array into a corresponding ASCII string
-     *
-     * @param value byte array
-     * @return ASCII string
-     */
-    private static String getStringValue(byte[] value) {
-        StringBuilder sb = new StringBuilder();
-        String v = new String(value).replaceAll(" ", "");
-
-        try {
-            for (int i = 0; i < v.length(); i += 2) {
-                String s = v.substring(i, i + 2);
-                sb.append((char) Integer.parseInt(s, 16));
-            }
-            return sb.toString();
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            return v;
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -423,7 +339,7 @@ public class BleDevice {
         for (BluetoothGattService service : getServices()) {
             sb.append("  service ").append(service.getUuid().toString().substring(4, 8)).append("\n");
             for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append((chara.getValue() != null) ? " / " + parseValue(device, chara) : "").append("\n");
+                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append("\n");
             }
         }
         return sb.toString();
@@ -473,8 +389,10 @@ public class BleDevice {
 
     public void setCharacteristicValue(String id, String value) {
         for (BluetoothGattCharacteristic c : getCharacteristics()) {
-            if (c.getUuid().toString().contains(id))
+            if (c.getUuid().toString().contains(id)) {
                 c.setValue(value);
+                if (ocListener != null) ocListener.onChange(BleDevice.this);
+            }
         }
     }
 
@@ -528,7 +446,7 @@ public class BleDevice {
         return latestReadings;
     }
 
-    public Map<String, Subscription> getSubscriptions() {
+    public Map<ECharacteristic, Subscription> getSubscriptions() {
         return subscriptions;
     }
 

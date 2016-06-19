@@ -109,10 +109,11 @@
 
                         <!-- Battery Icon -->
                         <de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram
-                            android:id="@+id/ivBattery"
+                            android:id="@+id/bdBattery"
                             android:layout_width="@dimen/battery_icon_size"
                             android:layout_height="@dimen/battery_icon_size"
-                            android:layout_margin="@dimen/icon_margin"
+                            android:layout_marginBottom="@dimen/icon_margin"
+                            android:layout_marginTop="@dimen/icon_margin"
                             android:contentDescription="@string/battery"
                             interoberlin:maxColor="?android:attr/textColorTertiary"
                             interoberlin:minColor="?android:attr/textColorTertiary"
@@ -122,7 +123,9 @@
                             android:id="@+id/tvBatteryLevel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/icon_padding"
+                            android:layout_marginBottom="@dimen/icon_margin"
+                            android:layout_marginStart="@dimen/icon_margin"
+                            android:layout_marginTop="@dimen/icon_margin"
                             android:text="@string/battery_level"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
 
@@ -130,7 +133,9 @@
                             android:id="@+id/tvBatteryLevelValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/icon_padding"
+                            android:layout_marginBottom="@dimen/icon_margin"
+                            android:layout_marginStart="@dimen/icon_margin"
+                            android:layout_marginTop="@dimen/icon_margin"
                             android:text="@string/percentage"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
 

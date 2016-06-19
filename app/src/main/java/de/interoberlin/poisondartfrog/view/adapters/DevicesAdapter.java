@@ -47,6 +47,7 @@ import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
+import de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
@@ -138,7 +139,9 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final LinearLayout llComponents = (LinearLayout) llCardDevice.findViewById(R.id.llComponents);
         final ImageView ivConnected = (ImageView) llCardDevice.findViewById(R.id.ivConnected);
 
+        final LinearLayout llBatteryLevel = (LinearLayout) llCardDevice.findViewById(R.id.llBatteryLevel);
         final TextView tvBatteryLevelValue = (TextView) llCardDevice.findViewById(R.id.tvBatteryLevelValue);
+        final BatteryDiagram bdBattery = (BatteryDiagram) llCardDevice.findViewById(R.id.bdBattery);
 
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
@@ -200,7 +203,24 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 ((ViewManager) ivConnected.getParent()).removeView(ivConnected);
         }
 
-        tvBatteryLevelValue.setText("0 %");
+        // Battery level
+        if (device.containsCharacteristic(ECharacteristic.BATTERY_LEVEL)) {
+            String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
+
+            if (value != null) {
+                tvBatteryLevelValue.setText(value + "%");
+                bdBattery.setValue(Integer.parseInt(value));
+            }
+            llBatteryLevel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vibrate(VIBRATION_DURATION);
+                    device.read(ECharacteristic.BATTERY_LEVEL);
+                }
+            });
+        } else {
+            ((ViewManager) llBatteryLevel.getParent()).removeView(llBatteryLevel);
+        }
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
@@ -252,11 +272,11 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
                         if (!device.isSubscribing()) {
-                            device.subscribe(ECharacteristic.DATA.getId());
+                            device.subscribe(ECharacteristic.DATA);
                             devicesActivity.updateView();
                             devicesActivity.snack(R.string.started_subscription);
                         } else {
-                            device.unsubscribe(ECharacteristic.DATA.getId());
+                            device.unsubscribe(ECharacteristic.DATA);
                             device.disconnect();
 
                             devicesActivity.updateView();

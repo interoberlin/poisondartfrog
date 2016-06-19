@@ -13,7 +13,6 @@ import java.util.UUID;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
-import de.interoberlin.poisondartfrog.model.parser.ValueParser;
 
 public class ServicesComponent extends TableLayout {
     // --------------------
@@ -69,7 +68,7 @@ public class ServicesComponent extends TableLayout {
                 tvCharacteristic.setPadding(20, 0, 40, 0);
 
                 if (characteristic.getValue() != null && characteristic.getValue().length != 0) {
-                    String characteristicValue = ValueParser.parseValue(device, characteristic);
+                    String characteristicValue = null; // TODO
                     tvValue.setText(" " + characteristicValue);
                     tvValue.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                     tvValue.setTextAppearance(context, android.R.style.TextAppearance_Small);
