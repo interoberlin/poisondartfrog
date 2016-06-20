@@ -25,6 +25,7 @@ import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -41,6 +42,7 @@ public class BleDevice extends RealmObject {
     public static final int READING_HISTORY = 50;
 
     private final String name;
+    @PrimaryKey
     private final String address;
     private final EDevice type;
 
