@@ -23,6 +23,8 @@ import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
+import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -33,38 +35,49 @@ import rx.functions.Func1;
 /**
  * A class representing a BLE Device
  */
-public class BleDevice {
+public class BleDevice extends RealmObject {
     public static final String TAG = BleDevice.class.getSimpleName();
 
     public static final int READING_HISTORY = 50;
 
-    private OnChangeListener ocListener;
-    private final BluetoothDevice device;
     private final String name;
     private final String address;
     private final EDevice type;
 
+    @Ignore
     private final BleDeviceManager deviceManager;
+    @Ignore
     private final Observable<? extends BaseService> serviceObservable;
+    @Ignore
     private BluetoothGatt gatt;
 
+    @Ignore
     private List<BluetoothGattService> services;
+    @Ignore
     private List<BluetoothGattCharacteristic> characteristics;
 
+    @Ignore
     private Map<String, Queue<Reading>> readings;
+    @Ignore
     private Map<String, Reading> latestReadings;
+    @Ignore
     private Map<ECharacteristic, Subscription> subscriptions;
 
+    @Ignore
     private boolean connected;
+    @Ignore
     private boolean reading;
+    @Ignore
     private boolean subscribing;
+
+    @Ignore
+    private OnChangeListener ocListener;
 
     // --------------------
     // Constructors
     // --------------------
 
     public BleDevice(BluetoothDevice device, BleDeviceManager manager) {
-        this.device = device;
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
@@ -134,7 +147,6 @@ public class BleDevice {
      * Reads a single value from a characteristic
      *
      * @param characteristic characteristic
-     * @return subscription
      */
     public void read(final ECharacteristic characteristic) {
         Log.d(TAG, "Read " + characteristic.getId());
@@ -240,17 +252,19 @@ public class BleDevice {
 
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
-            subscriptions.remove(characteristic.getId());
+            subscriptions.remove(characteristic);
         }
 
         setSubscribing(false);
     }
 
+    /*
     public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
         Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
 
         return write(service, characteristic, value.getBytes());
     }
+    */
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
         Log.d(TAG, "Write " + characteristic.getId() + " : " + bytesToHex(value ? new byte[]{0x01} : new byte[]{0x00}));
@@ -294,7 +308,7 @@ public class BleDevice {
 
                     @Override
                     public void onNext(BluetoothGattCharacteristic characteristic) {
-                        Log.d(TAG, characteristic.getUuid() + " " + characteristic.getValue());
+                        Log.d(TAG, characteristic.getUuid() + " " + bytesToHex(characteristic.getValue()));
                     }
                 });
     }
@@ -353,9 +367,7 @@ public class BleDevice {
         BleDevice bleDevice = (BleDevice) o;
 
         if (type != bleDevice.type) return false;
-        if (address != null ? !address.equals(bleDevice.address) : bleDevice.address != null)
-            return false;
-        return !(name != null ? !name.equals(bleDevice.name) : bleDevice.name != null);
+        return address != null ? address.equals(bleDevice.address) : bleDevice.address == null && !(name != null ? !name.equals(bleDevice.name) : bleDevice.name != null);
     }
 
     @Override
