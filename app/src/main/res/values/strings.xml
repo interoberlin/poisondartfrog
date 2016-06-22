@@ -48,5 +48,7 @@
     <string name="color">color</string>
     <string name="gyroscope">gyroscope</string>
     <string name="accelerometer">accelerometer</string>
+    <string name="auto_connect_enabled">Auto connect enabled</string>
+    <string name="auto_connect_disabled">Auto connect disabled</string>
 
 </resources>

@@ -221,6 +221,13 @@ public class DevicesController {
         device.refreshCache();
     }
 
+    public void toggleAutoConnect(BleDevice device) {
+        device.setAutoConnectEnabled(!device.isAutoConnectEnabled());
+        device.save();
+    }
+
+
+
     // --------------------
     // Getters / Setters
     // --------------------

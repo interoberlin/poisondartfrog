@@ -108,6 +108,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 device.setServices(bluetoothLeService.getSupportedGattServices());
                 Log.d(TAG, device.toString());
 
+                device.init();
                 device.read(ECharacteristic.BATTERY_LEVEL);
                 devicesController.disconnect(bluetoothLeService, device);
 
@@ -256,6 +257,12 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     }
 
     @Override
+    public void onChange(BleDevice device, int text) {
+        snack(text, Snackbar.LENGTH_SHORT);
+        updateView();
+    }
+
+    @Override
     public void onCacheCleared(boolean success) {
         snack(success ? R.string.cached_refreshed : R.string.cached_refresh_failed);
     }
@@ -383,19 +390,38 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
      * @param text text resource
      */
     public void snack(int text) {
-        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        Snackbar.make(rlContent, getResources().getString(text), Snackbar.LENGTH_LONG)
-                .show();
+        snack(getResources().getString(text));
+    }
+
+    /**
+     * Displays a snack with a given {@code text resource}
+     *
+     * @param text     text resource
+     * @param duration duration
+     */
+    public void snack(int text, int duration) {
+        snack(getResources().getString(text, duration));
     }
 
     /**
      * Displays a snack with a given {@code text}
      *
-     * @param text text resource
+     * @param text text
      */
     public void snack(String text) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text     text
+     * @param duration duration
+     */
+    public void snack(String text, int duration) {
+        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        Snackbar.make(rlContent, text, duration).show();
     }
 
     /**

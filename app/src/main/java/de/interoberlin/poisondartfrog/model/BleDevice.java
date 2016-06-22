@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.config.EService;
@@ -23,6 +24,7 @@ import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -41,15 +43,17 @@ public class BleDevice extends RealmObject {
 
     public static final int READING_HISTORY = 50;
 
-    private final String name;
+    private String name;
     @PrimaryKey
-    private final String address;
-    private final EDevice type;
+    private String address;
+    @Ignore
+    private EDevice type;
+    private String typeName;
 
     @Ignore
-    private final BleDeviceManager deviceManager;
+    private BleDeviceManager deviceManager;
     @Ignore
-    private final Observable<? extends BaseService> serviceObservable;
+    private Observable<? extends BaseService> serviceObservable;
     @Ignore
     private BluetoothGatt gatt;
 
@@ -71,6 +75,7 @@ public class BleDevice extends RealmObject {
     private boolean reading;
     @Ignore
     private boolean subscribing;
+    private boolean autoConnectEnabled;
 
     @Ignore
     private OnChangeListener ocListener;
@@ -79,10 +84,17 @@ public class BleDevice extends RealmObject {
     // Constructors
     // --------------------
 
+    public BleDevice() {
+        super();
+    }
+
     public BleDevice(BluetoothDevice device, BleDeviceManager manager) {
+        super();
+
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
+        this.typeName = type.toString();
 
         this.deviceManager = manager;
         this.serviceObservable = DirectConnectionService.connect(this, device).cache();
@@ -96,6 +108,32 @@ public class BleDevice extends RealmObject {
         this.connected = false;
         this.reading = false;
         this.subscribing = false;
+    }
+
+    public void init() {
+        // Read device from realm
+        final Realm realm = Realm.getDefaultInstance();
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                Log.d(TAG, "realm count " + bgRealm.where(BleDevice.class).count());
+                BleDevice realmResult = bgRealm.where(BleDevice.class)
+                        .equalTo("address", address)
+                        .findFirst();
+
+
+                if (realmResult != null) {
+                    Log.d(TAG, "realm entry name " + realmResult.getName() + " / address " + realmResult + " / type " + realmResult.getTypeName() + " / autoConnect " + autoConnectEnabled);
+
+                    setAutoConnectEnabled(realmResult.isAutoConnectEnabled());
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+
+            }
+        });
     }
 
     // --------------------
@@ -327,7 +365,7 @@ public class BleDevice extends RealmObject {
                 }
             }
         } catch (Exception localException) {
-            Log.e(TAG, "An exception occured while refreshing device");
+            Log.e(TAG, "An exception occurred while refreshing device");
         }
 
         ocListener.onCacheCleared(false);
@@ -352,10 +390,12 @@ public class BleDevice extends RealmObject {
         sb.append("address=").append(this.getAddress()).append(", \n");
         sb.append("services=\n");
 
-        for (BluetoothGattService service : getServices()) {
-            sb.append("  service ").append(service.getUuid().toString().substring(4, 8)).append("\n");
-            for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
-                sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append("\n");
+        if (getServices() != null) {
+            for (BluetoothGattService service : getServices()) {
+                sb.append("  service ").append(service.getUuid().toString().substring(4, 8)).append("\n");
+                for (BluetoothGattCharacteristic chara : service.getCharacteristics()) {
+                    sb.append("  characteristic ").append(chara.getUuid().toString().substring(4, 8)).append("\n");
+                }
             }
         }
         return sb.toString();
@@ -368,8 +408,7 @@ public class BleDevice extends RealmObject {
 
         BleDevice bleDevice = (BleDevice) o;
 
-        if (type != bleDevice.type) return false;
-        return address != null ? address.equals(bleDevice.address) : bleDevice.address == null && !(name != null ? !name.equals(bleDevice.name) : bleDevice.name != null);
+        return type == bleDevice.type && (address != null ? address.equals(bleDevice.address) : bleDevice.address == null && !(name != null ? !name.equals(bleDevice.name) : bleDevice.name != null));
     }
 
     @Override
@@ -410,9 +449,37 @@ public class BleDevice extends RealmObject {
         }
     }
 
+    public void save() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                Log.d(TAG, "Save device");
+                bgRealm.copyToRealmOrUpdate(BleDevice.this);
+            }
+        });
+        realm.close();
+    }
+
     // --------------------
     // Getters / Setters
     // --------------------
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public EDevice getType() {
+        return type;
+    }
+
+    public String getTypeName() {
+        return (type != null) ? type.toString() : EDevice.UNKNOWN.toString();
+    }
 
     public BluetoothGatt getGatt() {
         return gatt;
@@ -492,16 +559,13 @@ public class BleDevice extends RealmObject {
         this.subscribing = subscribing;
     }
 
-    public String getName() {
-        return name;
+    public boolean isAutoConnectEnabled() {
+        return autoConnectEnabled;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public EDevice getType() {
-        return type;
+    public synchronized void setAutoConnectEnabled(boolean autoConnectEnabled) {
+        this.autoConnectEnabled = autoConnectEnabled;
+        ocListener.onChange(this, autoConnectEnabled ? R.string.auto_connect_enabled : R.string.auto_connect_disabled);
     }
 
     // --------------------
@@ -510,6 +574,7 @@ public class BleDevice extends RealmObject {
 
     public interface OnChangeListener {
         void onChange(BleDevice device);
+        void onChange(BleDevice device, int text);
 
         void onCacheCleared(boolean success);
     }
