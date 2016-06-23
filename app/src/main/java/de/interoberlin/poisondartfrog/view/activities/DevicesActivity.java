@@ -240,6 +240,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(device);
 
         if (!attached && autoCorrectEnabled) {
+            device.setAutoConnectEnabled(true);
             devicesController.attach(this, bluetoothLeService, device);
             updateView();
             snack("Auto "  + device.getAddress());
