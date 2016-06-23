@@ -505,9 +505,13 @@ public class BleDevice extends RealmObject {
 
     private void initCharacteristics() {
         List<BluetoothGattCharacteristic> characteristics = new ArrayList<>();
-        for (BluetoothGattService service : getServices()) {
-            for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                characteristics.add(characteristic);
+        if (getServices() != null) {
+            for (BluetoothGattService service : getServices()) {
+                if (service.getCharacteristics() != null) {
+                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                        characteristics.add(characteristic);
+                    }
+                }
             }
         }
 
