@@ -121,9 +121,8 @@ public class BleDevice extends RealmObject {
                         .equalTo("address", address)
                         .findFirst();
 
-
                 if (realmResult != null) {
-                    Log.d(TAG, "realm entry name " + realmResult.getName() + " / address " + realmResult + " / type " + realmResult.getTypeName() + " / autoConnect " + autoConnectEnabled);
+                    Log.d(TAG, "realm entry name " + realmResult.getName() + " / address " + realmResult.getAddress() + " / type " + realmResult.getTypeName() + " / autoConnect " + autoConnectEnabled);
 
                     setAutoConnectEnabled(realmResult.isAutoConnectEnabled());
                 }
@@ -565,6 +564,8 @@ public class BleDevice extends RealmObject {
 
     public synchronized void setAutoConnectEnabled(boolean autoConnectEnabled) {
         this.autoConnectEnabled = autoConnectEnabled;
+
+        Log.d(TAG, "Auto-connect for " + this.address + " : " + this.autoConnectEnabled);
         ocListener.onChange(this, autoConnectEnabled ? R.string.auto_connect_enabled : R.string.auto_connect_disabled);
     }
 
@@ -574,6 +575,7 @@ public class BleDevice extends RealmObject {
 
     public interface OnChangeListener {
         void onChange(BleDevice device);
+
         void onChange(BleDevice device, int text);
 
         void onCacheCleared(boolean success);

@@ -16,6 +16,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.controller.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
@@ -44,7 +46,7 @@ import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Model
@@ -104,7 +106,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 Log.d(TAG, "Gatt disconnected from " + deviceAddress);
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.d(TAG, "Gatt services discovered");
-                BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
+                BleDevice device = devicesController.getAttachedDeviceByAddress(deviceAddress);
                 device.setServices(bluetoothLeService.getSupportedGattServices());
                 Log.d(TAG, device.toString());
 
@@ -175,11 +177,22 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 return false;
             }
         });
+
+        // Run scan
+        devicesController.startScan(this);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                devicesController.stopScan();
+            }
+        }, 5000);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        devicesController.stopScan();
         unregisterReceiver(gattUpdateReceiver);
     }
 
@@ -222,14 +235,24 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     // --------------------
 
     @Override
+    public void onLeScan(BleDevice device, int rssi) {
+        boolean attached = devicesController.getAttachedDevices().containsKey(device.getAddress());
+        boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(device);
+
+        if (!attached && autoCorrectEnabled) {
+            devicesController.attach(this, bluetoothLeService, device);
+            updateView();
+            snack("Auto "  + device.getAddress());
+        }
+    }
+
+    @Override
     public void onAttachDevice(BleDevice device) {
         vibrate(VIBRATION_DURATION);
 
         // getSingleLocation();
 
-        device.registerOnChangeListener(this);
-
-        if (devicesController.attach(bluetoothLeService, device)) {
+        if (devicesController.attach(this, bluetoothLeService, device)) {
             updateView();
             snack(R.string.attached_device);
         } else {

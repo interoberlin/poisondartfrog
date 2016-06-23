@@ -16,6 +16,7 @@ import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
+import io.realm.Realm;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -30,8 +31,6 @@ public class DevicesController {
 
     private BleDeviceManager bluetoothDeviceManager;
     private BleDevicesScanner bleDeviceScanner;
-
-    private boolean startedScanning = false;
 
     private static DevicesController instance;
 
@@ -56,10 +55,21 @@ public class DevicesController {
     // Methods
     // --------------------
 
+    /**
+     * Starts a scan for BLE devices
+     *
+     * @param callback callback
+     */
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback) {
         startScan(callback, -1);
     }
 
+    /**
+     * Starts a scan for BLE devices
+     *
+     * @param callback   callback
+     * @param scanPeriod scan period in seconds
+     */
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
         Log.d(TAG, "Start scan");
 
@@ -67,7 +77,6 @@ public class DevicesController {
                 .filter(new Func1<List<BleDevice>, Boolean>() {
                     @Override
                     public Boolean call(List<BleDevice> bleDevices) {
-                        startedScanning = false;
                         return false;
                     }
                 })
@@ -78,7 +87,6 @@ public class DevicesController {
                             return device;
                         }
 
-                        startedScanning = false;
                         return null; // will never happen since it's been filtered out before
                     }
                 })
@@ -87,12 +95,10 @@ public class DevicesController {
                 .subscribe(new Subscriber<BleDevice>() {
                     @Override
                     public void onCompleted() {
-                        startedScanning = false;
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        startedScanning = false;
                     }
 
                     @Override
@@ -101,13 +107,22 @@ public class DevicesController {
                 });
     }
 
+    /**
+     * Stops a scan for BLE devices
+     */
     public void stopScan() {
         Log.d(TAG, "Stop scan");
 
-        if (bleDeviceScanner != null)
+        if (bleDeviceScanner != null && bleDeviceScanner.isScanning())
             bleDeviceScanner.stop();
     }
 
+    /**
+     * Performs a scan for BLE devices
+     *
+     * @param callback   callback
+     * @param scanPeriod scan period in seconds
+     */
     private Observable<List<BleDevice>> scan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
         BluetoothManager bluetoothManager = (BluetoothManager) App.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
@@ -157,11 +172,12 @@ public class DevicesController {
     /**
      * Attaches a device
      *
-     * @param service BLE service
-     * @param device  device
+     * @param ocListener on change listener
+     * @param service    BLE service
+     * @param device     device
      * @return true, if it worked
      */
-    public boolean attach(BluetoothLeService service, BleDevice device) {
+    public boolean attach(BleDevice.OnChangeListener ocListener, BluetoothLeService service, BleDevice device) {
         Log.d(TAG, "Attach " + device.getName());
 
         if (service != null) {
@@ -169,6 +185,8 @@ public class DevicesController {
             if (scannedDevices.containsKey(device.getAddress()))
                 scannedDevices.remove(device.getAddress());
             attachedDevices.put(device.getAddress(), device);
+
+            device.registerOnChangeListener(ocListener);
 
             return true;
         }
@@ -201,6 +219,13 @@ public class DevicesController {
         return false;
     }
 
+    /**
+     * Disconnects from a {@code device}
+     *
+     * @param service service
+     * @param device  device
+     * @return true if it worked
+     */
     public boolean disconnect(BluetoothLeService service, BleDevice device) {
         Log.d(TAG, "Disconnect " + device.getName());
 
@@ -213,20 +238,50 @@ public class DevicesController {
         return false;
     }
 
-    public void refreshCache(String deviceAddress){
-        refreshCache(getAttachedDeviceByAdress(deviceAddress));
+    /**
+     * Toggles a auto-connect attribute of a device identified by a given {@code deviceAddress}
+     *
+     * @param deviceAddress device address
+     */
+    public void refreshCache(String deviceAddress) {
+        refreshCache(getAttachedDeviceByAddress(deviceAddress));
     }
 
-    public void refreshCache(BleDevice device){
+    /**
+     * Refreshes cache of a given {@code device}
+     *
+     * @param device device
+     */
+    public void refreshCache(BleDevice device) {
         device.refreshCache();
     }
 
+    /**
+     * Toggles a auto-connect attribute of a given {@code device}
+     *
+     * @param device device
+     */
     public void toggleAutoConnect(BleDevice device) {
         device.setAutoConnectEnabled(!device.isAutoConnectEnabled());
         device.save();
     }
 
+    /**
+     * Determines whether a {@code device}'s attribute {@code autoConnectEnabled} is set to true
+     *
+     * @param device device
+     * @return true is auto-connect is enabled
+     */
+    public boolean isAutoConnectEnabled(BleDevice device) {
+        Realm realm = Realm.getDefaultInstance();
+        boolean autoConnectEnabled = realm.where(BleDevice.class)
+                .equalTo("address", device.getAddress())
+                .equalTo("autoConnectEnabled", true).
+                        count() > 0;
+        if (!realm.isClosed()) realm.close();
 
+        return autoConnectEnabled;
+    }
 
     // --------------------
     // Getters / Setters
@@ -244,7 +299,7 @@ public class DevicesController {
         return attachedDevices;
     }
 
-    public BleDevice getAttachedDeviceByAdress(String address) {
+    public BleDevice getAttachedDeviceByAddress(String address) {
         return getAttachedDevices().get(address);
     }
 
