@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.model;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import de.interoberlin.poisondartfrog.model.service.BaseService;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.service.DirectConnectionService;
 import de.interoberlin.poisondartfrog.model.service.Reading;
+import de.interoberlin.poisondartfrog.model.util.BleUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -58,6 +60,7 @@ public class BleDevice {
     private boolean connected;
     private boolean reading;
     private boolean subscribing;
+    private boolean notifyEnabled;
 
     // --------------------
     // Constructors
@@ -300,6 +303,19 @@ public class BleDevice {
     }
 
     /**
+     * Notifies a characteristic
+     *
+     * @param service        service
+     * @param characteristic characteristic
+     * @param enabled        true if notification shall be enabled
+     */
+    public boolean sendNotify(final EService service, final ECharacteristic characteristic, final boolean enabled) {
+        BluetoothGattCharacteristic c = BleUtils.getCharacteristicInServices(gatt.getServices(), service.getId(), characteristic.getId());
+        BluetoothGattDescriptor descriptor = c.getDescriptors().get(0);
+        return descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+    }
+
+    /**
      * Clears ble cache
      */
     public void refreshCache() {
@@ -476,6 +492,14 @@ public class BleDevice {
 
     public void setSubscribing(boolean subscribing) {
         this.subscribing = subscribing;
+    }
+
+    public boolean isNotifyEnabled() {
+        return notifyEnabled;
+    }
+
+    public void setNotifyEnabled(boolean notifyEnabled) {
+        this.notifyEnabled = notifyEnabled;
     }
 
     public String getName() {

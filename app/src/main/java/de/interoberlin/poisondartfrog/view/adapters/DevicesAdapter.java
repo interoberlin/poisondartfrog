@@ -145,6 +145,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
+        final ImageView ivNotify = (ImageView) llCardDevice.findViewById(R.id.ivNotify);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
         final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
         final ImageView ivMore = (ImageView) llCardDevice.findViewById(R.id.ivMore);
@@ -223,6 +224,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         }
 
         ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
+        ivNotify.setImageDrawable(device.isNotifyEnabled() ? ContextCompat.getDrawable(activity, R.drawable.ic_star_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_star_border_black_36dp));
 
         if (!device.getReadings().isEmpty()) {
             llComponents.addView(new DataComponent(context, activity, device));
@@ -264,7 +266,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                                     }
         );
 
-        // DATA
+        // Subscribe
         if (device.containsCharacteristic(ECharacteristic.DATA)) {
             ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -292,6 +294,26 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             });
         } else {
             ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
+        }
+
+        // Notify
+        if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+            vibrate(VIBRATION_DURATION);
+            if (activity instanceof DevicesActivity) {
+                DevicesActivity devicesActivity = ((DevicesActivity) activity);
+
+                if (!device.isNotifyEnabled()) {
+                    device.sendNotify(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
+                    devicesActivity.updateView();
+                    devicesActivity.snack(R.string.enabled_notify);
+                } else {
+                    device.sendNotify(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, false);
+                    devicesActivity.updateView();
+                    devicesActivity.snack(R.string.disabled_notify);
+                }
+            }
+        } else {
+            ((ViewManager) ivNotify.getParent()).removeView(ivNotify);
         }
 
         // LED state

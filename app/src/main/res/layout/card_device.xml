@@ -117,7 +117,7 @@
                             android:contentDescription="@string/battery"
                             interoberlin:maxColor="?android:attr/textColorTertiary"
                             interoberlin:minColor="?android:attr/textColorTertiary"
-                            interoberlin:value="50" />
+                            interoberlin:value="20" />
 
                         <TextView
                             android:id="@+id/tvBatteryLevel"
@@ -172,7 +172,7 @@
                             android:padding="@dimen/icon_padding"
                             android:src="@drawable/ic_stop_black_36dp" />
 
-                        <!-- Subscribe DATA -->
+                        <!-- Subscribe data -->
                         <ImageView
                             android:id="@+id/ivSubscribeData"
                             android:layout_width="wrap_content"
@@ -180,6 +180,15 @@
                             android:contentDescription="@string/scan"
                             android:padding="@dimen/icon_padding"
                             android:src="@drawable/ic_play_arrow_black_36dp" />
+
+                        <!-- Notify -->
+                        <ImageView
+                            android:id="@+id/ivNotify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_star_border_black_36dp" />
 
                         <!-- Write LED_STATE -->
                         <ImageView

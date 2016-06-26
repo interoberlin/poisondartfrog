@@ -48,5 +48,7 @@
     <string name="color">color</string>
     <string name="gyroscope">gyroscope</string>
     <string name="accelerometer">accelerometer</string>
+    <string name="enabled_notify">Enabled notify</string>
+    <string name="disabled_notify">Disabled notify</string>
 
 </resources>
