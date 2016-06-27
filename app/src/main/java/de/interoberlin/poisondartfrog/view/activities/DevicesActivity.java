@@ -53,83 +53,39 @@ import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
+    // Context
+    private SharedPreferences prefs;
+    private Resources res;
+
     // Model
     private DevicesAdapter devicesAdapter;
 
     // Controller
     private DevicesController devicesController;
 
-    private SharedPreferences prefs;
-    private Resources res;
-    private static Handler scanHandler;
-    private static Runnable scanRunnable;
-
-    private BluetoothAdapter bluetoothAdapter;
+    // Constants
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_VIBRATE = 2;
-
-    private final static int REQUEST_ENABLE_BT = 100;
-    private final static int REQUEST_ENABLE_LOCATION = 101;
+    private static final int REQUEST_ENABLE_BT = 100;
+    private static final int REQUEST_ENABLE_LOCATION = 101;
 
     // Properties
     private static int VIBRATION_DURATION;
     private static int DEVICE_SCAN_PERIOD;
     private static int DEVICE_SCAN_DELAY;
 
+    // Async
+    private static Handler scanHandler;
+    private static Runnable scanRunnable;
+
+    // Bluetooth
+    private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeService bluetoothLeService;
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.d(TAG, "Service connected");
-            if (service != null) {
-                bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            } else {
-                Log.e(TAG, "Service is null");
-            }
+    private ServiceConnection serviceConnection;
+    private BroadcastReceiver gattUpdateReceiver;
 
-            if (!bluetoothLeService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-            }
-
-            devicesController = DevicesController.getInstance();
-            updateView();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.d(TAG, "Service disconnected");
-            bluetoothLeService = null;
-
-            devicesController = DevicesController.getInstance();
-            updateView();
-        }
-    };
-
-    private BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                Log.d(TAG, "Gatt connected to " + deviceAddress);
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.d(TAG, "Gatt disconnected from " + deviceAddress);
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                Log.d(TAG, "Gatt services discovered");
-                BleDevice device = devicesController.getAttachedDeviceByAddress(deviceAddress);
-                device.setServices(bluetoothLeService.getSupportedGattServices());
-                Log.d(TAG, device.toString());
-
-                device.init();
-                device.read(ECharacteristic.BATTERY_LEVEL);
-                devicesController.disconnect(bluetoothLeService, device);
-
-                updateView();
-            }
-        }
-    };
-
+    // Location
     private LocationManager locationManager;
     private Location currentLocation;
 
@@ -145,11 +101,61 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
         this.res = getResources();
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
         requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         requestPermission(this, Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
         requestPermission(this, Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder service) {
+                Log.d(TAG, "Service connected");
+                if (service != null) {
+                    bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+                } else {
+                    Log.e(TAG, "Service is null");
+                }
+
+                if (!bluetoothLeService.initialize()) {
+                    Log.e(TAG, "Unable to initialize Bluetooth");
+                }
+
+                devicesController = DevicesController.getInstance();
+                updateView();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                Log.d(TAG, "Service disconnected");
+                bluetoothLeService = null;
+
+                devicesController = DevicesController.getInstance();
+                updateView();
+            }
+        };
+        gattUpdateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
+                if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                    Log.d(TAG, "Gatt connected to " + deviceAddress);
+                } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                    Log.d(TAG, "Gatt disconnected from " + deviceAddress);
+                } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                    Log.d(TAG, "Gatt services discovered");
+                    BleDevice device = devicesController.getAttachedDeviceByAddress(deviceAddress);
+                    device.setServices(bluetoothLeService.getSupportedGattServices());
+                    Log.d(TAG, device.toString());
+
+                    device.init();
+                    device.read(ECharacteristic.BATTERY_LEVEL);
+                    devicesController.disconnect(bluetoothLeService, device);
+
+                    updateView();
+                }
+            }
+        };
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -272,6 +278,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(device);
 
         if (!attached && autoCorrectEnabled) {
+            device.setOnChangeListener(this);
             device.setAutoConnectEnabled(true);
             devicesController.attach(this, bluetoothLeService, device);
             updateView();

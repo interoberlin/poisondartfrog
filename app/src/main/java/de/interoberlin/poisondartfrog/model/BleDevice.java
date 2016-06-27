@@ -570,7 +570,13 @@ public class BleDevice extends RealmObject {
         this.autoConnectEnabled = autoConnectEnabled;
 
         Log.d(TAG, "Auto-connect for " + this.address + " : " + this.autoConnectEnabled);
-        ocListener.onChange(this, autoConnectEnabled ? R.string.auto_connect_enabled : R.string.auto_connect_disabled);
+        if (ocListener != null) {
+            ocListener.onChange(this, autoConnectEnabled ? R.string.auto_connect_enabled : R.string.auto_connect_disabled);
+        }
+    }
+
+    public void setOnChangeListener(OnChangeListener ocListener) {
+        this.ocListener = ocListener;
     }
 
     // --------------------

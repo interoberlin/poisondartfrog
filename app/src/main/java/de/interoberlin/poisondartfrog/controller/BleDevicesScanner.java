@@ -26,12 +26,15 @@ import de.interoberlin.poisondartfrog.R;
 class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
+    // Context
     private Context context;
     private SharedPreferences prefs;
     private Resources res;
 
+    // Constants
     public static int DEVICE_SCAN_PERIOD;
 
+    // Bluetooth
     private BluetoothAdapter bluetoothAdapter;
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private final LeScansPoster leScansPoster;
