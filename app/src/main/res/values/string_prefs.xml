@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="pref_header_golem_temperature">golem.de temperature</string>
 
     <integer name="vibration_duration">25</integer>
+
+    <!-- Golem temperature -->
+    <string name="pref_header_golem_temperature">golem.de temperature</string>
 
     <string name="pref_golem_temperature_url">pref_golem_temperature_url</string>
     <string name="pref_golem_temperature_send_period">pref_golem_temperature_send_period</string>
@@ -50,4 +52,16 @@
         <item>wifimcu</item>
         <item>other</item>
     </string-array>
+
+    <!-- Scan period -->
+    <string name="pref_header_scan_timer">Scan timer</string>
+
+    <string name="pref_scan_timer_period">pref_scan_timer_period</string>
+    <string name="pref_scan_timer_delay">pref_scan_timer_delay</string>
+
+    <string name="pref_title_scan_timer_period">Scan period</string>
+    <string name="pref_title_scan_timer_delay">Scan delay</string>
+
+    <integer name="pref_default_scan_timer_period">10</integer>
+    <integer name="pref_default_scan_timer_delay">60</integer>
 </resources>

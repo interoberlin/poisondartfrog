@@ -10,7 +10,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,7 +20,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -55,6 +59,11 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     // Controller
     private DevicesController devicesController;
 
+    private SharedPreferences prefs;
+    private Resources res;
+    private static Handler scanHandler;
+    private static Runnable scanRunnable;
+
     private BluetoothAdapter bluetoothAdapter;
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
@@ -65,6 +74,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
 
     // Properties
     private static int VIBRATION_DURATION;
+    private static int DEVICE_SCAN_PERIOD;
+    private static int DEVICE_SCAN_DELAY;
 
     private BluetoothLeService bluetoothLeService;
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -131,7 +142,9 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
 
-        VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        this.res = getResources();
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
@@ -149,6 +162,11 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
 
         devicesController = DevicesController.getInstance();
         devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
+
+        // Load preferences
+        VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
+        DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
+        DEVICE_SCAN_DELAY = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 60);
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -179,19 +197,33 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         });
 
         // Run scan
-        devicesController.startScan(this);
-        new Handler().postDelayed(new Runnable() {
+        scanRunnable = new Runnable() {
             @Override
             public void run() {
-                devicesController.stopScan();
-            }
-        }, 5000);
+                devicesController.startScan(DevicesActivity.this);
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        devicesController.stopScan();
+                    }
+                }, DEVICE_SCAN_PERIOD * 1000);
 
+                // Re-run
+                scanHandler.postDelayed(this, DEVICE_SCAN_DELAY * 1000);
+            }
+        };
+        scanHandler = new Handler();
+        scanHandler.postDelayed(scanRunnable, 100);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        scanHandler.removeCallbacks(scanRunnable);
         devicesController.stopScan();
         unregisterReceiver(gattUpdateReceiver);
     }
@@ -243,7 +275,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
             device.setAutoConnectEnabled(true);
             devicesController.attach(this, bluetoothLeService, device);
             updateView();
-            snack("Auto "  + device.getAddress());
+            snack("Auto " + device.getAddress());
         }
     }
 
@@ -363,6 +395,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         }
     }
 
+    /*
     private void disableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter.isEnabled()) mBluetoothAdapter.disable();
@@ -374,6 +407,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
                     android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_ENABLE_LOCATION);
         }
     }
+    */
 
     /**
      * Asks user for permission
@@ -443,6 +477,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
      * @param text     text
      * @param duration duration
      */
+    @SuppressWarnings("unused")
     public void snack(String text, int duration) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         Snackbar.make(rlContent, text, duration).show();

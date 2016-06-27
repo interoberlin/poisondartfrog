@@ -1,0 +1,19 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <EditTextPreference
+        android:defaultValue="@integer/pref_default_scan_timer_period"
+        android:inputType="number"
+        android:key="@string/pref_scan_timer_period"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_scan_timer_period" />
+
+    <EditTextPreference
+        android:defaultValue="@integer/pref_default_scan_timer_delay"
+        android:inputType="number"
+        android:key="@string/pref_scan_timer_delay"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_scan_timer_delay" />
+</PreferenceScreen>

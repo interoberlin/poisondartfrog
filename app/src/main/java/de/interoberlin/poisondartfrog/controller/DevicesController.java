@@ -58,22 +58,12 @@ public class DevicesController {
     /**
      * Starts a scan for BLE devices
      *
-     * @param callback callback
+     * @param callback   callback
      */
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback) {
-        startScan(callback, -1);
-    }
-
-    /**
-     * Starts a scan for BLE devices
-     *
-     * @param callback   callback
-     * @param scanPeriod scan period in seconds
-     */
-    public void startScan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
         Log.d(TAG, "Start scan");
 
-        scan(callback, scanPeriod)
+        scan(callback)
                 .filter(new Func1<List<BleDevice>, Boolean>() {
                     @Override
                     public Boolean call(List<BleDevice> bleDevices) {
@@ -121,9 +111,8 @@ public class DevicesController {
      * Performs a scan for BLE devices
      *
      * @param callback   callback
-     * @param scanPeriod scan period in seconds
      */
-    private Observable<List<BleDevice>> scan(BleScannerFilter.BleFilteredScanCallback callback, final long scanPeriod) {
+    private Observable<List<BleDevice>> scan(BleScannerFilter.BleFilteredScanCallback callback) {
         BluetoothManager bluetoothManager = (BluetoothManager) App.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
             Log.e(TAG, "Unable to initialize BluetoothManager.");
@@ -149,7 +138,6 @@ public class DevicesController {
             @Override
             public void call(Subscriber<? super List<BleDevice>> subscriber) {
                 bluetoothDeviceManager.addSubscriber(key, subscriber);
-                bleDeviceScanner.setScanPeriod(scanPeriod);
                 bleDeviceScanner.start();
             }
         }).map(new Func1<List<BleDevice>, List<BleDevice>>() {

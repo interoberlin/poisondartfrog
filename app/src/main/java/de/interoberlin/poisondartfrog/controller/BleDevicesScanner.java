@@ -8,18 +8,29 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.interoberlin.poisondartfrog.App;
+import de.interoberlin.poisondartfrog.R;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
-    public static final long DEFAULT_SCAN_PERIOD = 10;//seconds
+    private Context context;
+    private SharedPreferences prefs;
+    private Resources res;
+
+    public static int DEVICE_SCAN_PERIOD;
 
     private BluetoothAdapter bluetoothAdapter;
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
@@ -30,7 +41,6 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     private BluetoothLeScanner mLeScanner;
     private List<ScanFilter> filters = new ArrayList<>();
 
-    private long scanPeriod = DEFAULT_SCAN_PERIOD;
     private Thread scanThread;
     private volatile boolean isScanning = false;
 
@@ -39,8 +49,14 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     // --------------------
 
     public BleDevicesScanner(BluetoothAdapter adapter, BluetoothAdapter.LeScanCallback callback) {
-        bluetoothAdapter = adapter;
-        leScansPoster = new LeScansPoster(callback);
+        this.bluetoothAdapter = adapter;
+        this.leScansPoster = new LeScansPoster(callback);
+
+        this.context = App.getContext();
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        this.res = context.getResources();
+
+        DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
 
         if (Build.VERSION.SDK_INT >= 21) {
             mLeScanner = adapter.getBluetoothLeScanner();
@@ -72,10 +88,6 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     // --------------------
     // Methods
     // --------------------
-
-    public synchronized void setScanPeriod(long scanPeriod) {
-        this.scanPeriod = scanPeriod < 0 ? DEFAULT_SCAN_PERIOD : scanPeriod;
-    }
 
     public boolean isScanning() {
         return scanThread != null && scanThread.isAlive();
@@ -128,7 +140,7 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
                     }
                 }
 
-                Thread.sleep(scanPeriod * 1000);
+                Thread.sleep(DEVICE_SCAN_PERIOD * 1000);
 
                 synchronized (this) {
                     stopScan();
