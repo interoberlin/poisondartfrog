@@ -1,9 +1,8 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'maven'
-
 apply from: 'javadoc.gradle'
 apply from: 'maven.gradle'
+apply plugin: 'realm-android'
 
 import java.util.regex.Pattern
 

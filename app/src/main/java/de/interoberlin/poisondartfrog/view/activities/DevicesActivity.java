@@ -10,14 +10,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -35,6 +40,7 @@ import android.widget.Toast;
 
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.controller.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
@@ -44,8 +50,12 @@ import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
+
+    // Context
+    private SharedPreferences prefs;
+    private Resources res;
 
     // Model
     private DevicesAdapter devicesAdapter;
@@ -53,69 +63,29 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     // Controller
     private DevicesController devicesController;
 
-    private BluetoothAdapter bluetoothAdapter;
+    // Constants
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_VIBRATE = 2;
-
-    private final static int REQUEST_ENABLE_BT = 100;
-    private final static int REQUEST_ENABLE_LOCATION = 101;
+    private static final int REQUEST_ENABLE_BT = 100;
+    private static final int REQUEST_ENABLE_LOCATION = 101;
 
     // Properties
     private static int VIBRATION_DURATION;
+    private static int DEVICE_SCAN_PERIOD;
+    private static int DEVICE_SCAN_DELAY;
 
+    // Async
+    private static Handler scanHandler;
+    private static Runnable scanRunnable;
+
+    // Bluetooth
+    private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeService bluetoothLeService;
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.d(TAG, "Service connected");
-            if (service != null) {
-                bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            } else {
-                Log.e(TAG, "Service is null");
-            }
+    private ServiceConnection serviceConnection;
+    private BroadcastReceiver gattUpdateReceiver;
 
-            if (!bluetoothLeService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-            }
-
-            devicesController = DevicesController.getInstance();
-            updateView();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.d(TAG, "Service disconnected");
-            bluetoothLeService = null;
-
-            devicesController = DevicesController.getInstance();
-            updateView();
-        }
-    };
-
-    private BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                Log.d(TAG, "Gatt connected to " + deviceAddress);
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.d(TAG, "Gatt disconnected from " + deviceAddress);
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                Log.d(TAG, "Gatt services discovered");
-                BleDevice device = devicesController.getAttachedDeviceByAdress(deviceAddress);
-                device.setServices(bluetoothLeService.getSupportedGattServices());
-                Log.d(TAG, device.toString());
-
-                device.read(ECharacteristic.BATTERY_LEVEL);
-                devicesController.disconnect(bluetoothLeService, device);
-
-                updateView();
-            }
-        }
-    };
-
+    // Location
     private LocationManager locationManager;
     private Location currentLocation;
 
@@ -128,12 +98,64 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devices);
 
-        VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        this.res = getResources();
 
         requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         requestPermission(this, Manifest.permission.BLUETOOTH_ADMIN, PERMISSION_BLUETOOTH_ADMIN);
         requestPermission(this, Manifest.permission.VIBRATE, PERMISSION_VIBRATE);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder service) {
+                Log.d(TAG, "Service connected");
+                if (service != null) {
+                    bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+                } else {
+                    Log.e(TAG, "Service is null");
+                }
+
+                if (!bluetoothLeService.initialize()) {
+                    Log.e(TAG, "Unable to initialize Bluetooth");
+                }
+
+                devicesController = DevicesController.getInstance();
+                updateView();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                Log.d(TAG, "Service disconnected");
+                bluetoothLeService = null;
+
+                devicesController = DevicesController.getInstance();
+                updateView();
+            }
+        };
+        gattUpdateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
+                if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                    Log.d(TAG, "Gatt connected to " + deviceAddress);
+                } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                    Log.d(TAG, "Gatt disconnected from " + deviceAddress);
+                } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                    Log.d(TAG, "Gatt services discovered");
+                    BleDevice device = devicesController.getAttachedDeviceByAddress(deviceAddress);
+                    device.setServices(bluetoothLeService.getSupportedGattServices());
+                    Log.d(TAG, device.toString());
+
+                    device.init();
+                    device.read(ECharacteristic.BATTERY_LEVEL);
+                    devicesController.disconnect(bluetoothLeService, device);
+
+                    updateView();
+                }
+            }
+        };
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -146,6 +168,11 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
         devicesController = DevicesController.getInstance();
         devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
+
+        // Load preferences
+        VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
+        DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
+        DEVICE_SCAN_DELAY = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 60);
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -174,11 +201,36 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                 return false;
             }
         });
+
+        // Run scan
+        scanRunnable = new Runnable() {
+            @Override
+            public void run() {
+                devicesController.startScan(DevicesActivity.this);
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        devicesController.stopScan();
+                    }
+                }, DEVICE_SCAN_PERIOD * 1000);
+
+                // Re-run
+                scanHandler.postDelayed(this, DEVICE_SCAN_DELAY * 1000);
+            }
+        };
+        scanHandler = new Handler();
+        scanHandler.postDelayed(scanRunnable, 100);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        scanHandler.removeCallbacks(scanRunnable);
+        devicesController.stopScan();
         unregisterReceiver(gattUpdateReceiver);
     }
 
@@ -221,14 +273,26 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
     // --------------------
 
     @Override
+    public void onLeScan(BleDevice device, int rssi) {
+        boolean attached = devicesController.getAttachedDevices().containsKey(device.getAddress());
+        boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(device);
+
+        if (!attached && autoCorrectEnabled) {
+            device.setOnChangeListener(this);
+            device.setAutoConnectEnabled(true);
+            devicesController.attach(this, bluetoothLeService, device);
+            updateView();
+            snack("Auto " + device.getAddress());
+        }
+    }
+
+    @Override
     public void onAttachDevice(BleDevice device) {
         vibrate(VIBRATION_DURATION);
 
         // getSingleLocation();
 
-        device.registerOnChangeListener(this);
-
-        if (devicesController.attach(bluetoothLeService, device)) {
+        if (devicesController.attach(this, bluetoothLeService, device)) {
             updateView();
             snack(R.string.attached_device);
         } else {
@@ -252,6 +316,12 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
 
     @Override
     public void onChange(BleDevice device) {
+        updateView();
+    }
+
+    @Override
+    public void onChange(BleDevice device, int text) {
+        snack(text, Snackbar.LENGTH_SHORT);
         updateView();
     }
 
@@ -332,6 +402,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
         }
     }
 
+    /*
     private void disableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter.isEnabled()) mBluetoothAdapter.disable();
@@ -343,6 +414,7 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
                     android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_ENABLE_LOCATION);
         }
     }
+    */
 
     /**
      * Asks user for permission
@@ -383,19 +455,39 @@ public class DevicesActivity extends AppCompatActivity implements ScanResultsAda
      * @param text text resource
      */
     public void snack(int text) {
-        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        Snackbar.make(rlContent, getResources().getString(text), Snackbar.LENGTH_LONG)
-                .show();
+        snack(getResources().getString(text));
+    }
+
+    /**
+     * Displays a snack with a given {@code text resource}
+     *
+     * @param text     text resource
+     * @param duration duration
+     */
+    public void snack(int text, int duration) {
+        snack(getResources().getString(text, duration));
     }
 
     /**
      * Displays a snack with a given {@code text}
      *
-     * @param text text resource
+     * @param text text
      */
     public void snack(String text) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
         Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
+     * Displays a snack with a given {@code text}
+     *
+     * @param text     text
+     * @param duration duration
+     */
+    @SuppressWarnings("unused")
+    public void snack(String text, int duration) {
+        final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
+        Snackbar.make(rlContent, text, duration).show();
     }
 
     /**

@@ -147,6 +147,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
         final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
         final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
+        final ImageView ivAutoConnect = (ImageView) llCardDevice.findViewById(R.id.ivAutoConnect);
         final ImageView ivMore = (ImageView) llCardDevice.findViewById(R.id.ivMore);
 
         // Set values
@@ -370,6 +371,18 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         } else {
             ((ViewManager) ivSendTemperature.getParent()).removeView(ivSendTemperature);
         }
+
+        // Auto connect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ivAutoConnect.getDrawable().setTint(ContextCompat.getColor(context, device.isAutoConnectEnabled() ? R.color.colorAccent : R.color.md_grey_400));
+        }
+        ivAutoConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                vibrate(VIBRATION_DURATION);
+                devicesController.toggleAutoConnect(device);
+            }
+        });
 
         // Characteristics
         if (device != null && device.getCharacteristics() != null) {

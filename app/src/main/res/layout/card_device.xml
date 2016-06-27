@@ -206,6 +206,16 @@
                             android:padding="@dimen/icon_padding"
                             android:src="@drawable/ic_send_black_36dp" />
 
+                        <!-- Auto connect -->
+                        <ImageView
+                            android:id="@+id/ivAutoConnect"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:contentDescription="@string/more"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_loyalty_black_36dp" />
+
                         <!-- More -->
                         <ImageView
                             android:id="@+id/ivMore"

@@ -3,6 +3,11 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
+        android:fragment="de.interoberlin.poisondartfrog.view.activities.SettingsActivity$ScanTimerPreferenceFragment"
+        android:icon="@drawable/ic_timer_black_24dp"
+        android:title="@string/pref_header_scan_timer" />
+
+    <header
         android:fragment="de.interoberlin.poisondartfrog.view.activities.SettingsActivity$GolemTemperaturePreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/pref_header_golem_temperature" />
