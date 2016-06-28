@@ -61,7 +61,7 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
 
         DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mLeScanner = adapter.getBluetoothLeScanner();
             settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
             mScanCallback = new ScanCallback() {

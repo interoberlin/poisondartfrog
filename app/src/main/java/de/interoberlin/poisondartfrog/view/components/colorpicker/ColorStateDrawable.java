@@ -26,15 +26,22 @@ import android.graphics.drawable.LayerDrawable;
  * slightly darker color when pressed or focused.
  */
 public class ColorStateDrawable extends LayerDrawable {
-
     private static final float PRESSED_STATE_MULTIPLIER = 0.70f;
 
-    private int mColor;
+    private int color;
+
+    // ----------------
+    // Constructors
+    // ----------------
 
     public ColorStateDrawable(Drawable[] layers, int color) {
         super(layers);
-        mColor = color;
+        this.color = color;
     }
+
+    // ----------------
+    // Methods
+    // ----------------
 
     @Override
     protected boolean onStateChange(int[] states) {
@@ -47,9 +54,9 @@ public class ColorStateDrawable extends LayerDrawable {
         }
 
         if (pressedOrFocused) {
-            super.setColorFilter(getPressedColor(mColor), PorterDuff.Mode.SRC_ATOP);
+            super.setColorFilter(getPressedColor(color), PorterDuff.Mode.SRC_ATOP);
         } else {
-            super.setColorFilter(mColor, PorterDuff.Mode.SRC_ATOP);
+            super.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         }
 
         return super.onStateChange(states);

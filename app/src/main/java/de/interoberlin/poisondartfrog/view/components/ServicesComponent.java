@@ -61,7 +61,7 @@ public class ServicesComponent extends TableLayout {
                 if (RepositoryMapper.getInstance().isKnownCharacteristic(characteristicId.toString())) {
                     tvCharacteristic.setText(RepositoryMapper.getInstance().getCharacteristicById(characteristicId.toString()).getName());
                 } else {
-                    tvCharacteristic.setText(characteristicId.toString().substring(0, 18) + "...");
+                    tvCharacteristic.setText(characteristicId.toString().substring(0, 18));
                 }
                 tvCharacteristic.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                 tvCharacteristic.setTextAppearance(context, android.R.style.TextAppearance_Small);
@@ -69,7 +69,7 @@ public class ServicesComponent extends TableLayout {
 
                 if (characteristic.getValue() != null && characteristic.getValue().length != 0) {
                     String characteristicValue = null; // TODO
-                    tvValue.setText(" " + characteristicValue);
+                    tvValue.setText(characteristicValue);
                     tvValue.setTextColor(context.getResources().getColor(R.color.colorPrimary));
                     tvValue.setTextAppearance(context, android.R.style.TextAppearance_Small);
                 } else {

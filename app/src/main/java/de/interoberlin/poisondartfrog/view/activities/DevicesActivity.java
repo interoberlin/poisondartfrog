@@ -32,7 +32,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -189,16 +188,15 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         requestEnableLocation();
 
         // Add actions
-        fab.setOnTouchListener(new View.OnTouchListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View arg0, MotionEvent arg1) {
+            public void onClick(View v) {
                 vibrate(VIBRATION_DURATION);
                 ScanResultsDialog dialog = new ScanResultsDialog();
                 Bundle b = new Bundle();
                 b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
                 dialog.setArguments(b);
                 dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
-                return false;
             }
         });
 

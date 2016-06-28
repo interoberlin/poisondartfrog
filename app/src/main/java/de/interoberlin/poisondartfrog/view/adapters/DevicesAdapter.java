@@ -209,7 +209,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
 
             if (value != null) {
-                tvBatteryLevelValue.setText(value + "%");
+                tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
                 bdBattery.setValue(Integer.parseInt(value));
             }
             llBatteryLevel.setOnClickListener(new View.OnClickListener() {
