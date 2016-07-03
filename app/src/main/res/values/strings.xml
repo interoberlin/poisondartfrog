@@ -29,7 +29,7 @@
     <string name="more">more</string>
     <string name="name">name</string>
     <string name="no_value">-</string>
-    <string name="percentage">%s%</string>
+    <string name="percentage">%s%%</string>
     <string name="proximity">proximity</string>
     <string name="refresh_cache">refresh cache</string>
     <string name="scan">scan</string>
