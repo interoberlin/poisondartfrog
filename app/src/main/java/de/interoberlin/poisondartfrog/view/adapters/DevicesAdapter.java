@@ -1,7 +1,6 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -59,6 +58,26 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private final Activity activity;
     private OnCompleteListener ocListener;
 
+    // View
+    static class ViewHolder {
+        private TextView tvName;
+        private TextView tvAddress;
+        private ImageView ivIcon;
+        private LinearLayout llComponents;
+        private ImageView ivConnected;
+
+        private LinearLayout llBatteryLevel;
+        private TextView tvBatteryLevelValue;
+        private BatteryDiagram bdBattery;
+
+        private ImageView ivDetach;
+        private ImageView ivSubscribe;
+        private ImageView ivLedState;
+        private ImageView ivSendTemperature;
+        private ImageView ivAutoConnect;
+        private ImageView ivMore;
+    }
+
     // Controllers
     private DevicesController devicesController;
 
@@ -86,23 +105,23 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // Constructors
     // --------------------
 
-    public DevicesAdapter(Context context, Activity activity, int resource, List<BleDevice> items) {
+    public DevicesAdapter(Context context, Activity activity, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
 
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-        this.res = activity.getResources();
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        this.res = context.getResources();
 
         this.filteredItems = items;
         this.originalItems = items;
 
         this.context = context;
         this.activity = activity;
-        this.ocListener = (OnCompleteListener) activity;
+        this.ocListener = ocListener;
 
         this.timer = new Timer();
 
-        VIBRATION_DURATION = activity.getResources().getInteger(R.integer.vibration_duration);
+        VIBRATION_DURATION = context.getResources().getInteger(R.integer.vibration_duration);
         GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
         if (GOLEM_SEND_PERIOD < 1) GOLEM_SEND_PERIOD = 5;
 
@@ -127,81 +146,91 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     public View getView(final int position, View v, ViewGroup parent) {
         final BleDevice device = getItem(position);
 
-        // Layout inflater
-        LayoutInflater vi;
-        vi = LayoutInflater.from(getContext());
+        ViewHolder viewHolder;
 
-        // Load views
-        final LinearLayout llCardDevice = (LinearLayout) vi.inflate(R.layout.card_device, parent, false);
-        final TextView tvName = (TextView) llCardDevice.findViewById(R.id.tvName);
-        final TextView tvAddress = (TextView) llCardDevice.findViewById(R.id.tvAddress);
-        final ImageView ivIcon = (ImageView) llCardDevice.findViewById(R.id.ivIcon);
-        final LinearLayout llComponents = (LinearLayout) llCardDevice.findViewById(R.id.llComponents);
-        final ImageView ivConnected = (ImageView) llCardDevice.findViewById(R.id.ivConnected);
+        if (v == null) {
+            viewHolder = new ViewHolder();
 
-        final LinearLayout llBatteryLevel = (LinearLayout) llCardDevice.findViewById(R.id.llBatteryLevel);
-        final TextView tvBatteryLevelValue = (TextView) llCardDevice.findViewById(R.id.tvBatteryLevelValue);
-        final BatteryDiagram bdBattery = (BatteryDiagram) llCardDevice.findViewById(R.id.bdBattery);
+            // Layout inflater
+            LayoutInflater vi;
+            vi = LayoutInflater.from(getContext());
 
-        final ImageView ivDetach = (ImageView) llCardDevice.findViewById(R.id.ivDetach);
-        final ImageView ivSubscribe = (ImageView) llCardDevice.findViewById(R.id.ivSubscribeData);
-        final ImageView ivLedState = (ImageView) llCardDevice.findViewById(R.id.ivLedState);
-        final ImageView ivSendTemperature = (ImageView) llCardDevice.findViewById(R.id.ivSendTemperature);
-        final ImageView ivAutoConnect = (ImageView) llCardDevice.findViewById(R.id.ivAutoConnect);
-        final ImageView ivMore = (ImageView) llCardDevice.findViewById(R.id.ivMore);
+            // Load views
+            v = vi.inflate(R.layout.card_device, parent, false);
+            viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+            viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+            viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+            viewHolder.llComponents = (LinearLayout) v.findViewById(R.id.llComponents);
+            viewHolder.ivConnected = (ImageView) v.findViewById(R.id.ivConnected);
 
-        // Set values
-        tvName.setText(device.getName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
+            viewHolder.llBatteryLevel = (LinearLayout) v.findViewById(R.id.llBatteryLevel);
+            viewHolder.tvBatteryLevelValue = (TextView) v.findViewById(R.id.tvBatteryLevelValue);
+            viewHolder.bdBattery = (BatteryDiagram) v.findViewById(R.id.bdBattery);
+
+            viewHolder.ivDetach = (ImageView) v.findViewById(R.id.ivDetach);
+            viewHolder.ivSubscribe = (ImageView) v.findViewById(R.id.ivSubscribeData);
+            viewHolder.ivLedState = (ImageView) v.findViewById(R.id.ivLedState);
+            viewHolder.ivSendTemperature = (ImageView) v.findViewById(R.id.ivSendTemperature);
+            viewHolder.ivAutoConnect = (ImageView) v.findViewById(R.id.ivAutoConnect);
+            viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
+
+            v.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) v.getTag();
         }
 
-        tvAddress.setText(device.getAddress());
+        // Set values
+        viewHolder.tvName.setText(device.getName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            tvAddress.setTextAppearance(android.R.style.TextAppearance_Material_Subhead);
+            viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
+        }
+
+        viewHolder.tvAddress.setText(device.getAddress());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            viewHolder.tvAddress.setTextAppearance(android.R.style.TextAppearance_Material_Subhead);
         }
 
         if (device.getName() == null || device.getName().isEmpty())
-            tvName.setText(R.string.unknown_device);
+            viewHolder.tvName.setText(R.string.unknown_device);
 
-        llComponents.removeAllViews();
+        viewHolder.llComponents.removeAllViews();
 
         if (EDevice.fromString(device.getName()) != null) {
             switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_HTU: {
-                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
                     break;
                 }
                 case WUNDERBAR_GYRO: {
-                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
                     break;
                 }
                 case WUNDERBAR_LIGHT: {
-                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
                     break;
                 }
                 case WUNDERBAR_MIC: {
-                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
                     break;
                 }
                 case NRFDUINO: {
-                    ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
                     break;
                 }
                 default: {
-                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
                     break;
                 }
             }
         } else {
-            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+            viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
+            viewHolder.ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
         } else {
             if (!device.isConnected())
-                ((ViewManager) ivConnected.getParent()).removeView(ivConnected);
+                ((ViewManager) viewHolder.ivConnected.getParent()).removeView(viewHolder.ivConnected);
         }
 
         // Battery level
@@ -209,52 +238,52 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
 
             if (value != null) {
-                tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
-                bdBattery.setValue(Integer.parseInt(value));
+                viewHolder.tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
+                viewHolder.bdBattery.setValue(Integer.parseInt(value));
             }
-            llBatteryLevel.setOnClickListener(new View.OnClickListener() {
+            viewHolder.llBatteryLevel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate(VIBRATION_DURATION);
+                    vibrate();
                     device.read(ECharacteristic.BATTERY_LEVEL);
                 }
             });
         } else {
-            ((ViewManager) llBatteryLevel.getParent()).removeView(llBatteryLevel);
+            ((ViewManager) viewHolder.llBatteryLevel.getParent()).removeView(viewHolder.llBatteryLevel);
         }
 
-        ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(activity, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
+        viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
 
         if (!device.getReadings().isEmpty()) {
-            llComponents.addView(new DataComponent(context, activity, device));
+            viewHolder.llComponents.addView(new DataComponent(context, activity, device));
 
             switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_LIGHT: {
-                    llComponents.addView(new LightProximityComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new LightProximityComponent(context, activity, device));
                     break;
                 }
                 case WUNDERBAR_GYRO: {
-                    llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
                     break;
                 }
                 case WUNDERBAR_MIC: {
-                    llComponents.addView(new MicrophoneComponent(context, activity, device));
-                    llComponents.addView(new LineChartComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new MicrophoneComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new LineChartComponent(context, activity, device));
                     break;
                 }
                 case INTEROBERLIN_SENTIENT_LIGHT: {
-                    llComponents.addView(new SentientLightComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new SentientLightComponent(context, activity, device));
                     break;
                 }
                 default: {
-                    llComponents.addView(new LineChartComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new LineChartComponent(context, activity, device));
                     break;
                 }
             }
         }
 
         // Add actions
-        ivDetach.setOnClickListener(new View.OnClickListener() {
+        viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             if (timer != null) timer.cancel();
@@ -267,10 +296,10 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         // DATA
         if (device.containsCharacteristic(ECharacteristic.DATA)) {
-            ivSubscribe.setOnClickListener(new View.OnClickListener() {
+            viewHolder.ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate(VIBRATION_DURATION);
+                    vibrate();
                     if (activity instanceof DevicesActivity) {
                         DevicesActivity devicesActivity = ((DevicesActivity) activity);
 
@@ -292,29 +321,29 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 }
             });
         } else {
-            ((ViewManager) ivSubscribe.getParent()).removeView(ivSubscribe);
+            ((ViewManager) viewHolder.ivSubscribe.getParent()).removeView(viewHolder.ivSubscribe);
         }
 
         // LED state
         if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
-            ivLedState.setOnClickListener(new View.OnClickListener() {
+            viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate(VIBRATION_DURATION);
+                    vibrate();
                     device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
         } else {
-            ((ViewManager) ivLedState.getParent()).removeView(ivLedState);
+            ((ViewManager) viewHolder.ivLedState.getParent()).removeView(viewHolder.ivLedState);
         }
 
         // Send temperature
         if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)
                 && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
-            ivSendTemperature.setOnClickListener(new View.OnClickListener() {
+            viewHolder.ivSendTemperature.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate(VIBRATION_DURATION);
+                    vibrate();
 
                     timer = new Timer();
                     timer.purge();
@@ -369,27 +398,27 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 }
             });
         } else {
-            ((ViewManager) ivSendTemperature.getParent()).removeView(ivSendTemperature);
+            ((ViewManager) viewHolder.ivSendTemperature.getParent()).removeView(viewHolder.ivSendTemperature);
         }
 
         // Auto connect
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ivAutoConnect.getDrawable().setTint(ContextCompat.getColor(context, device.isAutoConnectEnabled() ? R.color.colorAccent : R.color.md_grey_400));
+            viewHolder.ivAutoConnect.getDrawable().setTint(ContextCompat.getColor(context, device.isAutoConnectEnabled() ? R.color.colorAccent : R.color.md_grey_400));
         }
-        ivAutoConnect.setOnClickListener(new View.OnClickListener() {
+        viewHolder.ivAutoConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                vibrate(VIBRATION_DURATION);
+                vibrate();
                 devicesController.toggleAutoConnect(device);
             }
         });
 
         // Characteristics
-        if (device != null && device.getCharacteristics() != null) {
-            ivMore.setOnClickListener(new View.OnClickListener() {
+        if (device.getCharacteristics() != null) {
+            viewHolder.ivMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate(VIBRATION_DURATION);
+                    vibrate();
                     CharacteristicsDialog dialog = new CharacteristicsDialog();
                     Bundle b = new Bundle();
                     b.putCharSequence(activity.getResources().getString(R.string.bundle_dialog_title), activity.getResources().getString(R.string.characteristics));
@@ -399,15 +428,14 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 }
             });
         } else {
-            ((ViewManager) ivMore.getParent()).removeView(ivMore);
+            ((ViewManager) viewHolder.ivMore.getParent()).removeView(viewHolder.ivMore);
         }
 
-
-        return llCardDevice;
+        return v;
     }
 
     private void vibrate() {
-        vibrate(Notification.DEFAULT_VIBRATE);
+        vibrate(VIBRATION_DURATION);
     }
 
     private void vibrate(int VIBRATION_DURATION) {

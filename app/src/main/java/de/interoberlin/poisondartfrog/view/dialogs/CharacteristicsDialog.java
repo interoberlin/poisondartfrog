@@ -50,7 +50,7 @@ public class CharacteristicsDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(v);
         builder.setTitle(dialogTitle);
-        characteristcsAdapter = new CharacteristicsAdapter(getActivity(), getActivity(), this, R.layout.item_characteristic, devicesController.getAttachedDevices().get(deviceAddress).getCharacteristics());
+        characteristcsAdapter = new CharacteristicsAdapter(getActivity(), R.layout.item_characteristic, devicesController.getAttachedDevices().get(deviceAddress).getCharacteristics());
         lvCharacteristics.setAdapter(characteristcsAdapter);
 
         // Add negative button

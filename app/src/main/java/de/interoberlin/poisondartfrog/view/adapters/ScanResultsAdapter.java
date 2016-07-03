@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,6 +26,13 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     private Context context;
     private Activity activity;
     private DialogFragment dialog;
+
+    // View
+    static class ViewHolder {
+        private TextView tvName;
+        private TextView tvAddress;
+        private ImageView ivIcon;
+    }
 
     // Controllers
     DevicesController devicesController;
@@ -74,55 +80,64 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     public View getView(final int position, View v, ViewGroup parent) {
         final BleDevice device = getItem(position);
 
+        ViewHolder viewHolder;
+
+        if (v == null) {
+            viewHolder = new ViewHolder();
+
         // Layout inflater
         LayoutInflater vi;
         vi = LayoutInflater.from(getContext());
 
         // Load views
-        final RelativeLayout rlItemScanResult = (RelativeLayout) vi.inflate(R.layout.item_scan_result, parent, false);
-        final TextView tvName = (TextView) rlItemScanResult.findViewById(R.id.tvName);
-        final TextView tvAddress = (TextView) rlItemScanResult.findViewById(R.id.tvAddress);
-        final ImageView ivIcon = (ImageView) rlItemScanResult.findViewById(R.id.ivIcon);
+        v = vi.inflate(R.layout.item_scan_result, parent, false);
+            viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+            viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+            viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+            v.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) v.getTag();
+        }
 
         // Set values
-        tvName.setText(device.getName());
-        tvAddress.setText(device.getAddress());
+        viewHolder.tvName.setText(device.getName());
+        viewHolder.tvAddress.setText(device.getAddress());
 
         if (device.getName() == null || device.getName().isEmpty())
-            tvName.setText(R.string.unknown_device);
+            viewHolder.tvName.setText(R.string.unknown_device);
         if (EDevice.fromString(device.getName()) != null) {
             switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_HTU: {
-                    ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
                     break;
                 }
                 case WUNDERBAR_GYRO: {
-                    ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
                     break;
                 }
                 case WUNDERBAR_LIGHT: {
-                    ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
                     break;
                 }
                 case WUNDERBAR_MIC: {
-                    ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
                     break;
                 }
                 case NRFDUINO : {
-                    ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
                     break;
                 }
                 default: {
-                    ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
                     break;
                 }
             }
         } else {
-            ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+            viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
         }
 
         // Add actions
-        rlItemScanResult.setOnClickListener(new View.OnClickListener() {
+        v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (activity instanceof OnCompleteListener) {
@@ -134,7 +149,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
             }
         });
 
-        return rlItemScanResult;
+        return v;
     }
 
     // --------------------
