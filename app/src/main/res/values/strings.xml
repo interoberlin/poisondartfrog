@@ -18,6 +18,8 @@
     <string name="color_swatch_description_selected">Color selected</string>
     <string name="detached_device">Detached device</string>
     <string name="devices">Devices</string>
+    <string name="enable_bluetooth_before_scan">Enable bluetooth before scan</string>
+    <string name="enable_location_before_scan">Enable location before scan</string>
     <string name="failed_to_attach_device">Failed to attach device</string>
     <string name="failed_to_detach_device">Failed to detach device</string>
     <string name="id">id</string>
@@ -39,5 +41,4 @@
     <string name="title_activity_settings">Settings</string>
     <string name="unknown_characteristic">unknown characteristic</string>
     <string name="unknown_device">unknown device</string>
-
 </resources>

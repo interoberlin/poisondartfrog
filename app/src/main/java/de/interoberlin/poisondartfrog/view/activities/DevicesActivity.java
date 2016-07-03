@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
@@ -36,6 +38,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.etsy.android.grid.StaggeredGridView;
 
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
@@ -170,33 +174,47 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
 
         // Load preferences
         VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
-        DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
-        DEVICE_SCAN_DELAY = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 60);
+        DEVICE_SCAN_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_scan_timer_period), "10"));
+        DEVICE_SCAN_DELAY = Integer.parseInt(prefs.getString(res.getString(R.string.pref_scan_timer_delay), "60"));
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        final ListView lv = (ListView) findViewById(R.id.lv);
 
-        lv.setAdapter(devicesAdapter);
+        if (isXLargeTablet(this)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
+            slv.setAdapter(devicesAdapter);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            final ListView lv = (ListView) findViewById(R.id.lv);
+            lv.setAdapter(devicesAdapter);
+        }
+
         setSupportActionBar(toolbar);
 
         checkBleSupport();
         initBleAdapter();
 
-        requestEnableBluetooth();
-        requestEnableLocation();
+        // requestEnableBluetooth();
+        // requestEnableLocation();
 
         // Add actions
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                vibrate(VIBRATION_DURATION);
-                ScanResultsDialog dialog = new ScanResultsDialog();
-                Bundle b = new Bundle();
-                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-                dialog.setArguments(b);
-                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                if (!isBluetoothEnabled()) {
+                    snack(R.string.enable_bluetooth_before_scan);
+                } else if (!isLocationEnabled()) {
+                    snack(R.string.enable_location_before_scan);
+                } else {
+                    vibrate(VIBRATION_DURATION);
+                    ScanResultsDialog dialog = new ScanResultsDialog();
+                    Bundle b = new Bundle();
+                    b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                }
             }
         });
 
@@ -355,6 +373,15 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     // Methods
     // --------------------
 
+    /**
+     * Helper method to determine if the device has an extra-large screen. For
+     * example, 10" tablets are extra-large.
+     */
+    private static boolean isXLargeTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    }
+
     public void getSingleLocation() {
         String provider = locationManager.getBestProvider(new Criteria(), false);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -504,9 +531,14 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final ListView lv = (ListView) findViewById(R.id.lv);
                 devicesAdapter.filter();
-                lv.invalidateViews();
+                if (isXLargeTablet(DevicesActivity.this)) {
+                    final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
+                    slv.invalidate();
+                } else {
+                    final ListView lv = (ListView) findViewById(R.id.lv);
+                    lv.invalidateViews();
+                }
             }
         });
     }
