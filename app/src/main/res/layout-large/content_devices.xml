@@ -14,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/background"
-        app:column_count_landscape="3"
-        app:column_count_portrait="2" />
+        app:column_count="@integer/items_per_row" />
 
 </RelativeLayout>

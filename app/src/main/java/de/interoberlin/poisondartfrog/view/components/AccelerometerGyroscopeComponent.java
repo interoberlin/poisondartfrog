@@ -1,8 +1,6 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -33,9 +31,9 @@ public class AccelerometerGyroscopeComponent extends TableLayout {
         super(context);
     }
 
-    public AccelerometerGyroscopeComponent(Context context, Activity activity, BleDevice device) {
+    public AccelerometerGyroscopeComponent(Context context, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_table, this);
+        inflate(context, R.layout.component_table, this);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);
 
@@ -46,17 +44,15 @@ public class AccelerometerGyroscopeComponent extends TableLayout {
         AccelGyroscope.Acceleration acc = acceleration != null ? new Gson().fromJson(acceleration, AccelGyroscope.Acceleration.class) : new AccelGyroscope.Acceleration();
         AccelGyroscope.AngularSpeed ang = gyroscope != null ? new Gson().fromJson(gyroscope, AccelGyroscope.AngularSpeed.class) : new AccelGyroscope.AngularSpeed();
 
-        // Get display width
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        final int displayWidth = displaymetrics.widthPixels;
-
+        float minScreenWidth = context.getResources().getDimension(R.dimen.min_screen_width);
+        float cardMargin = context.getResources().getDimension(R.dimen.card_margin);
+        int itemsPerRow = context.getResources().getInteger(R.integer.items_per_row);
         int colCount = 2;
-        int colWidth = (int) (displayWidth * 0.8 / colCount);
-        int colHeight = (int) (displayWidth * 0.8 / colCount);
 
-        tr.addView(new SpiderWebChart(context, colWidth, colHeight, R.color.colorAccent, -MIN_ACCELERATION, MAX_ACCELERATION - MIN_ACCELERATION, Arrays.asList(acc.x, acc.y, acc.z)));
-        tr.addView(new SpiderWebChart(context, colWidth, colHeight, R.color.colorAccent, -MIN_ANGULAR_SPEED, MAX_ANGULAR_SPEED - MIN_ANGULAR_SPEED, Arrays.asList(ang.x, ang.y, ang.z)));
+        int diagramDimen = (int) ((minScreenWidth / itemsPerRow) - (2*cardMargin)) / colCount ;
+
+        tr.addView(new SpiderWebChart(context, diagramDimen, diagramDimen, R.color.colorAccent, -MIN_ACCELERATION, MAX_ACCELERATION - MIN_ACCELERATION, Arrays.asList(acc.x, acc.y, acc.z)));
+        tr.addView(new SpiderWebChart(context, diagramDimen, diagramDimen, R.color.colorAccent, -MIN_ANGULAR_SPEED, MAX_ANGULAR_SPEED - MIN_ANGULAR_SPEED, Arrays.asList(ang.x, ang.y, ang.z)));
     }
 
     // --------------------

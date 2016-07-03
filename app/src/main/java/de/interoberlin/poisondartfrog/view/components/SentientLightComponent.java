@@ -1,6 +1,5 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.LinearLayout;
@@ -28,7 +27,7 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
         super(context);
     }
 
-    public SentientLightComponent(Context context, Activity activity, BleDevice device) {
+    public SentientLightComponent(Context context, BleDevice device) {
         super(context);
         this.device = device;
 

@@ -135,10 +135,12 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
             isScanning = true;
             do {
                 synchronized (this) {
-                    if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
-                        bluetoothAdapter.startDiscovery();
-                    } else {
-                        mLeScanner.startScan(filters, settings, mScanCallback);
+                    if (isBluetoothEnabled()) {
+                        if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
+                            bluetoothAdapter.startDiscovery();
+                        } else {
+                            mLeScanner.startScan(filters, settings, mScanCallback);
+                        }
                     }
                 }
 

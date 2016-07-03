@@ -35,13 +35,13 @@ ext.apkNameMaven = artifactId + '-' + version
 ext.apkNameFrdoid = (System.getenv("GIT_COMMIT") == null) ? apkNameMaven : apkNameMaven + '.' + System.getenv("GIT_COMMIT").substring(0, 8)
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId groupId + '.' + artifactId
         minSdkVersion 18
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode versionPatch as Integer ?: 0
         versionName versionMajor + "." + versionMinor + "." + versionPatch
     }

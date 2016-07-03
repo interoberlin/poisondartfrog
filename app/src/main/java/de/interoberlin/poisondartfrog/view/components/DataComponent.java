@@ -1,6 +1,5 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.widget.LinearLayout;
@@ -28,9 +27,9 @@ public class DataComponent extends TableLayout {
         super(context);
     }
 
-    public DataComponent(Context context, Activity activity, BleDevice device) {
+    public DataComponent(Context context, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_table, this);
+        inflate(context, R.layout.component_table, this);
         setStretchAllColumns(true);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);

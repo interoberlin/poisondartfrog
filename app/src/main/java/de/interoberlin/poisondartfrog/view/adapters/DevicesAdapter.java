@@ -1,35 +1,21 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.location.Location;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewManager;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
@@ -37,9 +23,6 @@ import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.config.EService;
-import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
-import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
-import de.interoberlin.poisondartfrog.view.activities.DevicesActivity;
 import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComponent;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
@@ -47,15 +30,12 @@ import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram;
-import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
-import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     public static final String TAG = DevicesAdapter.class.getSimpleName();
 
     // Context
     private final Context context;
-    private final Activity activity;
     private OnCompleteListener ocListener;
 
     // View
@@ -81,7 +61,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // Controllers
     private DevicesController devicesController;
 
-    private SharedPreferences prefs;
     private Resources res;
 
     // Filter
@@ -92,38 +71,25 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // Timers
     private Timer timer;
 
-    // Tasks
-    private HttpGetTask httpGetTask;
-
-    // Properties
-    private static int VIBRATION_DURATION;
-    private static int GOLEM_SEND_PERIOD;
-
     private final Object lock = new Object();
 
     // --------------------
     // Constructors
     // --------------------
 
-    public DevicesAdapter(Context context, Activity activity, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
+    public DevicesAdapter(Context context, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
 
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.res = context.getResources();
 
         this.filteredItems = items;
         this.originalItems = items;
 
         this.context = context;
-        this.activity = activity;
         this.ocListener = ocListener;
 
         this.timer = new Timer();
-
-        VIBRATION_DURATION = context.getResources().getInteger(R.integer.vibration_duration);
-        GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
-        if (GOLEM_SEND_PERIOD < 1) GOLEM_SEND_PERIOD = 5;
 
         filter();
     }
@@ -227,10 +193,11 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            viewHolder.ivConnected.setVisibility(View.VISIBLE);
             viewHolder.ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
         } else {
             if (!device.isConnected())
-                ((ViewManager) viewHolder.ivConnected.getParent()).removeView(viewHolder.ivConnected);
+                viewHolder.ivConnected.setVisibility(View.GONE);
         }
 
         // Battery level
@@ -241,42 +208,43 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                 viewHolder.tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
                 viewHolder.bdBattery.setValue(Integer.parseInt(value));
             }
+            viewHolder.llBatteryLevel.setVisibility(View.VISIBLE);
             viewHolder.llBatteryLevel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate();
+                    ocListener.onRead();
                     device.read(ECharacteristic.BATTERY_LEVEL);
                 }
             });
         } else {
-            ((ViewManager) viewHolder.llBatteryLevel.getParent()).removeView(viewHolder.llBatteryLevel);
+            viewHolder.llBatteryLevel.setVisibility(View.GONE);
         }
 
-        viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(activity, R.drawable.ic_play_arrow_black_36dp));
+        viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
 
         if (!device.getReadings().isEmpty()) {
-            viewHolder.llComponents.addView(new DataComponent(context, activity, device));
+            viewHolder.llComponents.addView(new DataComponent(context, device));
 
             switch (EDevice.fromString(device.getName())) {
                 case WUNDERBAR_LIGHT: {
-                    viewHolder.llComponents.addView(new LightProximityComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new LightProximityComponent(context, device));
                     break;
                 }
                 case WUNDERBAR_GYRO: {
-                    viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, device));
                     break;
                 }
                 case WUNDERBAR_MIC: {
-                    viewHolder.llComponents.addView(new MicrophoneComponent(context, activity, device));
-                    viewHolder.llComponents.addView(new LineChartComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new MicrophoneComponent(context, device));
+                    viewHolder.llComponents.addView(new LineChartComponent(context, device));
                     break;
                 }
                 case INTEROBERLIN_SENTIENT_LIGHT: {
-                    viewHolder.llComponents.addView(new SentientLightComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new SentientLightComponent(context, device));
                     break;
                 }
                 default: {
-                    viewHolder.llComponents.addView(new LineChartComponent(context, activity, device));
+                    viewHolder.llComponents.addView(new LineChartComponent(context, device));
                     break;
                 }
             }
@@ -284,121 +252,67 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
         // Add actions
         viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            if (timer != null) timer.cancel();
-                                            if (httpGetTask != null) httpGetTask.cancel(true);
+                                                   @Override
+                                                   public void onClick(View v) {
+                                                       if (timer != null) timer.cancel();
 
-                                            ocListener.onDetachDevice(device);
-                                        }
-                                    }
+                                                       ocListener.onDetachDevice(device);
+                                                   }
+                                               }
         );
 
-        // DATA
+        // Subscribe data
         if (device.containsCharacteristic(ECharacteristic.DATA)) {
+            viewHolder.ivSubscribe.setVisibility(View.VISIBLE);
             viewHolder.ivSubscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate();
-                    if (activity instanceof DevicesActivity) {
-                        DevicesActivity devicesActivity = ((DevicesActivity) activity);
+                    ocListener.onSubscribe();
+                    if (!device.isSubscribing()) {
+                        device.subscribe(ECharacteristic.DATA);
+                        ocListener.onChange(device, R.string.started_subscription);
+                    } else {
+                        device.unsubscribe(ECharacteristic.DATA);
+                        device.disconnect();
 
-                        if (!device.isSubscribing()) {
-                            device.subscribe(ECharacteristic.DATA);
-                            devicesActivity.updateView();
-                            devicesActivity.snack(R.string.started_subscription);
-                        } else {
-                            device.unsubscribe(ECharacteristic.DATA);
-                            device.disconnect();
+                        ocListener.onChange(device, R.string.stopped_subscription);
 
-                            devicesActivity.updateView();
-                            devicesActivity.snack(R.string.stopped_subscription);
-
-                            if (timer != null) timer.cancel();
-                            if (httpGetTask != null) httpGetTask.cancel(true);
-                        }
+                        if (timer != null) timer.cancel();
                     }
                 }
             });
         } else {
-            ((ViewManager) viewHolder.ivSubscribe.getParent()).removeView(viewHolder.ivSubscribe);
+            viewHolder.ivSubscribe.setVisibility(View.GONE);
         }
 
         // LED state
         if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+            viewHolder.ivLedState.setVisibility(View.VISIBLE);
             viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate();
+                    ocListener.onSend();
                     device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
                 }
             });
         } else {
-            ((ViewManager) viewHolder.ivLedState.getParent()).removeView(viewHolder.ivLedState);
+            viewHolder.ivLedState.setVisibility(View.GONE);
         }
 
         // Send temperature
         if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)
                 && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
+            viewHolder.ivSendTemperature.setVisibility(View.VISIBLE);
             viewHolder.ivSendTemperature.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate();
+                    ocListener.onSendLocation(device);
 
-                    timer = new Timer();
-                    timer.purge();
-                    timer.scheduleAtFixedRate(new TimerTask() {
-                        synchronized public void run() {
-                            Location location = null;
-                            if (activity instanceof DevicesActivity) {
-                                DevicesActivity devicesActivity = ((DevicesActivity) activity);
-                                devicesActivity.snack("Started timer");
 
-                                // Update location
-                                devicesActivity.getSingleLocation();
-                                location = devicesActivity.getCurrentLocation();
-                            }
-
-                            if (activity instanceof HttpGetTask.OnCompleteListener) {
-                                HttpGetTask.OnCompleteListener listener = (HttpGetTask.OnCompleteListener) activity;
-                                String url = prefs.getString(res.getString(R.string.pref_golem_temperature_url), null);
-
-                                if (device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
-                                    String temperature = device.getLatestReadings().get("temperature").value.toString();
-
-                                    // Add parameters
-                                    Map<EHttpParameter, String> parameters = new LinkedHashMap<>();
-
-                                    parameters.put(EHttpParameter.DBG, String.valueOf(prefs.getBoolean(res.getString(R.string.pref_golem_temperature_dbg), true) ? "1" : "0"));
-                                    parameters.put(EHttpParameter.TOKEN, prefs.getString(res.getString(R.string.pref_golem_temperature_token), null));
-                                    parameters.put(EHttpParameter.TYPE, prefs.getString(res.getString(R.string.pref_golem_temperature_type), res.getString(R.string.pref_default_golem_temperature_type)));
-                                    parameters.put(EHttpParameter.COUNTRY, prefs.getString(res.getString(R.string.pref_golem_temperature_country), null));
-                                    parameters.put(EHttpParameter.CITY, prefs.getString(res.getString(R.string.pref_golem_temperature_city), null));
-                                    parameters.put(EHttpParameter.ZIP, prefs.getString(res.getString(R.string.pref_golem_temperature_zip), null));
-                                    parameters.put(EHttpParameter.TEMP, temperature);
-
-                                    // Add location parameters
-                                    if (location != null) {
-                                        parameters.put(EHttpParameter.LAT, String.valueOf(round(location.getLatitude(), 2)));
-                                        parameters.put(EHttpParameter.LONG, String.valueOf(round(location.getLongitude(), 2)));
-                                    }
-
-                                    // Call webservice
-                                    try {
-                                        httpGetTask = new HttpGetTask(activity, listener, url);
-                                        httpGetTask.execute(parameters).get();
-                                    } catch (InterruptedException | ExecutionException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-
-                    }, TimeUnit.MINUTES.toMillis(0), TimeUnit.MINUTES.toMillis(GOLEM_SEND_PERIOD));
                 }
             });
         } else {
-            ((ViewManager) viewHolder.ivSendTemperature.getParent()).removeView(viewHolder.ivSendTemperature);
+            viewHolder.ivSendTemperature.setVisibility(View.GONE);
         }
 
         // Auto connect
@@ -408,46 +322,25 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         viewHolder.ivAutoConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                vibrate();
+                ocListener.onToggleAutoConnect();
                 devicesController.toggleAutoConnect(device);
             }
         });
 
         // Characteristics
         if (device.getCharacteristics() != null) {
+            viewHolder.ivMore.setVisibility(View.VISIBLE);
             viewHolder.ivMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    vibrate();
-                    CharacteristicsDialog dialog = new CharacteristicsDialog();
-                    Bundle b = new Bundle();
-                    b.putCharSequence(activity.getResources().getString(R.string.bundle_dialog_title), activity.getResources().getString(R.string.characteristics));
-                    b.putCharSequence(activity.getResources().getString(R.string.bundle_device_address), device.getAddress());
-                    dialog.setArguments(b);
-                    dialog.show(activity.getFragmentManager(), ScanResultsDialog.TAG);
+                    ocListener.onOpenCharacteristicsDialog(device);
                 }
             });
         } else {
-            ((ViewManager) viewHolder.ivMore.getParent()).removeView(viewHolder.ivMore);
+            viewHolder.ivMore.setVisibility(View.GONE);
         }
 
         return v;
-    }
-
-    private void vibrate() {
-        vibrate(VIBRATION_DURATION);
-    }
-
-    private void vibrate(int VIBRATION_DURATION) {
-        ((Vibrator) activity.getSystemService(Activity.VIBRATOR_SERVICE)).vibrate(VIBRATION_DURATION);
-    }
-
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
     }
 
     // --------------------
@@ -487,7 +380,21 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     // --------------------
 
     public interface OnCompleteListener {
+        void onChange(BleDevice device, int text);
+
         void onDetachDevice(BleDevice device);
+
+        void onSendLocation(BleDevice device);
+
+        void onOpenCharacteristicsDialog(BleDevice device);
+
+        void onRead();
+
+        void onSend();
+
+        void onSubscribe();
+
+        void onToggleAutoConnect();
     }
 
     // --------------------

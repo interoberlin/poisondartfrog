@@ -1,8 +1,6 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -28,9 +26,9 @@ public class MicrophoneComponent extends TableLayout {
         super(context);
     }
 
-    public MicrophoneComponent(Context context, Activity activity, BleDevice device) {
+    public MicrophoneComponent(Context context, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_table, this);
+        inflate(context, R.layout.component_table, this);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);
 
@@ -39,15 +37,13 @@ public class MicrophoneComponent extends TableLayout {
 
         float noi = noise != null ? Float.valueOf(noise) : MIN_NOISE;
 
-        // Get display width
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        final int displayWidth = displaymetrics.widthPixels;
+        float minScreenWidth = context.getResources().getDimension(R.dimen.min_screen_width);
+        float cardMargin = context.getResources().getDimension(R.dimen.card_margin);
+        int itemsPerRow = context.getResources().getInteger(R.integer.items_per_row);
+        int colCount = 2;
 
-        int colCount = 3;
-        int colWidth = (int) (displayWidth * 0.8 / colCount);
-        int colHeight = (int) (displayWidth * 0.8 / colCount);
+        int diagramDimen = (int) ((minScreenWidth / itemsPerRow) - (2*cardMargin)) / colCount ;
 
-        tr.addView(new CircleDiagram(context, colWidth, colHeight, R.color.colorPrimary, R.color.colorPrimaryDark, 0.0f, 1.0f, MIN_NOISE, MAX_NOISE, noi));
+        tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, R.color.colorPrimary, R.color.colorPrimaryDark, 0.0f, 1.0f, MIN_NOISE, MAX_NOISE, noi));
     }
 }

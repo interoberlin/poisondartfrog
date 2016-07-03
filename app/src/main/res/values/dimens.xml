@@ -1,4 +1,7 @@
 <resources>
+    <!-- Screen width -->
+    <dimen name="min_screen_width">320dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="item_margin">6dp</dimen>
     <dimen name="item_margin_large">16dp</dimen>
@@ -23,4 +26,7 @@
 
     <!-- Spider Web Chart -->
     <integer name="chart_outline_width">8</integer>
+
+    <!-- Line Chart -->
+    <dimen name="linechart_height">180dp</dimen>
 </resources>

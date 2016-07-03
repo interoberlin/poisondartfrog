@@ -1,8 +1,6 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
@@ -34,18 +32,13 @@ public class LineChartComponent extends LinearLayout {
         super(context);
     }
 
-    public LineChartComponent(Context context, Activity activity, BleDevice device) {
+    public LineChartComponent(Context context, BleDevice device) {
         super(context);
 
         LayoutParams lp = new LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, (int) context.getResources().getDimension(R.dimen.card_margin), 0, 0);
         setLayoutParams(lp);
         setOrientation(VERTICAL);
-
-        // Get display width
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        final int displayWidth = displaymetrics.widthPixels;
 
         for (Map.Entry<String, Queue<Reading>> reading : device.getReadings().entrySet()) {
             if (reading != null) {
@@ -138,7 +131,7 @@ public class LineChartComponent extends LinearLayout {
                 // Build value line chart
                 if (!series.isEmpty()) {
                     vlcValues.setUseDynamicScaling(true);
-                    vlcValues.setMinimumHeight(displayWidth / 3);
+                    vlcValues.setMinimumHeight((int) context.getResources().getDimension(R.dimen.linechart_height));
                     vlcValues.setTop(50);
                     vlcValues.setUseCubic(true);
 

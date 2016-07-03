@@ -1,11 +1,6 @@
 package de.interoberlin.poisondartfrog.model.tasks;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -20,14 +15,11 @@ import java.util.Map;
 public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, String> {
     public static final String TAG = HttpGetTask.class.toString();
 
-    private static final int PERMISSION_REQUEST_INTERNET = 3;
-
     private static final String HTTP_METHOD = "GET";
     private static final String ENCODING = "UTF-8";
     private static final String CONTENT_TYPE = "text/plain";
     private static final int RESPONSE_CODE_OKAY = 200;
 
-    private static Activity activity;
     private static OnCompleteListener ocListener;
     private static String url;
 
@@ -35,8 +27,7 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     // Constructors
     // --------------------
 
-    public HttpGetTask(Activity activity, OnCompleteListener ocListener, String url) {
-        HttpGetTask.activity = activity;
+    public HttpGetTask(OnCompleteListener ocListener, String url) {
         HttpGetTask.ocListener = ocListener;
         HttpGetTask.url = url;
     }
@@ -56,7 +47,6 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
 
         if (url != null && values != null && !values.isEmpty()) {
             try {
-                requestPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION, PERMISSION_REQUEST_INTERNET);
                 return callURL(values);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -153,30 +143,6 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
         }
 
         return paramString;
-    }
-
-    /**
-     * Asks user for permission
-     *
-     * @param activity   activity
-     * @param permission permission to ask for
-     * @param callBack   callback
-     */
-    public static void requestPermission(Activity activity, String permission, int callBack) {
-        if (ContextCompat.checkSelfPermission(activity,
-                permission)
-                != PackageManager.PERMISSION_GRANTED) {
-            Log.w(TAG, "Permission not granted");
-
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                    permission)) {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{permission},
-                        callBack);
-            }
-        } else {
-            Log.d(TAG, "Permission granted");
-        }
     }
 
     // --------------------

@@ -51,6 +51,7 @@ import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
+import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
@@ -70,17 +71,21 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int PERMISSION_BLUETOOTH_ADMIN = 1;
     private static final int PERMISSION_VIBRATE = 2;
-    private static final int REQUEST_ENABLE_BT = 100;
-    private static final int REQUEST_ENABLE_LOCATION = 101;
+    // private static final int REQUEST_ENABLE_BT = 100;
+    // private static final int REQUEST_ENABLE_LOCATION = 101;
 
     // Properties
     private static int VIBRATION_DURATION;
     private static int DEVICE_SCAN_PERIOD;
     private static int DEVICE_SCAN_DELAY;
+    private static int GOLEM_SEND_PERIOD;
 
     // Async
     private static Handler scanHandler;
     private static Runnable scanRunnable;
+
+    private static Handler sendLocationHandler;
+    private static Runnable sendLocationRunnable;
 
     // Bluetooth
     private BluetoothAdapter bluetoothAdapter;
@@ -176,6 +181,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
         DEVICE_SCAN_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_scan_timer_period), "10"));
         DEVICE_SCAN_DELAY = Integer.parseInt(prefs.getString(res.getString(R.string.pref_scan_timer_delay), "60"));
+        GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -184,11 +190,13 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         if (isXLargeTablet(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
-            slv.setAdapter(devicesAdapter);
+            if (slv != null)
+                slv.setAdapter(devicesAdapter);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             final ListView lv = (ListView) findViewById(R.id.lv);
-            lv.setAdapter(devicesAdapter);
+            if (lv != null)
+                lv.setAdapter(devicesAdapter);
         }
 
         setSupportActionBar(toolbar);
@@ -200,23 +208,25 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         // requestEnableLocation();
 
         // Add actions
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isBluetoothEnabled()) {
-                    snack(R.string.enable_bluetooth_before_scan);
-                } else if (!isLocationEnabled()) {
-                    snack(R.string.enable_location_before_scan);
-                } else {
-                    vibrate(VIBRATION_DURATION);
-                    ScanResultsDialog dialog = new ScanResultsDialog();
-                    Bundle b = new Bundle();
-                    b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-                    dialog.setArguments(b);
-                    dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+        if (fab != null) {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!isBluetoothEnabled()) {
+                        snack(R.string.enable_bluetooth_before_scan);
+                    } else if (!isLocationEnabled()) {
+                        snack(R.string.enable_location_before_scan);
+                    } else {
+                        vibrate(VIBRATION_DURATION);
+                        ScanResultsDialog dialog = new ScanResultsDialog();
+                        Bundle b = new Bundle();
+                        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                        dialog.setArguments(b);
+                        dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Run scan
         scanRunnable = new Runnable() {
@@ -245,7 +255,11 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     protected void onPause() {
         super.onPause();
 
-        scanHandler.removeCallbacks(scanRunnable);
+        if (scanHandler != null)
+            scanHandler.removeCallbacks(scanRunnable);
+        if (sendLocationHandler != null)
+            sendLocationHandler.removeCallbacks(sendLocationRunnable);
+
         devicesController.stopScan();
         unregisterReceiver(gattUpdateReceiver);
     }
@@ -331,6 +345,54 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     }
 
     @Override
+    public void onSendLocation(final BleDevice device) {
+        getSingleLocation();
+
+        sendLocationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                devicesController.sendLocation(DevicesActivity.this, DevicesActivity.this, device, currentLocation);
+
+                // Re-run
+                scanHandler.postDelayed(this, GOLEM_SEND_PERIOD * 60 * 1000);
+            }
+        };
+        sendLocationHandler = new Handler();
+        sendLocationHandler.postDelayed(sendLocationRunnable, 100);
+    }
+
+    @Override
+    public void onOpenCharacteristicsDialog(BleDevice device) {
+        vibrate();
+        CharacteristicsDialog dialog = new CharacteristicsDialog();
+        Bundle b = new Bundle();
+        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.characteristics));
+        b.putCharSequence(getResources().getString(R.string.bundle_device_address), device.getAddress());
+        dialog.setArguments(b);
+        dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+    }
+
+    @Override
+    public void onRead() {
+        vibrate();
+    }
+
+    @Override
+    public void onSend() {
+        vibrate();
+    }
+
+    @Override
+    public void onSubscribe() {
+        vibrate();
+    }
+
+    @Override
+    public void onToggleAutoConnect() {
+        vibrate();
+    }
+
+    @Override
     public void onChange(BleDevice device) {
         updateView();
     }
@@ -389,8 +451,12 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         }
     }
 
-    private void vibrate(int duration) {
-        ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(duration);
+    private void vibrate() {
+        vibrate(VIBRATION_DURATION);
+    }
+
+    private void vibrate(int VIBRATION_DURATION) {
+        ((Vibrator) getSystemService(Activity.VIBRATOR_SERVICE)).vibrate(VIBRATION_DURATION);
     }
 
     private void checkBleSupport() {
@@ -414,6 +480,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
+    /*
     private void requestEnableBluetooth() {
         if (!isBluetoothEnabled()) {
             startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE_BT);
@@ -427,7 +494,6 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         }
     }
 
-    /*
     private void disableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter.isEnabled()) mBluetoothAdapter.disable();
@@ -500,7 +566,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
      */
     public void snack(String text) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
+        if (rlContent != null)
+            Snackbar.make(rlContent, text, Snackbar.LENGTH_LONG).show();
     }
 
     /**
@@ -512,7 +579,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     @SuppressWarnings("unused")
     public void snack(String text, int duration) {
         final RelativeLayout rlContent = (RelativeLayout) findViewById(R.id.rlContent);
-        Snackbar.make(rlContent, text, duration).show();
+        if (rlContent != null)
+            Snackbar.make(rlContent, text, duration).show();
     }
 
     /**
@@ -528,26 +596,25 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
      * Updates view
      */
     public void updateView() {
+        Log.d(TAG, "Update view");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 devicesAdapter.filter();
                 if (isXLargeTablet(DevicesActivity.this)) {
                     final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
-                    slv.invalidate();
+                    if (slv != null) {
+                        Log.d(TAG, "Update slv");
+                        slv.invalidate();
+                    }
                 } else {
                     final ListView lv = (ListView) findViewById(R.id.lv);
-                    lv.invalidateViews();
+                    if (lv != null) {
+                        Log.d(TAG, "Update lv");
+                        lv.invalidateViews();
+                    }
                 }
             }
         });
-    }
-
-    // --------------------
-    // Getters / Setters
-    // --------------------
-
-    public Location getCurrentLocation() {
-        return currentLocation;
     }
 }

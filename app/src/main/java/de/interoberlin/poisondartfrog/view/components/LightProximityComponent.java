@@ -1,8 +1,6 @@
 package de.interoberlin.poisondartfrog.view.components;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
@@ -36,9 +34,9 @@ public class LightProximityComponent extends TableLayout {
         super(context);
     }
 
-    public LightProximityComponent(Context context, Activity activity, BleDevice device) {
+    public LightProximityComponent(Context context, BleDevice device) {
         super(context);
-        inflate(activity, R.layout.component_table, this);
+        inflate(context, R.layout.component_table, this);
 
         TableRow tr = (TableRow) findViewById(R.id.tr);
 
@@ -51,17 +49,15 @@ public class LightProximityComponent extends TableLayout {
         float pro = proximity != null ? Float.valueOf(proximity) : MIN_PROXIMITY;
         LightColorProx.Color col = color != null ? new Gson().fromJson(color, LightColorProx.Color.class) : new LightColorProx.Color(0, 0, 0);
 
-        // Get display width
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        final int displayWidth = displaymetrics.widthPixels;
-
+        float minScreenWidth = context.getResources().getDimension(R.dimen.min_screen_width);
+        float cardMargin = context.getResources().getDimension(R.dimen.card_margin);
+        int itemsPerRow = context.getResources().getInteger(R.integer.items_per_row);
         int colCount = 3;
-        int colWidth = (int) (displayWidth * 0.8 / colCount);
-        int colHeight = (int) (displayWidth * 0.8 / colCount);
 
-        tr.addView(new CircleDiagram(context, colWidth, colHeight, R.color.md_grey_200, R.color.md_grey_900, 1.0f, 1.0f, MIN_LUMINOSITY, MAX_LUMINOSITY, lum));
-        tr.addView(new CircleDiagram(context, colWidth, colHeight, R.color.md_grey_400, R.color.md_grey_400, 1.0f, 0.0f, MIN_PROXIMITY, MAX_PROXIMITY, pro));
-        tr.addView(new CircleDiagram(context, colWidth, colHeight, col.toRgb()));
+        int diagramDimen = (int) ((minScreenWidth / itemsPerRow) - (2*cardMargin)) / colCount ;
+
+        tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, R.color.md_grey_200, R.color.md_grey_900, 1.0f, 1.0f, MIN_LUMINOSITY, MAX_LUMINOSITY, lum));
+        tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, R.color.md_grey_400, R.color.md_grey_400, 1.0f, 0.0f, MIN_PROXIMITY, MAX_PROXIMITY, pro));
+        tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, col.toRgb()));
     }
 }
