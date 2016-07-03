@@ -213,18 +213,19 @@ assembleRelease.dependsOn(copyPropertiesRelease)
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'de.interoberlin:mate:0.4.27@aar'
+
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:cardview-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'com.google.guava:guava:19.0'
-    compile 'commons-io:commons-io:2.4'
-    compile 'org.apache.commons:commons-lang3:3.0'
-    compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'io.reactivex:rxjava:1.1.0'
-    compile 'com.github.blackfizz:eazegraph:1.2.5l@aar'
-    compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.etsy.android.grid:library:1.0.5'
+    compile 'com.github.blackfizz:eazegraph:1.2.5l@aar'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.google.guava:guava:19.0'
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'commons-io:commons-io:2.4'
+    compile 'de.interoberlin:mate:0.4.27@aar'
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.0'
+    compile 'org.apache.commons:commons-lang3:3.0'
 }

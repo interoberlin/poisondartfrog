@@ -1,6 +1,4 @@
 <resources>
     <!-- Screen width -->
     <dimen name="min_screen_width">720dp</dimen>
-
-    <dimen name="activity_horizontal_margin">64dp</dimen>
 </resources>
