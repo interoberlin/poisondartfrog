@@ -204,13 +204,21 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         fab.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
-                vibrate(VIBRATION_DURATION);
-                ScanResultsDialog dialog = new ScanResultsDialog();
-                Bundle b = new Bundle();
-                b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
-                dialog.setArguments(b);
-                dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
-                return false;
+                if (!isBluetoothEnabled()) {
+                    snack(R.string.enable_bluetooth_before_scan);
+                    return false;
+                } else if (!isLocationEnabled()) {
+                    snack(R.string.enable_location_before_scan);
+                    return false;
+                } else {
+                    vibrate(VIBRATION_DURATION);
+                    ScanResultsDialog dialog = new ScanResultsDialog();
+                    Bundle b = new Bundle();
+                    b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                    return false;
+                }
             }
         });
 
