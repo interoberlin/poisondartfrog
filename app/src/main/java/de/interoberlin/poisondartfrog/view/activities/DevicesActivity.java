@@ -183,11 +183,11 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         if (isXLargeTablet(this)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
             slv.setAdapter(devicesAdapter);
         } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             final ListView lv = (ListView) findViewById(R.id.lv);
             lv.setAdapter(devicesAdapter);
         }

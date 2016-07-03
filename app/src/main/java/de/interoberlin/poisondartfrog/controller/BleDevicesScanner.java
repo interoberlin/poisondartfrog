@@ -26,11 +26,6 @@ import de.interoberlin.poisondartfrog.R;
 class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
-    // Context
-    private Context context;
-    private SharedPreferences prefs;
-    private Resources res;
-
     // Constants
     public static int DEVICE_SCAN_PERIOD;
 
@@ -55,11 +50,11 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
         this.bluetoothAdapter = adapter;
         this.leScansPoster = new LeScansPoster(callback);
 
-        this.context = App.getContext();
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.res = context.getResources();
+        Context context = App.getContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Resources res = context.getResources();
 
-        DEVICE_SCAN_PERIOD = prefs.getInt(res.getString(R.string.pref_golem_temperature_send_period), 10);
+        DEVICE_SCAN_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "10"));
 
         if (Build.VERSION.SDK_INT >= 21) {
             mLeScanner = adapter.getBluetoothLeScanner();
@@ -103,9 +98,11 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
 
         if (scanThread != null) scanThread.interrupt();
 
-        scanThread = new Thread(this);
-        scanThread.setName(TAG);
-        scanThread.start();
+        if (isBluetoothEnabled()) {
+            scanThread = new Thread(this);
+            scanThread.setName(TAG);
+            scanThread.start();
+        }
     }
 
     public synchronized void stop() {
@@ -122,11 +119,13 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
-        if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
-            if (bluetoothAdapter != null) bluetoothAdapter.stopLeScan(this);
-        } else {
-            mLeScanner.flushPendingScanResults(mScanCallback);
-            mLeScanner.stopScan(mScanCallback);
+        if (isBluetoothEnabled()) {
+            if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
+                bluetoothAdapter.cancelDiscovery();
+            } else {
+                mLeScanner.stopScan(mScanCallback);
+                mLeScanner.flushPendingScanResults(mScanCallback);
+            }
         }
     }
 
@@ -137,7 +136,7 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
             do {
                 synchronized (this) {
                     if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
-                        bluetoothAdapter.startLeScan(this);
+                        bluetoothAdapter.startDiscovery();
                     } else {
                         mLeScanner.startScan(filters, settings, mScanCallback);
                     }
@@ -163,6 +162,10 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
             leScansPoster.set(device, rssi, scanRecord);
             mainThreadHandler.post(leScansPoster);
         }
+    }
+
+    private boolean isBluetoothEnabled() {
+        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
     private static class LeScansPoster implements Runnable {
