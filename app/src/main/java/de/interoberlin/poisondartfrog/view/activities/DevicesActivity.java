@@ -174,6 +174,7 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         super.onResume();
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
 
+        // Instatiate controller
         devicesController = DevicesController.getInstance();
         devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
 
