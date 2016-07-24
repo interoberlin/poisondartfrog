@@ -35,6 +35,8 @@ import rx.functions.Action0;
 import rx.functions.Func1;
 
 public class DevicesController {
+    // <editor-fold defaultstate="expanded" desc="Members">
+
     public static final String TAG = DevicesController.class.getSimpleName();
 
     private Map<String, BleDevice> scannedDevices;
@@ -43,13 +45,15 @@ public class DevicesController {
     private BleDeviceManager bluetoothDeviceManager;
     private BleDevicesScanner bleDeviceScanner;
 
-    private HttpGetTask httpGetTask;
-
     private static DevicesController instance;
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Constructors">
 
     private DevicesController() {
         this.scannedDevices = new HashMap<>();
@@ -64,50 +68,61 @@ public class DevicesController {
         return instance;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
 
+    // <editor-fold defaultstate="expanded" desc="Methods">
+
     /**
      * Starts a scan for BLE devices
      *
-     * @param callback   callback
+     * @param callback callback
      */
     public void startScan(BleScannerFilter.BleFilteredScanCallback callback) {
         Log.d(TAG, "Start scan");
 
-        scan(callback)
-                .filter(new Func1<List<BleDevice>, Boolean>() {
-                    @Override
-                    public Boolean call(List<BleDevice> bleDevices) {
-                        return false;
-                    }
-                })
-                .map(new Func1<List<BleDevice>, BleDevice>() {
-                    @Override
-                    public BleDevice call(List<BleDevice> bleDevices) {
-                        for (BleDevice device : bleDevices) {
-                            return device;
+        BluetoothManager bluetoothManager = (BluetoothManager) App.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+       if (bluetoothAdapter == null) {
+            Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
+        } else {
+            scan(bluetoothManager, bluetoothAdapter, callback)
+                    .filter(new Func1<List<BleDevice>, Boolean>() {
+                        @Override
+                        public Boolean call(List<BleDevice> bleDevices) {
+                            return false;
+                        }
+                    })
+                    .map(new Func1<List<BleDevice>, BleDevice>() {
+                        @Override
+                        public BleDevice call(List<BleDevice> bleDevices) {
+                            for (BleDevice device : bleDevices) {
+                                return device;
+                            }
+
+                            return null; // will never happen since it's been filtered out before
+                        }
+                    })
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<BleDevice>() {
+                        @Override
+                        public void onCompleted() {
                         }
 
-                        return null; // will never happen since it's been filtered out before
-                    }
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<BleDevice>() {
-                    @Override
-                    public void onCompleted() {
-                    }
+                        @Override
+                        public void onError(Throwable e) {
+                        }
 
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-
-                    @Override
-                    public void onNext(BleDevice device) {
-                    }
-                });
+                        @Override
+                        public void onNext(BleDevice device) {
+                        }
+                    });
+        }
     }
 
     /**
@@ -123,23 +138,13 @@ public class DevicesController {
     /**
      * Performs a scan for BLE devices
      *
-     * @param callback   callback
+     * @param callback callback
+     * @param bluetoothManager bluetooth manager
+     * @param bluetoothAdapter bluetooth adapter
      */
-    private Observable<List<BleDevice>> scan(BleScannerFilter.BleFilteredScanCallback callback) {
-        BluetoothManager bluetoothManager = (BluetoothManager) App.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager == null) {
-            Log.e(TAG, "Unable to initialize BluetoothManager.");
-            return null;
-        }
-
+    private Observable<List<BleDevice>> scan(BluetoothManager bluetoothManager, BluetoothAdapter bluetoothAdapter, BleScannerFilter.BleFilteredScanCallback callback) {
         for (BluetoothDevice d : bluetoothManager.getConnectedDevices(BluetoothProfile.GATT_SERVER)) {
             Log.i(TAG, "Already connected " + d.getName());
-        }
-
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null) {
-            Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
-            return null;
         }
 
         this.bluetoothDeviceManager = BleDeviceManager.getInstance();
@@ -284,30 +289,6 @@ public class DevicesController {
         return autoConnectEnabled;
     }
 
-    // --------------------
-    // Getters / Setters
-    // --------------------
-
-    public Map<String, BleDevice> getScannedDevices() {
-        return scannedDevices;
-    }
-
-    public List<BleDevice> getScannedDevicesAsList() {
-        return new ArrayList<>(getScannedDevices().values());
-    }
-
-    public Map<String, BleDevice> getAttachedDevices() {
-        return attachedDevices;
-    }
-
-    public BleDevice getAttachedDeviceByAddress(String address) {
-        return getAttachedDevices().get(address);
-    }
-
-    public List<BleDevice> getAttachedDevicesAsList() {
-        return new ArrayList<>(getAttachedDevices().values());
-    }
-
     public void sendLocation(Context context, HttpGetTask.OnCompleteListener ocListener, BleDevice device, Location location) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Resources res = context.getResources();
@@ -336,7 +317,7 @@ public class DevicesController {
 
             // Call webservice
             try {
-                httpGetTask = new HttpGetTask(ocListener, url);
+                HttpGetTask  httpGetTask = new HttpGetTask(ocListener, url);
                 httpGetTask.execute(parameters).get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -351,4 +332,34 @@ public class DevicesController {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Getters / Setters">
+
+    public Map<String, BleDevice> getScannedDevices() {
+        return scannedDevices;
+    }
+
+    public List<BleDevice> getScannedDevicesAsList() {
+        return new ArrayList<>(getScannedDevices().values());
+    }
+
+    public Map<String, BleDevice> getAttachedDevices() {
+        return attachedDevices;
+    }
+
+    public BleDevice getAttachedDeviceByAddress(String address) {
+        return getAttachedDevices().get(address);
+    }
+
+    public List<BleDevice> getAttachedDevicesAsList() {
+        return new ArrayList<>(getAttachedDevices().values());
+    }
+
+    // </editor-fold>
 }

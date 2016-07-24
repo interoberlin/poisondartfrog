@@ -24,6 +24,7 @@ import de.interoberlin.poisondartfrog.R;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
+    // <editor-fold defaultstate="expanded" desc="Interfaces">
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
     // Constants
@@ -41,10 +42,13 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
 
     private Thread scanThread;
     private volatile boolean isScanning = false;
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Constructors">
 
     public BleDevicesScanner(BluetoothAdapter adapter, BluetoothAdapter.LeScanCallback callback) {
         this.bluetoothAdapter = adapter;
@@ -83,9 +87,13 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
         }
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Methods">
 
     public boolean isScanning() {
         return scanThread != null && scanThread.isAlive();
@@ -191,4 +199,6 @@ class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
             leScanCallback.onLeScan(device, rssi, scanRecord);
         }
     }
+
+    // </editor-fold>
 }

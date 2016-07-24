@@ -39,50 +39,42 @@ import rx.functions.Func1;
  * A class representing a BLE Device
  */
 public class BleDevice extends RealmObject {
+    // <editor-fold defaultstate="expanded" desc="Members">
+
     public static final String TAG = BleDevice.class.getSimpleName();
 
     public static final int READING_HISTORY = 50;
 
     private String name;
-    @PrimaryKey
-    private String address;
-    @Ignore
-    private EDevice type;
+    @PrimaryKey private String address;
+    @Ignore private EDevice type;
     private String typeName;
 
-    @Ignore
-    private BleDeviceManager deviceManager;
-    @Ignore
-    private Observable<? extends BaseService> serviceObservable;
-    @Ignore
-    private BluetoothGatt gatt;
+    @Ignore private BleDeviceManager deviceManager;
+    @Ignore private Observable<? extends BaseService> serviceObservable;
+    @Ignore private BluetoothGatt gatt;
 
-    @Ignore
-    private List<BluetoothGattService> services;
-    @Ignore
-    private List<BluetoothGattCharacteristic> characteristics;
+    @Ignore private List<BluetoothGattService> services;
+    @Ignore private List<BluetoothGattCharacteristic> characteristics;
 
-    @Ignore
-    private Map<String, Queue<Reading>> readings;
-    @Ignore
-    private Map<String, Reading> latestReadings;
-    @Ignore
-    private Map<ECharacteristic, Subscription> subscriptions;
+    @Ignore private Map<String, Queue<Reading>> readings;
+    @Ignore private Map<String, Reading> latestReadings;
+    @Ignore private Map<ECharacteristic, Subscription> subscriptions;
 
-    @Ignore
-    private boolean connected;
-    @Ignore
-    private boolean reading;
-    @Ignore
-    private boolean subscribing;
+    @Ignore private boolean connected;
+    @Ignore private boolean reading;
+    @Ignore private boolean subscribing;
     private boolean autoConnectEnabled;
 
-    @Ignore
-    private OnChangeListener ocListener;
+    @Ignore private OnChangeListener ocListener;
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Constructors">
 
     public BleDevice() {
         super();
@@ -110,6 +102,17 @@ public class BleDevice extends RealmObject {
         this.subscribing = false;
     }
 
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Methods">
+
+    /**
+     * Initializes a ble device object
+     */
     public void init() {
         // Read device from realm
         final Realm realm = Realm.getDefaultInstance();
@@ -134,10 +137,6 @@ public class BleDevice extends RealmObject {
             }
         });
     }
-
-    // --------------------
-    // Methods
-    // --------------------
 
     /**
      * Connects the device
@@ -428,6 +427,14 @@ public class BleDevice extends RealmObject {
 
         return false;
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Getters
+    // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Constructors">
 
     public BluetoothGattCharacteristic getCharacteristic(ECharacteristic characteristic) {
         for (BluetoothGattCharacteristic c : getCharacteristics()) {

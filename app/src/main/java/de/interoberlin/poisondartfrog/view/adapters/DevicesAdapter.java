@@ -58,7 +58,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         private ImageView ivMore;
     }
 
-    // Controllers
+    // Controller
     private DevicesController devicesController;
 
     private Resources res;
