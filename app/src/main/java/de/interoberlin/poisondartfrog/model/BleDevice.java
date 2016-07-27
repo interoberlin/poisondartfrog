@@ -9,6 +9,7 @@ import android.util.Log;
 import com.google.common.collect.EvictingQueue;
 
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -303,6 +304,12 @@ public class BleDevice extends RealmObject {
         return write(service, characteristic, value.getBytes());
     }
     */
+
+    public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
+        Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
+
+        return write(service, characteristic, value.getBytes(Charset.forName("UTF-8")));
+    }
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
         Log.d(TAG, "Write " + characteristic.getId() + " : " + bytesToHex(value ? new byte[]{0x01} : new byte[]{0x00}));

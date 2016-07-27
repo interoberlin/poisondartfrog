@@ -48,13 +48,22 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
+import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.UARTDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements
+        BleScannerFilter.BleFilteredScanCallback,
+        ScanResultsAdapter.OnCompleteListener,
+        DevicesAdapter.OnCompleteListener,
+        HttpGetTask.OnCompleteListener,
+        BleDevice.OnChangeListener,
+        UARTDialog.OnCompleteListener,
+        LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Context
@@ -370,7 +379,17 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.characteristics));
         b.putCharSequence(getResources().getString(R.string.bundle_device_address), device.getAddress());
         dialog.setArguments(b);
-        dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+        dialog.show(getFragmentManager(), CharacteristicsDialog.TAG);
+    }
+
+    @Override
+    public void onOpenUARTDialog(BleDevice device) {
+        vibrate();
+        UARTDialog dialog = new UARTDialog();
+        Bundle b = new Bundle();
+        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.uart));
+        dialog.setArguments(b);
+        dialog.show(getFragmentManager(), UARTDialog.TAG);
     }
 
     @Override
@@ -430,6 +449,17 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
 
     @Override
     public void onProviderDisabled(String provider) {
+    }
+
+    @Override
+    public void onSendUART(String deviceAddress, String text) {
+        Log.d(TAG, "Send UART " + text);
+
+        BleDevice device = devicesController.getAttachedDeviceByAddress(deviceAddress);
+
+        if (device != null) {
+            device.write(EService.NORDIC_UART, ECharacteristic.RX, text);
+        }
     }
 
     // --------------------

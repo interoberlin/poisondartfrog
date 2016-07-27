@@ -53,6 +53,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         private ImageView ivDetach;
         private ImageView ivSubscribe;
         private ImageView ivLedState;
+        private ImageView ivUART;
         private ImageView ivSendTemperature;
         private ImageView ivAutoConnect;
         private ImageView ivMore;
@@ -136,6 +137,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             viewHolder.ivDetach = (ImageView) v.findViewById(R.id.ivDetach);
             viewHolder.ivSubscribe = (ImageView) v.findViewById(R.id.ivSubscribeData);
             viewHolder.ivLedState = (ImageView) v.findViewById(R.id.ivLedState);
+            viewHolder.ivUART = (ImageView) v.findViewById(R.id.ivUART);
             viewHolder.ivSendTemperature = (ImageView) v.findViewById(R.id.ivSendTemperature);
             viewHolder.ivAutoConnect = (ImageView) v.findViewById(R.id.ivAutoConnect);
             viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
@@ -255,7 +257,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
                                                    @Override
                                                    public void onClick(View v) {
                                                        if (timer != null) timer.cancel();
-
                                                        ocListener.onDetachDevice(device);
                                                    }
                                                }
@@ -297,6 +298,19 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             });
         } else {
             viewHolder.ivLedState.setVisibility(View.GONE);
+        }
+
+        // UART
+        if (device.containsCharacteristic(ECharacteristic.RX)) {
+            viewHolder.ivUART.setVisibility(View.VISIBLE);
+            viewHolder.ivUART.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ocListener.onOpenUARTDialog(device);
+                }
+            });
+        } else {
+            viewHolder.ivUART.setVisibility(View.GONE);
         }
 
         // Send temperature
@@ -385,6 +399,8 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         void onDetachDevice(BleDevice device);
 
         void onSendLocation(BleDevice device);
+
+        void onOpenUARTDialog(BleDevice device);
 
         void onOpenCharacteristicsDialog(BleDevice device);
 
