@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.controller;
+package de.interoberlin.poisondartfrog.model.ble;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
@@ -23,7 +23,7 @@ import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
+public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     // <editor-fold defaultstate="expanded" desc="Interfaces">
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 

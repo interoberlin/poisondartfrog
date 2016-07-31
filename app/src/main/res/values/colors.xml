@@ -4,6 +4,10 @@
     <color name="colorPrimaryDark">#002740</color>
     <color name="colorAccent">#FF4969</color>
 
+    <color name="white">#fafafa</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="black_semi_transparent">#B2000000</color>
+
     <color name="background">@color/md_grey_200</color>
 
     <array name="colorSeries">

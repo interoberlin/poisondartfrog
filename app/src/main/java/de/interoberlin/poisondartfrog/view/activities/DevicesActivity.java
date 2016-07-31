@@ -25,7 +25,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -43,7 +42,7 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.BleScannerFilter;
+import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
@@ -52,9 +51,17 @@ import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
-public class DevicesActivity extends AppCompatActivity implements BleScannerFilter.BleFilteredScanCallback, ScanResultsAdapter.OnCompleteListener, DevicesAdapter.OnCompleteListener, HttpGetTask.OnCompleteListener, BleDevice.OnChangeListener, LocationListener {
+public class DevicesActivity extends AppCompatActivity implements
+        BleScannerFilter.BleFilteredScanCallback,
+        ScanResultsAdapter.OnCompleteListener,
+        DevicesAdapter.OnCompleteListener,
+        BleDevice.OnChangeListener,
+        MappingDialog.OnCompleteListener,
+        HttpGetTask.OnCompleteListener,
+        LocationListener {
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Context
@@ -186,7 +193,9 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        // final com.getbase.floatingactionbutton.FloatingActionsMenu fam = (com.getbase.floatingactionbutton.FloatingActionsMenu) findViewById(R.id.fam);
+        final com.getbase.floatingactionbutton.FloatingActionButton fabScan = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabScan);
+        final com.getbase.floatingactionbutton.FloatingActionButton fabAddMapping = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabAddMapping);
 
         if (isXLargeTablet(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -209,8 +218,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         // requestEnableLocation();
 
         // Add actions
-        if (fab != null) {
-            fab.setOnClickListener(new View.OnClickListener() {
+        if (fabScan != null) {
+            fabScan.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!isBluetoothEnabled()) {
@@ -218,13 +227,27 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
                     } else if (!isLocationEnabled()) {
                         snack(R.string.enable_location_before_scan);
                     } else {
-                        vibrate(VIBRATION_DURATION);
+                        vibrate();
                         ScanResultsDialog dialog = new ScanResultsDialog();
                         Bundle b = new Bundle();
                         b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.devices));
                         dialog.setArguments(b);
                         dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
                     }
+                }
+            });
+        }
+
+        if (fabAddMapping != null) {
+            fabAddMapping.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vibrate();
+                    MappingDialog dialog = new MappingDialog();
+                    Bundle b = new Bundle();
+                    b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.mapping));
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
                 }
             });
         }
@@ -303,6 +326,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
     // Methods - Callbacks
     // --------------------
 
+    // Callbacks from BleFilteredScanCallback
+
     @Override
     public void onLeScan(BleDevice device, int rssi) {
         boolean attached = devicesController.getAttachedDevices().containsKey(device.getAddress());
@@ -317,6 +342,8 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         }
     }
 
+    // Callbacks from ScanResultsAdapter
+
     @Override
     public void onAttachDevice(BleDevice device) {
         vibrate(VIBRATION_DURATION);
@@ -329,6 +356,14 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         } else {
             snack(R.string.failed_to_attach_device);
         }
+    }
+
+    // Callbacks from DevicesAdapter
+
+    @Override
+    public void onChange(BleDevice device, int text) {
+        snack(text, Snackbar.LENGTH_SHORT);
+        updateView();
     }
 
     @Override
@@ -393,14 +428,10 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         vibrate();
     }
 
-    @Override
-    public void onChange(BleDevice device) {
-        updateView();
-    }
+    // Callbacks from BleDevice
 
     @Override
-    public void onChange(BleDevice device, int text) {
-        snack(text, Snackbar.LENGTH_SHORT);
+    public void onChange(BleDevice device) {
         updateView();
     }
 
@@ -409,10 +440,22 @@ public class DevicesActivity extends AppCompatActivity implements BleScannerFilt
         snack(success ? R.string.cached_refreshed : R.string.cached_refresh_failed);
     }
 
+    // Callbacks from MappingDialog
+
+    @Override
+    public void onMappingSelected(String mapping) {
+        Log.d(TAG, "onMappingSelected " + mapping);
+        vibrate();
+    }
+
+    // Callbacks from HttpGetTask
+
     @Override
     public void onHttpGetExecuted(String response) {
         toast("Webservice response " + response);
     }
+
+    // Callbacks from LocationListener
 
     @Override
     public void onLocationChanged(Location location) {

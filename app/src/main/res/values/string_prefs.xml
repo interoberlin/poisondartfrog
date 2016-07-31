@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <integer name="vibration_duration">25</integer>
+    <string name="merlot_mapping_file_exception">merlot</string>
 
     <!-- Golem temperature -->
     <string name="pref_header_golem_temperature">golem.de temperature</string>

@@ -24,6 +24,8 @@ import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.model.ble.BleDevicesScanner;
+import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.model.tasks.EHttpParameter;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;

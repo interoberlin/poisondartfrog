@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.controller;
+package de.interoberlin.poisondartfrog.model.ble;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
@@ -23,7 +23,7 @@ public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
 
     // <editor-fold defaultstate="expanded" desc="Constructors">
 
-    BleScannerFilter(BleDeviceManager deviceManager, BleFilteredScanCallback callback) {
+    public BleScannerFilter(BleDeviceManager deviceManager, BleFilteredScanCallback callback) {
         this.deviceManager = deviceManager;
         this.callback = callback;
     }

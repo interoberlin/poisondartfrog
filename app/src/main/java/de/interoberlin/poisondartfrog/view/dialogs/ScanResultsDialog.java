@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.BleScannerFilter;
+import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;

@@ -6,9 +6,13 @@
     android:padding="@dimen/dialog_padding"
     android:theme="@style/Theme.AppCompat.Light.Dialog">
 
-    <ListView
-        android:id="@+id/lvCharacteristics"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" />
+        android:layout_height="wrap_content"
+        android:text="@string/selectMapping" />
+
+    <Spinner
+        android:id="@+id/spnnrMappings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>
