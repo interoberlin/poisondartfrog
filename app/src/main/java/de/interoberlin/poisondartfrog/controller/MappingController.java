@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.interoberlin.mate.lib.model.Log;
 import de.interoberlin.poisondartfrog.App;
@@ -22,7 +24,8 @@ public class MappingController {
 
     public static final String TAG = MappingController.class.getSimpleName();
 
-    private List<Mapping> mappings;
+    private Map<String, Mapping> existingMappings;
+    private Map<String, Mapping> activeMappings;
 
     private static MappingController instance;
 
@@ -35,7 +38,8 @@ public class MappingController {
     // <editor-fold defaultstate="expanded" desc="Constructors">
 
     private MappingController() {
-        this.mappings = loadMappingsFromAssets(App.getContext());
+        this.existingMappings = loadMappingsFromAssets(App.getContext());
+        this.activeMappings = new HashMap<>();
     }
 
     public static MappingController getInstance() {
@@ -60,8 +64,8 @@ public class MappingController {
      * @param context context
      * @return list of mappings
      */
-    private List<Mapping> loadMappingsFromAssets(Context context) {
-        List<Mapping> mappings = new ArrayList<>();
+    private Map<String, Mapping> loadMappingsFromAssets(Context context) {
+        Map<String, Mapping> mappings = new HashMap<>();
 
         try {
             for (String asset : Arrays.asList(context.getAssets().list(""))) {
@@ -71,7 +75,7 @@ public class MappingController {
                         Mapping m = new Gson().fromJson(IOUtils.toString(inputStream, "UTF-8"), Mapping.class);
                         if (m != null) {
                             Log.i(TAG, "Loaded mapping " + m.getName());
-                            mappings.add(m);
+                            mappings.put(m.getName(), m);
                         }
                     }
                 }
@@ -84,6 +88,22 @@ public class MappingController {
         return mappings;
     }
 
+    public boolean activateMapping(Mapping.OnChangeListener ocListener, Mapping mapping) {
+        android.util.Log.d(TAG, "Activate " + mapping.getName());
+
+        if (mapping != null) {
+            if (existingMappings.containsKey(mapping.getName()))
+                existingMappings.remove(mapping.getName());
+            activeMappings.put(mapping.getName(), mapping);
+
+            mapping.registerOnChangeListener(ocListener);
+
+            return true;
+        }
+
+        return false;
+    }
+
     // </editor-fold>
 
     // --------------------
@@ -92,24 +112,34 @@ public class MappingController {
 
     // <editor-fold defaultstate="expanded" desc="Getters / Setters">
 
-    public List<Mapping> getMappings() {
-        return mappings;
+    public Map<String, Mapping> getExistingMappings() {
+        return existingMappings;
     }
 
-    /*
-    public void setMappings(List<Mapping> mappings) {
-        this.mappings = mappings;
+    public Map<String, Mapping> getActiveMappings() {
+        return activeMappings;
     }
-    */
 
-    public List<String> getMappingNames() {
+    public List<String> getExistingMappingNames() {
         List<String> mappingNames = new ArrayList<>();
 
-        for (Mapping m : getMappings()) {
-            mappingNames.add(m.getName());
+        for (Map.Entry<String, Mapping> m : getExistingMappings().entrySet()) {
+            mappingNames.add(m.getKey());
         }
 
         return mappingNames;
+    }
+
+    public Mapping getExistingMappingByName(String name) {
+        return getExistingMappings().get(name);
+    }
+
+    public Mapping getActiveMappingByName(String name) {
+        return getActiveMappings().get(name);
+    }
+
+    public List<Mapping> getActiveMappingsAsList() {
+        return new ArrayList<>(getActiveMappings().values());
     }
 
     // </editor-fold>

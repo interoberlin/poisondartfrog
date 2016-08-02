@@ -1,5 +1,6 @@
 package de.interoberlin.poisondartfrog.view.dialogs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -13,10 +14,12 @@ import android.widget.ListView;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 
-public class ScanResultsDialog extends DialogFragment implements BleScannerFilter.BleFilteredScanCallback {
+public class ScanResultsDialog extends DialogFragment implements
+        BleScannerFilter.BleFilteredScanCallback,
+        ScanResultsAdapter.OnCompleteListener{
     public static final String TAG = ScanResultsDialog.class.getSimpleName();
 
     // View
@@ -25,6 +28,8 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
 
     // Controller
     private DevicesController devicesController;
+
+    private OnCompleteListener ocListener;
 
     // --------------------
     // Methods - Lifecycle
@@ -38,7 +43,7 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
 
         final Resources res = getActivity().getResources();
 
-        scanResultsAdapter = new ScanResultsAdapter(getActivity(), getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
+        scanResultsAdapter = new ScanResultsAdapter(getActivity(), this, R.layout.item_scan_result, devicesController.getScannedDevicesAsList());
 
         // Load layout
         final View v = View.inflate(getActivity(), R.layout.dialog_scan_results, null);
@@ -111,6 +116,30 @@ public class ScanResultsDialog extends DialogFragment implements BleScannerFilte
                 !devicesController.getAttachedDevices().containsKey(device.getAddress())) {
             devicesController.getScannedDevices().put(device.getAddress(), device);
             updateView();
+        }
+    }
+
+    @Override
+    public void onAttachDevice(BleDevice device) {
+        ocListener.onAttachDevice(device);
+        dismiss();
+    }
+
+    // --------------------
+    // Callback interfaces
+    // --------------------
+
+    public interface OnCompleteListener {
+        void onAttachDevice(BleDevice bleDevice);
+    }
+
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            this.ocListener = (OnCompleteListener) activity;
+        } catch (final ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
         }
     }
 }

@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 
 import com.google.gson.Gson;
 
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDescriptor;
 import de.interoberlin.poisondartfrog.model.config.EService;

@@ -17,12 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import de.interoberlin.mate.lib.model.Log;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.controller.MappingController;
+import de.interoberlin.poisondartfrog.model.IDisplayable;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.config.EService;
+import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComponent;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
@@ -31,7 +35,9 @@ import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram;
 
-public class DevicesAdapter extends ArrayAdapter<BleDevice> {
+public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
+    // <editor-fold defaultstate="extended" desc="Members">
+
     public static final String TAG = DevicesAdapter.class.getSimpleName();
 
     // Context
@@ -39,7 +45,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     private OnCompleteListener ocListener;
 
     // View
-    static class ViewHolder {
+    static class ViewHolderDevice {
         private TextView tvName;
         private TextView tvAddress;
         private ImageView ivIcon;
@@ -58,14 +64,22 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         private ImageView ivMore;
     }
 
+    static class ViewHolderMapping {
+        private TextView tvName;
+        private ImageView ivTriggered;
+        private TextView tvSource;
+        private TextView tvSink;
+    }
+
     // Controller
     private DevicesController devicesController;
+    private MappingController mappingController;
 
     private Resources res;
 
     // Filter
-    private List<BleDevice> filteredItems = new ArrayList<>();
-    private List<BleDevice> originalItems = new ArrayList<>();
+    private List<IDisplayable> filteredItems = new ArrayList<>();
+    private List<IDisplayable> originalItems = new ArrayList<>();
     private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
 
     // Timers
@@ -73,13 +87,18 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
 
     private final Object lock = new Object();
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
 
-    public DevicesAdapter(Context context, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
+    // <editor-fold defaultstate="extended" desc="Constructors">
+
+    public DevicesAdapter(Context context, OnCompleteListener ocListener, int resource, List<IDisplayable> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
+        mappingController = MappingController.getInstance();
 
         this.res = context.getResources();
 
@@ -94,9 +113,13 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         filter();
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="extended" desc="Methods">
 
     @Override
     public int getCount() {
@@ -104,248 +127,304 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     }
 
     @Override
-    public BleDevice getItem(int position) {
+    public IDisplayable getItem(int position) {
         return filteredItems.get(position);
     }
 
     @Override
     public View getView(final int position, View v, ViewGroup parent) {
-        final BleDevice device = getItem(position);
+        final IDisplayable item = getItem(position);
 
-        ViewHolder viewHolder;
+        if (item instanceof BleDevice) {
+            // <editor-fold defaultstate="collapsed" desc="BleDevice">
+            Log.v(TAG, "BleDevice");
 
-        if (v == null) {
-            viewHolder = new ViewHolder();
+            final BleDevice device = (BleDevice) item;
+            ViewHolderDevice viewHolder;
 
-            // Layout inflater
-            LayoutInflater vi;
-            vi = LayoutInflater.from(getContext());
+            if (v == null) {
+                viewHolder = new ViewHolderDevice();
 
-            // Load views
-            v = vi.inflate(R.layout.card_device, parent, false);
-            viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
-            viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
-            viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            viewHolder.llComponents = (LinearLayout) v.findViewById(R.id.llComponents);
-            viewHolder.ivConnected = (ImageView) v.findViewById(R.id.ivConnected);
+                // Layout inflater
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
 
-            viewHolder.llBatteryLevel = (LinearLayout) v.findViewById(R.id.llBatteryLevel);
-            viewHolder.tvBatteryLevelValue = (TextView) v.findViewById(R.id.tvBatteryLevelValue);
-            viewHolder.bdBattery = (BatteryDiagram) v.findViewById(R.id.bdBattery);
+                // Load views
+                v = vi.inflate(R.layout.card_device, parent, false);
+                viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+                viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
+                viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                viewHolder.llComponents = (LinearLayout) v.findViewById(R.id.llComponents);
+                viewHolder.ivConnected = (ImageView) v.findViewById(R.id.ivConnected);
 
-            viewHolder.ivDetach = (ImageView) v.findViewById(R.id.ivDetach);
-            viewHolder.ivSubscribe = (ImageView) v.findViewById(R.id.ivSubscribeData);
-            viewHolder.ivLedState = (ImageView) v.findViewById(R.id.ivLedState);
-            viewHolder.ivSendTemperature = (ImageView) v.findViewById(R.id.ivSendTemperature);
-            viewHolder.ivAutoConnect = (ImageView) v.findViewById(R.id.ivAutoConnect);
-            viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
+                viewHolder.llBatteryLevel = (LinearLayout) v.findViewById(R.id.llBatteryLevel);
+                viewHolder.tvBatteryLevelValue = (TextView) v.findViewById(R.id.tvBatteryLevelValue);
+                viewHolder.bdBattery = (BatteryDiagram) v.findViewById(R.id.bdBattery);
 
-            v.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) v.getTag();
-        }
+                viewHolder.ivDetach = (ImageView) v.findViewById(R.id.ivDetach);
+                viewHolder.ivSubscribe = (ImageView) v.findViewById(R.id.ivSubscribeData);
+                viewHolder.ivLedState = (ImageView) v.findViewById(R.id.ivLedState);
+                viewHolder.ivSendTemperature = (ImageView) v.findViewById(R.id.ivSendTemperature);
+                viewHolder.ivAutoConnect = (ImageView) v.findViewById(R.id.ivAutoConnect);
+                viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
 
-        // Set values
-        viewHolder.tvName.setText(device.getName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
-        }
-
-        viewHolder.tvAddress.setText(device.getAddress());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            viewHolder.tvAddress.setTextAppearance(android.R.style.TextAppearance_Material_Subhead);
-        }
-
-        if (device.getName() == null || device.getName().isEmpty())
-            viewHolder.tvName.setText(R.string.unknown_device);
-
-        viewHolder.llComponents.removeAllViews();
-
-        if (EDevice.fromString(device.getName()) != null) {
-            switch (EDevice.fromString(device.getName())) {
-                case WUNDERBAR_HTU: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_GYRO: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_LIGHT: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
-                    break;
-                }
-                case WUNDERBAR_MIC: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
-                    break;
-                }
-                case NRFDUINO: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
-                    break;
-                }
-                default: {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
-                    break;
-                }
+                v.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolderDevice) v.getTag();
             }
-        } else {
-            viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            viewHolder.ivConnected.setVisibility(View.VISIBLE);
-            viewHolder.ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
-        } else {
-            if (!device.isConnected())
-                viewHolder.ivConnected.setVisibility(View.GONE);
-        }
-
-        // Battery level
-        if (device.containsCharacteristic(ECharacteristic.BATTERY_LEVEL)) {
-            String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
-
-            if (value != null) {
-                viewHolder.tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
-                viewHolder.bdBattery.setValue(Integer.parseInt(value));
+            // Set values
+            viewHolder.tvName.setText(device.getName());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
             }
-            viewHolder.llBatteryLevel.setVisibility(View.VISIBLE);
-            viewHolder.llBatteryLevel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ocListener.onRead();
-                    device.read(ECharacteristic.BATTERY_LEVEL);
-                }
-            });
-        } else {
-            viewHolder.llBatteryLevel.setVisibility(View.GONE);
-        }
 
-        viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
-
-        if (!device.getReadings().isEmpty()) {
-            viewHolder.llComponents.addView(new DataComponent(context, device));
-
-            switch (EDevice.fromString(device.getName())) {
-                case WUNDERBAR_LIGHT: {
-                    viewHolder.llComponents.addView(new LightProximityComponent(context, device));
-                    break;
-                }
-                case WUNDERBAR_GYRO: {
-                    viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, device));
-                    break;
-                }
-                case WUNDERBAR_MIC: {
-                    viewHolder.llComponents.addView(new MicrophoneComponent(context, device));
-                    viewHolder.llComponents.addView(new LineChartComponent(context, device));
-                    break;
-                }
-                case INTEROBERLIN_SENTIENT_LIGHT: {
-                    viewHolder.llComponents.addView(new SentientLightComponent(context, device));
-                    break;
-                }
-                default: {
-                    viewHolder.llComponents.addView(new LineChartComponent(context, device));
-                    break;
-                }
+            viewHolder.tvAddress.setText(device.getAddress());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                viewHolder.tvAddress.setTextAppearance(android.R.style.TextAppearance_Material_Subhead);
             }
-        }
 
-        // Add actions
-        viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
-                                                   @Override
-                                                   public void onClick(View v) {
-                                                       if (timer != null) timer.cancel();
+            if (device.getName() == null || device.getName().isEmpty())
+                viewHolder.tvName.setText(R.string.unknown_device);
 
-                                                       ocListener.onDetachDevice(device);
-                                                   }
-                                               }
-        );
+            viewHolder.llComponents.removeAllViews();
 
-        // Subscribe data
-        if (device.containsCharacteristic(ECharacteristic.DATA)) {
-            viewHolder.ivSubscribe.setVisibility(View.VISIBLE);
-            viewHolder.ivSubscribe.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ocListener.onSubscribe();
-                    if (!device.isSubscribing()) {
-                        device.subscribe(ECharacteristic.DATA);
-                        ocListener.onChange(device, R.string.started_subscription);
-                    } else {
-                        device.unsubscribe(ECharacteristic.DATA);
-                        device.disconnect();
-
-                        ocListener.onChange(device, R.string.stopped_subscription);
-
-                        if (timer != null) timer.cancel();
+            if (EDevice.fromString(device.getName()) != null) {
+                switch (EDevice.fromString(device.getName())) {
+                    case WUNDERBAR_HTU: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_invert_colors_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_GYRO: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_vibration_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_LIGHT: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_lightbulb_outline_black_48dp);
+                        break;
+                    }
+                    case WUNDERBAR_MIC: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
+                        break;
+                    }
+                    case NRFDUINO: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
+                        break;
+                    }
+                    default: {
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
+                        break;
                     }
                 }
-            });
-        } else {
-            viewHolder.ivSubscribe.setVisibility(View.GONE);
-        }
-
-        // LED state
-        if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
-            viewHolder.ivLedState.setVisibility(View.VISIBLE);
-            viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ocListener.onSend();
-                    device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
-                }
-            });
-        } else {
-            viewHolder.ivLedState.setVisibility(View.GONE);
-        }
-
-        // Send temperature
-        if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)
-                && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
-            viewHolder.ivSendTemperature.setVisibility(View.VISIBLE);
-            viewHolder.ivSendTemperature.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ocListener.onSendLocation(device);
-
-
-                }
-            });
-        } else {
-            viewHolder.ivSendTemperature.setVisibility(View.GONE);
-        }
-
-        // Auto connect
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            viewHolder.ivAutoConnect.getDrawable().setTint(ContextCompat.getColor(context, device.isAutoConnectEnabled() ? R.color.colorAccent : R.color.md_grey_400));
-        }
-        viewHolder.ivAutoConnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ocListener.onToggleAutoConnect();
-                devicesController.toggleAutoConnect(device);
+            } else {
+                viewHolder.ivIcon.setImageResource(R.drawable.ic_bluetooth_connected_black_48dp);
             }
-        });
 
-        // Characteristics
-        if (device.getCharacteristics() != null) {
-            viewHolder.ivMore.setVisibility(View.VISIBLE);
-            viewHolder.ivMore.setOnClickListener(new View.OnClickListener() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                viewHolder.ivConnected.setVisibility(View.VISIBLE);
+                viewHolder.ivConnected.getDrawable().setTint(ContextCompat.getColor(context, device.isConnected() ? R.color.colorAccent : R.color.md_grey_400));
+            } else {
+                if (!device.isConnected())
+                    viewHolder.ivConnected.setVisibility(View.GONE);
+            }
+
+            // Battery level
+            if (device.containsCharacteristic(ECharacteristic.BATTERY_LEVEL)) {
+                String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
+
+                if (value != null) {
+                    viewHolder.tvBatteryLevelValue.setText(String.format(res.getString(R.string.percentage), value));
+                    viewHolder.bdBattery.setValue(Integer.parseInt(value));
+                }
+                viewHolder.llBatteryLevel.setVisibility(View.VISIBLE);
+                viewHolder.llBatteryLevel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onRead();
+                        device.read(ECharacteristic.BATTERY_LEVEL);
+                    }
+                });
+            } else {
+                viewHolder.llBatteryLevel.setVisibility(View.GONE);
+            }
+
+            viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+
+            if (!device.getReadings().isEmpty()) {
+                viewHolder.llComponents.addView(new DataComponent(context, device));
+
+                switch (EDevice.fromString(device.getName())) {
+                    case WUNDERBAR_LIGHT: {
+                        viewHolder.llComponents.addView(new LightProximityComponent(context, device));
+                        break;
+                    }
+                    case WUNDERBAR_GYRO: {
+                        viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, device));
+                        break;
+                    }
+                    case WUNDERBAR_MIC: {
+                        viewHolder.llComponents.addView(new MicrophoneComponent(context, device));
+                        viewHolder.llComponents.addView(new LineChartComponent(context, device));
+                        break;
+                    }
+                    case INTEROBERLIN_SENTIENT_LIGHT: {
+                        viewHolder.llComponents.addView(new SentientLightComponent(context, device));
+                        break;
+                    }
+                    default: {
+                        viewHolder.llComponents.addView(new LineChartComponent(context, device));
+                        break;
+                    }
+                }
+            }
+
+            // Add actions
+            viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
+                                                       @Override
+                                                       public void onClick(View v) {
+                                                           if (timer != null) timer.cancel();
+
+                                                           ocListener.onDetachDevice(device);
+                                                       }
+                                                   }
+            );
+
+            // Subscribe data
+            if (device.containsCharacteristic(ECharacteristic.DATA)) {
+                viewHolder.ivSubscribe.setVisibility(View.VISIBLE);
+                viewHolder.ivSubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onSubscribe();
+                        if (!device.isSubscribing()) {
+                            device.subscribe(ECharacteristic.DATA);
+                            ocListener.onChange(device, R.string.started_subscription);
+                        } else {
+                            device.unsubscribe(ECharacteristic.DATA);
+                            device.disconnect();
+
+                            ocListener.onChange(device, R.string.stopped_subscription);
+
+                            if (timer != null) timer.cancel();
+                        }
+                    }
+                });
+            } else {
+                viewHolder.ivSubscribe.setVisibility(View.GONE);
+            }
+
+            // LED state
+            if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+                viewHolder.ivLedState.setVisibility(View.VISIBLE);
+                viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onSend();
+                        device.write(EService.DIRECT_CONNECTION, ECharacteristic.LED_STATE, true);
+                    }
+                });
+            } else {
+                viewHolder.ivLedState.setVisibility(View.GONE);
+            }
+
+            // Send temperature
+            if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)
+                    && device.getLatestReadings() != null && device.getLatestReadings().containsKey("temperature")) {
+                viewHolder.ivSendTemperature.setVisibility(View.VISIBLE);
+                viewHolder.ivSendTemperature.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onSendLocation(device);
+
+
+                    }
+                });
+            } else {
+                viewHolder.ivSendTemperature.setVisibility(View.GONE);
+            }
+
+            // Auto connect
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                viewHolder.ivAutoConnect.getDrawable().setTint(ContextCompat.getColor(context, device.isAutoConnectEnabled() ? R.color.colorAccent : R.color.md_grey_400));
+            }
+            viewHolder.ivAutoConnect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ocListener.onOpenCharacteristicsDialog(device);
+                    ocListener.onToggleAutoConnect();
+                    devicesController.toggleAutoConnect(device);
                 }
             });
-        } else {
-            viewHolder.ivMore.setVisibility(View.GONE);
+
+            // Characteristics
+            if (device.getCharacteristics() != null) {
+                viewHolder.ivMore.setVisibility(View.VISIBLE);
+                viewHolder.ivMore.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onOpenCharacteristicsDialog(device);
+                    }
+                });
+            } else {
+                viewHolder.ivMore.setVisibility(View.GONE);
+            }
+
+            return v;
+            // </editor-fold>
+        } else if (item instanceof Mapping) {
+            // <editor-fold defaultstate="collapsed" desc="Mapping">
+            Log.v(TAG, "Mapping");
+
+            final Mapping mapping = (Mapping) item;
+            ViewHolderMapping viewHolder;
+
+            if (v == null) {
+                viewHolder = new ViewHolderMapping();
+
+                // Layout inflater
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+
+                // Load views
+                v = vi.inflate(R.layout.card_mapping, parent, false);
+                viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+                viewHolder.ivTriggered = (ImageView) v.findViewById(R.id.ivTriggered);
+                viewHolder.tvSource = (TextView) v.findViewById(R.id.tvSource);
+                viewHolder.tvSink = (TextView) v.findViewById(R.id.tvSink);
+
+                v.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolderMapping) v.getTag();
+            }
+
+            // Set values
+            viewHolder.tvName.setText(mapping.getName());
+            viewHolder.tvSource.setText(mapping.getSource());
+            viewHolder.tvSink.setText(mapping.getSink());
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
+                viewHolder.tvSource.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+                viewHolder.tvSink.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                viewHolder.ivTriggered.getDrawable().setTint(ContextCompat.getColor(context, mapping.isTriggered() ? R.color.colorAccent : R.color.md_grey_400));
+            }
+
+            return v;
+            // </editor-fold>
         }
 
-        return v;
+        return new View(context);
     }
+
+    // </editor-fold>
 
     // --------------------
     // Methods - Filter
     // --------------------
+
+    // <editor-fold defaultstate="extended" desc="Filter">
 
     /*
     public List<BleDevice> getFilteredItems() {
@@ -366,18 +445,22 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
     }
 
     /**
-     * Determines if a bluetooth device reading shall be displayed
+     * Determines if a displayable reading shall be displayed
      *
-     * @param reading reading
+     * @param displayable displayable
      * @return true if item is visible
      */
-    protected boolean filterBluetoothDeviceReading(BleDevice reading) {
-        return reading != null;
+    protected boolean filterBluetoothDeviceReading(IDisplayable displayable) {
+        return displayable != null;
     }
+
+    // </editor-fold>
 
     // --------------------
     // Callback interfaces
     // --------------------
+
+    // <editor-fold defaultstate="extended" desc="Callback interfaces">
 
     public interface OnCompleteListener {
         void onChange(BleDevice device, int text);
@@ -395,11 +478,17 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         void onSubscribe();
 
         void onToggleAutoConnect();
+
+        void onDetachMapping(Mapping mapping);
     }
+
+    // </editor-fold>
 
     // --------------------
     // Inner classes
     // --------------------
+
+    // <editor-fold defaultstate="extended" desc="Inner classes">
 
     public class BluetoothDeviceReadingFilter extends Filter {
         @Override
@@ -407,18 +496,20 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             FilterResults results = new FilterResults();
 
             // Copy items
-            originalItems = devicesController.getAttachedDevicesAsList();
+            originalItems = new ArrayList<>();
+            originalItems.addAll(devicesController.getAttachedDevicesAsList());
+            originalItems.addAll(mappingController.getActiveMappingsAsList());
 
-            ArrayList<BleDevice> values;
+            ArrayList<IDisplayable> values;
             synchronized (lock) {
                 values = new ArrayList<>(originalItems);
             }
 
             final int count = values.size();
-            final ArrayList<BleDevice> newValues = new ArrayList<>();
+            final ArrayList<IDisplayable> newValues = new ArrayList<>();
 
             for (int i = 0; i < count; i++) {
-                final BleDevice value = values.get(i);
+                final IDisplayable value = values.get(i);
                 if (filterBluetoothDeviceReading(value)) {
                     newValues.add(value);
                 }
@@ -433,7 +524,7 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredItems = (List<BleDevice>) results.values;
+            filteredItems = (List<IDisplayable>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged();
@@ -442,4 +533,6 @@ public class DevicesAdapter extends ArrayAdapter<BleDevice> {
             }
         }
     }
+
+    // </editor-fold>
 }

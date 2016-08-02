@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.BleDevice;
-import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.ble.BleDevicesScanner;
 import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;

@@ -4,6 +4,7 @@
     <string name="address">address</string>
     <string name="app_name">Poison Dart Frog</string>
     <string name="attached_device">Attached device</string>
+    <string name="attached_mapping">Attached mapping</string>
     <string name="auto_connect_disabled">Auto connect disabled</string>
     <string name="auto_connect_enabled">Auto connect enabled</string>
     <string name="battery">battery</string>
@@ -39,6 +40,8 @@
     <string name="scan_for_devices">Scan for devices</string>
     <string name="scan_result_icon">scan result icon</string>
     <string name="selectMapping">Select a mapping</string>
+    <string name="sink">sink</string>
+    <string name="source">source</string>
     <string name="started_subscription">Started subscription</string>
     <string name="stopped_subscription">Stopped subscription</string>
     <string name="title_activity_about">About</string>

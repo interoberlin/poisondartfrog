@@ -14,6 +14,7 @@ import android.widget.Spinner;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.MappingController;
+import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 
 public class MappingDialog extends DialogFragment {
     public static final String TAG = MappingDialog.class.getSimpleName();
@@ -46,7 +47,7 @@ public class MappingDialog extends DialogFragment {
 
         // Fill views with arguments
         ArrayAdapter<String> spnnrAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item, mappingController.getInstance().getMappingNames());
+                android.R.layout.simple_spinner_item, mappingController.getInstance().getExistingMappingNames());
         spnnrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnnrMappings.setAdapter(spnnrAdapter);
 
@@ -101,7 +102,9 @@ public class MappingDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if (selectedMapping != null) {
-                    ocListener.onMappingSelected(selectedMapping);
+                    mappingController = MappingController.getInstance();
+                    Mapping mapping = mappingController.getExistingMappingByName(selectedMapping);
+                    ocListener.onMappingSelected(mapping);
                 }
                 dismiss();
             }
@@ -113,7 +116,7 @@ public class MappingDialog extends DialogFragment {
     // --------------------
 
     public interface OnCompleteListener {
-        void onMappingSelected(String name);
+        void onMappingSelected(Mapping mapping);
     }
 
     public void onAttach(Activity activity) {

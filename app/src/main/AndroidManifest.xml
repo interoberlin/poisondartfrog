@@ -40,7 +40,7 @@
             android:label="@string/title_activity_about" />
 
         <service
-            android:name=".model.BluetoothLeService"
+            android:name=".model.ble.BluetoothLeService"
             android:enabled="true" />
     </application>
 

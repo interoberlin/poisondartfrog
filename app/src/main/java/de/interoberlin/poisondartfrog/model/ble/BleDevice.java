@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.ble;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.model.IDisplayable;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 import de.interoberlin.poisondartfrog.model.config.EService;
@@ -38,7 +39,7 @@ import rx.functions.Func1;
 /**
  * A class representing a BLE Device
  */
-public class BleDevice extends RealmObject {
+public class BleDevice extends RealmObject implements IDisplayable {
     // <editor-fold defaultstate="expanded" desc="Members">
 
     public static final String TAG = BleDevice.class.getSimpleName();

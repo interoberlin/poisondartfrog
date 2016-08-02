@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.parser.LightColorProx;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.CircleDiagram;

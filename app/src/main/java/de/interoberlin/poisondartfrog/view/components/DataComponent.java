@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.Map;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.parser.AccelGyroscope;
 import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
 import de.interoberlin.poisondartfrog.model.parser.LightColorProx;

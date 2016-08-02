@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
 
-import de.interoberlin.poisondartfrog.model.BleDevice;
 import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)

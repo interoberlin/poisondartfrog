@@ -2,7 +2,7 @@ package de.interoberlin.poisondartfrog.model.service;
 
 import android.bluetooth.BluetoothGatt;
 
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import rx.Observable;
 import rx.functions.Func1;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.interoberlin.poisondartfrog.model;
+package de.interoberlin.poisondartfrog.model.ble;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;

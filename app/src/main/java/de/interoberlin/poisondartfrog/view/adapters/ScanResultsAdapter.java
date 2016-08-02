@@ -1,7 +1,5 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
-import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +14,7 @@ import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
@@ -24,8 +22,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
 
     // Context
     private Context context;
-    private Activity activity;
-    private DialogFragment dialog;
+    private OnCompleteListener ocListener;
 
     // View
     static class ViewHolder {
@@ -47,7 +44,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     // Constructors
     // --------------------
 
-    public ScanResultsAdapter(Context context, Activity activity, DialogFragment dialog, int resource, List<BleDevice> items) {
+    public ScanResultsAdapter(Context context, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
 
@@ -55,8 +52,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         this.originalItems = items;
 
         this.context = context;
-        this.activity = activity;
-        this.dialog = dialog;
+        this.ocListener = ocListener;
 
         filter();
     }
@@ -140,12 +136,8 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (activity instanceof OnCompleteListener) {
-                    ((OnCompleteListener) activity).onAttachDevice(device);
-                }
-
+                ocListener.onAttachDevice(device);
                 devicesController.stopScan();
-                dialog.dismiss();
             }
         });
 

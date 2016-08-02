@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.UUID;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
 
 public class ServicesComponent extends TableLayout {

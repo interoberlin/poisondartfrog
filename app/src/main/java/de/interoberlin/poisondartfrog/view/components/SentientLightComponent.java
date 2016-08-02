@@ -6,7 +6,7 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EService;
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerPalette;

@@ -42,23 +42,25 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.BleDevice;
-import de.interoberlin.poisondartfrog.model.BluetoothLeService;
+import de.interoberlin.poisondartfrog.controller.MappingController;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
+import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
+import de.interoberlin.poisondartfrog.model.ble.BluetoothLeService;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
+import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
-import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
         BleScannerFilter.BleFilteredScanCallback,
-        ScanResultsAdapter.OnCompleteListener,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
+        Mapping.OnChangeListener,
+        ScanResultsDialog.OnCompleteListener,
         MappingDialog.OnCompleteListener,
         HttpGetTask.OnCompleteListener,
         LocationListener {
@@ -73,6 +75,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
     // Controller
     private DevicesController devicesController;
+    private MappingController mappingController;
 
     // Constants
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 0;
@@ -136,6 +139,7 @@ public class DevicesActivity extends AppCompatActivity implements
                 }
 
                 devicesController = DevicesController.getInstance();
+                mappingController = MappingController.getInstance();
                 updateView();
             }
 
@@ -145,6 +149,7 @@ public class DevicesActivity extends AppCompatActivity implements
                 bluetoothLeService = null;
 
                 devicesController = DevicesController.getInstance();
+                mappingController = MappingController.getInstance();
                 updateView();
             }
         };
@@ -183,7 +188,8 @@ public class DevicesActivity extends AppCompatActivity implements
 
         // Instatiate controller
         devicesController = DevicesController.getInstance();
-        devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
+        // devicesAdapter = new DevicesAdapter(this, this, R.layout.card_device, devicesController.getAttachedDevicesAsList());
+        devicesAdapter = new DevicesAdapter(this, this, 0, null);
 
         // Load preferences
         VIBRATION_DURATION = getResources().getInteger(R.integer.vibration_duration);
@@ -342,11 +348,11 @@ public class DevicesActivity extends AppCompatActivity implements
         }
     }
 
-    // Callbacks from ScanResultsAdapter
+    // Callbacks from ScanResulstDialog
 
     @Override
     public void onAttachDevice(BleDevice device) {
-        vibrate(VIBRATION_DURATION);
+        vibrate();
 
         // getSingleLocation();
 
@@ -370,7 +376,7 @@ public class DevicesActivity extends AppCompatActivity implements
     public void onDetachDevice(BleDevice device) {
         Log.d(TAG, "onDetachDevice " + device.getName());
 
-        vibrate(VIBRATION_DURATION);
+        vibrate();
 
         if (devicesController.detach(bluetoothLeService, device)) {
             updateView();
@@ -428,6 +434,12 @@ public class DevicesActivity extends AppCompatActivity implements
         vibrate();
     }
 
+    @Override
+    public void onDetachMapping(Mapping mapping) {
+        vibrate();
+        // TODO : implement
+    }
+
     // Callbacks from BleDevice
 
     @Override
@@ -443,9 +455,13 @@ public class DevicesActivity extends AppCompatActivity implements
     // Callbacks from MappingDialog
 
     @Override
-    public void onMappingSelected(String mapping) {
+    public void onMappingSelected(Mapping mapping) {
         Log.d(TAG, "onMappingSelected " + mapping);
+
         vibrate();
+        mappingController.activateMapping(this, mapping);
+        updateView();
+        snack(R.string.attached_mapping);
     }
 
     // Callbacks from HttpGetTask

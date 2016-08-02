@@ -4,6 +4,7 @@
 
     <!-- Dialog -->
     <dimen name="dialog_padding">15dp</dimen>
+    <dimen name="label_padding">10dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="item_margin">6dp</dimen>
@@ -11,6 +12,7 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="scan_result_icon_size">40dp</dimen>
+    <dimen name="mapping_icon_size">25dp</dimen>
     <dimen name="connection_indicator_icon_size">12sp</dimen>
     <dimen name="connection_indicator_icon_margin">8sp</dimen>
 
