@@ -13,7 +13,9 @@
         android:id="@+id/slv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:divider="@color/background"
+        android:paddingBottom="@dimen/listview_padding_bottom"
         app:column_count="@integer/items_per_row" />
 
 </RelativeLayout>

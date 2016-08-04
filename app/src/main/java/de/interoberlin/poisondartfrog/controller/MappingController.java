@@ -24,8 +24,12 @@ public class MappingController {
 
     public static final String TAG = MappingController.class.getSimpleName();
 
+    // Model
     private Map<String, Mapping> existingMappings;
     private Map<String, Mapping> activeMappings;
+
+    // Controller
+    private DevicesController devicesController;
 
     private static MappingController instance;
 
@@ -40,6 +44,8 @@ public class MappingController {
     private MappingController() {
         this.existingMappings = loadMappingsFromAssets(App.getContext());
         this.activeMappings = new HashMap<>();
+
+        this.devicesController = DevicesController.getInstance();
     }
 
     public static MappingController getInstance() {
@@ -89,7 +95,7 @@ public class MappingController {
     }
 
     public boolean activateMapping(Mapping.OnChangeListener ocListener, Mapping mapping) {
-        android.util.Log.d(TAG, "Activate " + mapping.getName());
+        Log.d(TAG, "Activate " + mapping.getName());
 
         if (mapping != null) {
             if (existingMappings.containsKey(mapping.getName()))
@@ -98,10 +104,54 @@ public class MappingController {
 
             mapping.registerOnChangeListener(ocListener);
 
+            checkSource(mapping);
+            checkSink(mapping);
+
             return true;
         }
 
         return false;
+    }
+
+    public boolean deactivateMapping(Mapping mapping) {
+        android.util.Log.d(TAG, "Deactivate" + mapping.getName());
+
+        if (mapping != null) {
+
+            if (activeMappings.containsKey(mapping.getName())) {
+                activeMappings.remove(mapping.getName());
+                existingMappings.put(mapping.getName(), mapping);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public void checkSourceAndSink() {
+        Log.d(TAG, "checkSourceAndSink");
+
+        for(Map.Entry<String, Mapping> e : activeMappings.entrySet()) {
+            checkSource(e.getValue());
+            checkSink(e.getValue());
+        }
+    }
+
+    private void checkSource(Mapping mapping) {
+        String source = mapping.getSource();
+
+        if (source != null) {
+            mapping.setSourceAttached(devicesController.getAttachedDevices().containsKey(source));
+        }
+    }
+
+    private void checkSink(Mapping mapping) {
+        String sink = mapping.getSink();
+
+        if (sink != null) {
+            mapping.setSinkAttached(devicesController.getAttachedDevices().containsKey(sink));
+        }
     }
 
     // </editor-fold>

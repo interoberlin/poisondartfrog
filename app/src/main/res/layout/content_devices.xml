@@ -13,6 +13,8 @@
         android:id="@+id/lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/background" />
+        android:clipToPadding="false"
+        android:divider="@color/background"
+        android:paddingBottom="@dimen/listview_padding_bottom" />
 
 </RelativeLayout>

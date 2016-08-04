@@ -20,11 +20,13 @@
     <string name="color_swatch_description">Color</string>
     <string name="color_swatch_description_selected">Color selected</string>
     <string name="detached_device">Detached device</string>
+    <string name="detached_mapping">Detached mapping</string>
     <string name="devices">Devices</string>
     <string name="enable_bluetooth_before_scan">Enable bluetooth before scan</string>
     <string name="enable_location_before_scan">Enable location before scan</string>
     <string name="failed_to_attach_device">Failed to attach device</string>
     <string name="failed_to_detach_device">Failed to detach device</string>
+    <string name="failed_to_detach_mapping">Failed to detach mapping</string>
     <string name="id">id</string>
     <string name="luminosity">luminosity</string>
     <string name="mapping">Mapping</string>

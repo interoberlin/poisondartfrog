@@ -41,11 +41,14 @@ public class DevicesController {
 
     public static final String TAG = DevicesController.class.getSimpleName();
 
+    // Model
     private Map<String, BleDevice> scannedDevices;
     private Map<String, BleDevice> attachedDevices;
-
     private BleDeviceManager bluetoothDeviceManager;
     private BleDevicesScanner bleDeviceScanner;
+
+    // Controller
+    private MappingController mappingController;
 
     private static DevicesController instance;
 
@@ -196,6 +199,8 @@ public class DevicesController {
 
             device.registerOnChangeListener(ocListener);
 
+            MappingController.getInstance().checkSourceAndSink();
+
             return true;
         }
 
@@ -220,6 +225,8 @@ public class DevicesController {
 
             if (attachedDevices.containsKey(device.getAddress()))
                 attachedDevices.remove(device.getAddress());
+
+            MappingController.getInstance().checkSourceAndSink();
 
             return true;
         }

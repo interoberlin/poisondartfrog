@@ -8,9 +8,19 @@ public class Mapping implements IDisplayable {
     private String name;
     private String source;
     private String sink;
+    private transient boolean sourceAttached;
+    private transient boolean sinkAttached;
     private transient boolean triggered;
 
     private OnChangeListener ocListener;
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="expanded" desc="Methods">
 
     // </editor-fold>
 
@@ -48,8 +58,24 @@ public class Mapping implements IDisplayable {
         return triggered;
     }
 
+    public void setSourceAttached(boolean sourceAttached) {
+        this.sourceAttached = sourceAttached;
+    }
+
+    public boolean isSinkAttached() {
+        return sinkAttached;
+    }
+
+    public void setSinkAttached(boolean sinkAttached) {
+        this.sinkAttached = sinkAttached;
+    }
+
     public void setTriggered(boolean triggered) {
         this.triggered = triggered;
+    }
+
+    public boolean isSourceAttached() {
+        return sourceAttached;
     }
 
     // </editor-fold>
@@ -61,6 +87,7 @@ public class Mapping implements IDisplayable {
     // <editor-fold defaultstate="expanded" desc="Callback interfaces">
 
     public interface OnChangeListener {
+        void onChange(Mapping mapping);
     }
 
     public void registerOnChangeListener(OnChangeListener ocListener) {

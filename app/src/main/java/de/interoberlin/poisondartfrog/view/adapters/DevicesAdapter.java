@@ -66,8 +66,11 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     static class ViewHolderMapping {
         private TextView tvName;
+        private ImageView ivIcon;
         private ImageView ivTriggered;
+        private ImageView ivSource;
         private TextView tvSource;
+        private ImageView ivSink;
         private TextView tvSink;
     }
 
@@ -80,7 +83,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     // Filter
     private List<IDisplayable> filteredItems = new ArrayList<>();
     private List<IDisplayable> originalItems = new ArrayList<>();
-    private BluetoothDeviceReadingFilter bluetoothDeviceReadingFilter;
+    private DevicesFilter devicesFilter;
 
     // Timers
     private Timer timer;
@@ -142,7 +145,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             final BleDevice device = (BleDevice) item;
             ViewHolderDevice viewHolder;
 
-            if (v == null) {
+            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderDevice))) {
                 viewHolder = new ViewHolderDevice();
 
                 // Layout inflater
@@ -169,7 +172,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
 
                 v.setTag(viewHolder);
-            } else {
+            }else{
                 viewHolder = (ViewHolderDevice) v.getTag();
             }
 
@@ -377,7 +380,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             final Mapping mapping = (Mapping) item;
             ViewHolderMapping viewHolder;
 
-            if (v == null) {
+            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderMapping))) {
                 viewHolder = new ViewHolderMapping();
 
                 // Layout inflater
@@ -387,8 +390,11 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 // Load views
                 v = vi.inflate(R.layout.card_mapping, parent, false);
                 viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+                viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
                 viewHolder.ivTriggered = (ImageView) v.findViewById(R.id.ivTriggered);
+                viewHolder.ivSource = (ImageView) v.findViewById(R.id.ivSource);
                 viewHolder.tvSource = (TextView) v.findViewById(R.id.tvSource);
+                viewHolder.ivSink = (ImageView) v.findViewById(R.id.ivSink);
                 viewHolder.tvSink = (TextView) v.findViewById(R.id.tvSink);
 
                 v.setTag(viewHolder);
@@ -403,13 +409,21 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
-                viewHolder.tvSource.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
-                viewHolder.tvSink.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 viewHolder.ivTriggered.getDrawable().setTint(ContextCompat.getColor(context, mapping.isTriggered() ? R.color.colorAccent : R.color.md_grey_400));
+                viewHolder.ivSource.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSourceAttached() ? R.color.colorAccent : R.color.md_grey_400));
+                viewHolder.ivSink.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSinkAttached() ? R.color.colorAccent : R.color.md_grey_400));
             }
+
+            // Add actions
+            viewHolder.ivIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ocListener.onDetachMapping(mapping);
+                }
+            });
 
             return v;
             // </editor-fold>
@@ -438,10 +452,10 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     @Override
     public Filter getFilter() {
-        if (bluetoothDeviceReadingFilter == null) {
-            bluetoothDeviceReadingFilter = new BluetoothDeviceReadingFilter();
+        if (devicesFilter == null) {
+            devicesFilter = new DevicesFilter();
         }
-        return bluetoothDeviceReadingFilter;
+        return devicesFilter;
     }
 
     /**
@@ -490,15 +504,15 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     // <editor-fold defaultstate="extended" desc="Inner classes">
 
-    public class BluetoothDeviceReadingFilter extends Filter {
+    public class DevicesFilter extends Filter {
         @Override
         protected FilterResults performFiltering(CharSequence prefix) {
             FilterResults results = new FilterResults();
 
             // Copy items
             originalItems = new ArrayList<>();
-            originalItems.addAll(devicesController.getAttachedDevicesAsList());
             originalItems.addAll(mappingController.getActiveMappingsAsList());
+            originalItems.addAll(devicesController.getAttachedDevicesAsList());
 
             ArrayList<IDisplayable> values;
             synchronized (lock) {

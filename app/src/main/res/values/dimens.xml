@@ -18,6 +18,8 @@
 
     <dimen name="battery_icon_size">16dp</dimen>
 
+    <dimen name="listview_padding_bottom">120dp</dimen>
+
     <!-- Card -->
     <dimen name="card_margin">10dp</dimen>
     <dimen name="card_padding">8dp</dimen>

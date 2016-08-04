@@ -437,7 +437,13 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onDetachMapping(Mapping mapping) {
         vibrate();
-        // TODO : implement
+
+        if (mappingController.deactivateMapping(mapping)) {
+            updateView();
+            snack(R.string.detached_mapping);
+        } else {
+            snack(R.string.failed_to_detach_mapping);
+        }
     }
 
     // Callbacks from BleDevice
@@ -450,6 +456,13 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onCacheCleared(boolean success) {
         snack(success ? R.string.cached_refreshed : R.string.cached_refresh_failed);
+    }
+
+    // Callbacks from Mapping
+
+    @Override
+    public void onChange(Mapping mapping) {
+        updateView();
     }
 
     // Callbacks from MappingDialog
