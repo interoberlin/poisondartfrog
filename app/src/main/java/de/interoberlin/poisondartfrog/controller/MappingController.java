@@ -17,6 +17,7 @@ import java.util.Map;
 import de.interoberlin.mate.lib.model.Log;
 import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 
 public class MappingController {
@@ -97,60 +98,52 @@ public class MappingController {
     public boolean activateMapping(Mapping.OnChangeListener ocListener, Mapping mapping) {
         Log.d(TAG, "Activate " + mapping.getName());
 
-        if (mapping != null) {
-            if (existingMappings.containsKey(mapping.getName()))
-                existingMappings.remove(mapping.getName());
-            activeMappings.put(mapping.getName(), mapping);
+        if (existingMappings.containsKey(mapping.getName()))
+            existingMappings.remove(mapping.getName());
+        activeMappings.put(mapping.getName(), mapping);
 
-            mapping.registerOnChangeListener(ocListener);
+        mapping.registerOnChangeListener(ocListener);
 
-            checkSource(mapping);
-            checkSink(mapping);
+        flange(mapping);
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     public boolean deactivateMapping(Mapping mapping) {
-        android.util.Log.d(TAG, "Deactivate" + mapping.getName());
+        Log.d(TAG, "Deactivate" + mapping.getName());
 
-        if (mapping != null) {
-
-            if (activeMappings.containsKey(mapping.getName())) {
-                activeMappings.remove(mapping.getName());
-                existingMappings.put(mapping.getName(), mapping);
-            }
-
-            return true;
+        if (activeMappings.containsKey(mapping.getName())) {
+            activeMappings.remove(mapping.getName());
+            existingMappings.put(mapping.getName(), mapping);
         }
 
-        return false;
+        return true;
     }
 
-    public void checkSourceAndSink() {
-        Log.d(TAG, "checkSourceAndSink");
+    public void flangeAll() {
 
-        for(Map.Entry<String, Mapping> e : activeMappings.entrySet()) {
-            checkSource(e.getValue());
-            checkSink(e.getValue());
+        for (Map.Entry<String, Mapping> e : activeMappings.entrySet()) {
+            flange(e.getValue());
         }
     }
 
-    private void checkSource(Mapping mapping) {
+    public void flange(Mapping mapping) {
+
         String source = mapping.getSource();
-
-        if (source != null) {
-            mapping.setSourceAttached(devicesController.getAttachedDevices().containsKey(source));
-        }
-    }
-
-    private void checkSink(Mapping mapping) {
         String sink = mapping.getSink();
 
-        if (sink != null) {
-            mapping.setSinkAttached(devicesController.getAttachedDevices().containsKey(sink));
+        BleDevice sourceDevice = devicesController.getAttachedDevices().get(source);
+        BleDevice sinkDevice = devicesController.getAttachedDevices().get(sink);
+
+        mapping.setSourceAttached(source != null && sourceDevice != null);
+        mapping.setSinkAttached(sink != null && sinkDevice != null);
+
+        if (sourceDevice != null) {
+            if (mapping.isSourceAttached() && sourceDevice.getReadingObservable() != null) {
+                mapping.subscribeTo(sourceDevice);
+            } else {
+                mapping.unsubscribeFrom(sourceDevice);
+            }
         }
     }
 
@@ -184,9 +177,11 @@ public class MappingController {
         return getExistingMappings().get(name);
     }
 
+    /*
     public Mapping getActiveMappingByName(String name) {
         return getActiveMappings().get(name);
     }
+    */
 
     public List<Mapping> getActiveMappingsAsList() {
         return new ArrayList<>(getActiveMappings().values());

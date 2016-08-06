@@ -149,7 +149,7 @@ public class DevicesController {
      */
     private Observable<List<BleDevice>> scan(BluetoothManager bluetoothManager, BluetoothAdapter bluetoothAdapter, BleScannerFilter.BleFilteredScanCallback callback) {
         for (BluetoothDevice d : bluetoothManager.getConnectedDevices(BluetoothProfile.GATT_SERVER)) {
-            Log.i(TAG, "Already connected " + d.getName());
+            Log.v(TAG, "Already connected " + d.getName());
         }
 
         this.bluetoothDeviceManager = BleDeviceManager.getInstance();
@@ -199,7 +199,7 @@ public class DevicesController {
 
             device.registerOnChangeListener(ocListener);
 
-            MappingController.getInstance().checkSourceAndSink();
+            MappingController.getInstance().flangeAll();
 
             return true;
         }
@@ -226,7 +226,7 @@ public class DevicesController {
             if (attachedDevices.containsKey(device.getAddress()))
                 attachedDevices.remove(device.getAddress());
 
-            MappingController.getInstance().checkSourceAndSink();
+            MappingController.getInstance().flangeAll();
 
             return true;
         }

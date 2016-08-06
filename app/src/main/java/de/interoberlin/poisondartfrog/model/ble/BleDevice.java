@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import de.interoberlin.poisondartfrog.R;
+import de.interoberlin.poisondartfrog.controller.MappingController;
 import de.interoberlin.poisondartfrog.model.IDisplayable;
 import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
@@ -35,6 +36,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
+import rx.observables.ConnectableObservable;
 
 /**
  * A class representing a BLE Device
@@ -49,7 +51,6 @@ public class BleDevice extends RealmObject implements IDisplayable {
     private String name;
     @PrimaryKey private String address;
     @Ignore private EDevice type;
-    private String typeName;
 
     @Ignore private BleDeviceManager deviceManager;
     @Ignore private Observable<? extends BaseService> serviceObservable;
@@ -66,6 +67,8 @@ public class BleDevice extends RealmObject implements IDisplayable {
     @Ignore private boolean reading;
     @Ignore private boolean subscribing;
     private boolean autoConnectEnabled;
+
+    @Ignore private ConnectableObservable<Reading> readingObservable;
 
     @Ignore private OnChangeListener ocListener;
 
@@ -87,7 +90,6 @@ public class BleDevice extends RealmObject implements IDisplayable {
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
-        this.typeName = type.toString();
 
         this.deviceManager = manager;
         this.serviceObservable = DirectConnectionService.connect(this, device).cache();
@@ -228,10 +230,14 @@ public class BleDevice extends RealmObject implements IDisplayable {
         Log.d(TAG, "Subscribe " + characteristic.getId());
 
         Subscription subscription = connect()
-                .flatMap(new Func1<BaseService, Observable<Reading>>() {
+                .flatMap(new Func1<BaseService, ConnectableObservable<Reading>>() {
                     @Override
-                    public Observable<Reading> call(BaseService baseService) {
-                        return ((DirectConnectionService) baseService).subscribe(characteristic);
+                    public ConnectableObservable<Reading> call(BaseService baseService) {
+                        ConnectableObservable<Reading> readingObservable = ((DirectConnectionService) baseService).subscribe(characteristic).publish();
+                        setReadingObservable(readingObservable);
+                        MappingController.getInstance().flangeAll();
+
+                        return readingObservable;
                     }
                 })
                 .doOnUnsubscribe(new Action0() {
@@ -239,10 +245,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
                     public void call() {
                         disconnect();
                     }
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Reading>() {
+                }).subscribe(new Observer<Reading>() {
                     @Override
                     public void onCompleted() {
                         reading = false;
@@ -275,7 +278,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
 
         subscriptions.put(characteristic, subscription);
         setSubscribing(true);
-
+        getReadingObservable().connect();
         return subscription;
     }
 
@@ -295,6 +298,8 @@ public class BleDevice extends RealmObject implements IDisplayable {
         }
 
         setSubscribing(false);
+        setReadingObservable(null);
+        MappingController.getInstance().flangeAll();
     }
 
     /*
@@ -581,6 +586,14 @@ public class BleDevice extends RealmObject implements IDisplayable {
         if (ocListener != null) {
             ocListener.onChange(this, autoConnectEnabled ? R.string.auto_connect_enabled : R.string.auto_connect_disabled);
         }
+    }
+
+    public ConnectableObservable<Reading> getReadingObservable() {
+        return readingObservable;
+    }
+
+    public void setReadingObservable(ConnectableObservable<Reading> readingObservable) {
+        this.readingObservable = readingObservable;
     }
 
     public void setOnChangeListener(OnChangeListener ocListener) {
