@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import de.interoberlin.mate.lib.model.Log;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.controller.MappingController;
@@ -140,7 +139,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
         if (item instanceof BleDevice) {
             // <editor-fold defaultstate="collapsed" desc="BleDevice">
-            Log.v(TAG, "BleDevice");
 
             final BleDevice device = (BleDevice) item;
             ViewHolderDevice viewHolder;
@@ -172,7 +170,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
 
                 v.setTag(viewHolder);
-            }else{
+            } else {
                 viewHolder = (ViewHolderDevice) v.getTag();
             }
 
@@ -375,7 +373,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             // </editor-fold>
         } else if (item instanceof Mapping) {
             // <editor-fold defaultstate="collapsed" desc="Mapping">
-            Log.v(TAG, "Mapping");
 
             final Mapping mapping = (Mapping) item;
             ViewHolderMapping viewHolder;
@@ -404,17 +401,17 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             // Set values
             viewHolder.tvName.setText(mapping.getName());
-            viewHolder.tvSource.setText(mapping.getSource());
-            viewHolder.tvSink.setText(mapping.getSink());
+            viewHolder.tvSource.setText(mapping.getSource().getAddress());
+            viewHolder.tvSink.setText(mapping.getSink().getAddress());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 viewHolder.tvName.setTextAppearance(android.R.style.TextAppearance_Material_Title);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                viewHolder.ivTriggered.getDrawable().setTint(ContextCompat.getColor(context, mapping.isTriggered() ? R.color.colorAccent : R.color.md_grey_400));
-                viewHolder.ivSource.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSourceAttached() ? R.color.colorAccent : R.color.md_grey_400));
-                viewHolder.ivSink.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSinkAttached() ? R.color.colorAccent : R.color.md_grey_400));
+                viewHolder.ivTriggered.getDrawable().setTint(ContextCompat.getColor(context, mapping.isTriggered() ? R.color.colorAccentDark : R.color.md_grey_400));
+                viewHolder.ivSource.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSourceAttached() ? R.color.colorAccentDark : R.color.md_grey_400));
+                viewHolder.ivSink.getDrawable().setTint(ContextCompat.getColor(context, mapping.isSinkAttached() ? R.color.colorAccentDark : R.color.md_grey_400));
             }
 
             // Add actions

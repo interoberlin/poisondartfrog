@@ -1,0 +1,20 @@
+{
+  "name": "basic mapping",
+  "source": {
+    "address": "E3:78:1D:BE:BB:8B",
+    "characteristic": "00002016-0000-1000-8000-00805f9b34fb"
+  },
+  "sink": {
+    "address": "D7:76:4C:4C:04:9E",
+    "characteristic": "00002013-0000-1000-8000-00805f9b34fb"
+  },
+  "function": {
+    "type": "threshold",
+    "minValue": 100.0,
+    "maxValue": 1023.0
+  },
+  "action": {
+    "type": "write_characteristic",
+    "value": true
+  }
+}

@@ -473,7 +473,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
     @Override
     public void onMappingSelected(Mapping mapping) {
-        Log.d(TAG, "onMappingSelected " + mapping);
+        Log.d(TAG, "onMappingSelected " + mapping.toString());
 
         vibrate();
         mappingController.activateMapping(this, mapping);
@@ -673,7 +673,7 @@ public class DevicesActivity extends AppCompatActivity implements
      * Updates view
      */
     public void updateView() {
-        Log.d(TAG, "Update view");
+        Log.v(TAG, "Update view");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -681,13 +681,11 @@ public class DevicesActivity extends AppCompatActivity implements
                 if (isXLargeTablet(DevicesActivity.this)) {
                     final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
                     if (slv != null) {
-                        Log.d(TAG, "Update slv");
                         slv.invalidate();
                     }
                 } else {
                     final ListView lv = (ListView) findViewById(R.id.lv);
                     if (lv != null) {
-                        Log.d(TAG, "Update lv");
                         lv.invalidateViews();
                     }
                 }

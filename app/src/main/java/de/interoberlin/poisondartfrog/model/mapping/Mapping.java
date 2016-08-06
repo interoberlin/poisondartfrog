@@ -4,6 +4,8 @@ import android.util.Log;
 
 import de.interoberlin.poisondartfrog.model.IDisplayable;
 import de.interoberlin.poisondartfrog.model.ble.BleDevice;
+import de.interoberlin.poisondartfrog.model.mapping.actions.IAction;
+import de.interoberlin.poisondartfrog.model.mapping.functions.IFunction;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 import rx.Observer;
 import rx.Subscription;
@@ -14,8 +16,11 @@ public class Mapping implements IDisplayable {
     public static final String TAG = Mapping.class.getSimpleName();
 
     private String name;
-    private String source;
-    private String sink;
+    private Source source;
+    private Sink sink;
+    private IFunction function;
+    private IAction action;
+
     private transient boolean sourceAttached;
     private transient boolean sourceSubscribed;
     private transient boolean sinkAttached;
@@ -28,7 +33,7 @@ public class Mapping implements IDisplayable {
     // </editor-fold>
 
     // --------------------
-    // Methods
+    // Constructors
     // --------------------
 
     // <editor-fold defaultstate="expanded" desc="Methods">
@@ -44,6 +49,11 @@ public class Mapping implements IDisplayable {
 
     // <editor-fold defaultstate="expanded" desc="Methods">
 
+    /**
+     * Subscribes to a device
+     *
+     * @param device device
+     */
     public void subscribeTo(BleDevice device) {
         Log.d(TAG, name + " subscribeTo " + device.getAddress() + " / " + device.getReadingObservable());
 
@@ -52,7 +62,15 @@ public class Mapping implements IDisplayable {
                 .subscribe(new Observer<Reading>() {
                     @Override
                     public void onNext(Reading reading) {
-                        Log.d(TAG, "onNext / reading " + reading.meaning + " : " + reading.value);
+                        Log.v(TAG, "onNext / reading " + reading.meaning + " : " + reading.value);
+
+                        if (function.isTriggered(Float.parseFloat(reading.value.toString()))) {
+                            Log.d(TAG, "triggered");
+                            setTriggered(true);
+                            action.perform(sink);
+                        } else {
+                            setTriggered(false);
+                        }
                     }
 
                     @Override
@@ -67,12 +85,29 @@ public class Mapping implements IDisplayable {
                 });
     }
 
+    /**
+     * Unsubscribes from a device
+     *
+     * @param device device
+     */
     public void unsubscribeFrom(BleDevice device) {
         Log.d(TAG, name + " unsubscribeFrom " + device.getAddress() + " / " + device.getReadingObservable());
 
         sourceSubscribed = false;
         if (subscription != null)
             subscription.unsubscribe();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("name=").append(this.getName()).append(", \n");
+        sb.append("source=").append(this.getSource().toString()).append(", \n");
+        sb.append("sink=").append(this.getSink().toString()).append(", \n");
+        sb.append("function=").append(this.getFunction().toString()).append(", \n");
+        sb.append("action=").append(this.getAction().toString());
+
+        return sb.toString();
     }
 
     // </editor-fold>
@@ -91,20 +126,36 @@ public class Mapping implements IDisplayable {
         this.name = name;
     }
 
-    public String getSource() {
+    public Source getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public void setSource(Source source) {
         this.source = source;
     }
 
-    public String getSink() {
+    public Sink getSink() {
         return sink;
     }
 
-    public void setSink(String sink) {
+    public void setSink(Sink sink) {
         this.sink = sink;
+    }
+
+    public IFunction getFunction() {
+        return function;
+    }
+
+    public void setFunction(IFunction function) {
+        this.function = function;
+    }
+
+    public IAction getAction() {
+        return action;
+    }
+
+    public void setAction(IAction action) {
+        this.action = action;
     }
 
     public boolean isTriggered() {

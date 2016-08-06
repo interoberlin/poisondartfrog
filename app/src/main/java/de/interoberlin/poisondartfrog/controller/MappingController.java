@@ -2,7 +2,7 @@ package de.interoberlin.poisondartfrog.controller;
 
 import android.content.Context;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.apache.commons.io.IOUtils;
 
@@ -19,6 +19,12 @@ import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.mapping.Mapping;
+import de.interoberlin.poisondartfrog.model.mapping.Sink;
+import de.interoberlin.poisondartfrog.model.mapping.Source;
+import de.interoberlin.poisondartfrog.model.mapping.actions.IAction;
+import de.interoberlin.poisondartfrog.model.mapping.actions.IActionDeserializer;
+import de.interoberlin.poisondartfrog.model.mapping.functions.IFunction;
+import de.interoberlin.poisondartfrog.model.mapping.functions.IFunctionDeserializer;
 
 public class MappingController {
     // <editor-fold defaultstate="expanded" desc="Members">
@@ -79,7 +85,12 @@ public class MappingController {
                 if (asset != null) {
                     if (asset.endsWith(context.getResources().getString(R.string.merlot_mapping_file_exception))) {
                         InputStream inputStream = context.getAssets().open(asset);
-                        Mapping m = new Gson().fromJson(IOUtils.toString(inputStream, "UTF-8"), Mapping.class);
+
+                        GsonBuilder gson = new GsonBuilder();
+                        gson.registerTypeAdapter(IFunction.class, new IFunctionDeserializer());
+                        gson.registerTypeAdapter(IAction.class, new IActionDeserializer());
+                        Mapping m = gson.create().fromJson(IOUtils.toString(inputStream, "UTF-8"), Mapping.class);
+
                         if (m != null) {
                             Log.i(TAG, "Loaded mapping " + m.getName());
                             mappings.put(m.getName(), m);
@@ -128,12 +139,11 @@ public class MappingController {
     }
 
     public void flange(Mapping mapping) {
+        Source source = mapping.getSource();
+        Sink sink = mapping.getSink();
 
-        String source = mapping.getSource();
-        String sink = mapping.getSink();
-
-        BleDevice sourceDevice = devicesController.getAttachedDevices().get(source);
-        BleDevice sinkDevice = devicesController.getAttachedDevices().get(sink);
+        BleDevice sourceDevice = devicesController.getAttachedDevices().get(source.getAddress());
+        BleDevice sinkDevice = devicesController.getAttachedDevices().get(sink.getAddress());
 
         mapping.setSourceAttached(source != null && sourceDevice != null);
         mapping.setSinkAttached(sink != null && sinkDevice != null);
