@@ -199,7 +199,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
         // Load layout
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        // final com.getbase.floatingactionbutton.FloatingActionsMenu fam = (com.getbase.floatingactionbutton.FloatingActionsMenu) findViewById(R.id.fam);
+        final com.getbase.floatingactionbutton.FloatingActionsMenu fam = (com.getbase.floatingactionbutton.FloatingActionsMenu) findViewById(R.id.fam);
         final com.getbase.floatingactionbutton.FloatingActionButton fabScan = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabScan);
         final com.getbase.floatingactionbutton.FloatingActionButton fabAddMapping = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabAddMapping);
 
@@ -228,6 +228,8 @@ public class DevicesActivity extends AppCompatActivity implements
             fabScan.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    fam.collapse();
+
                     if (!isBluetoothEnabled()) {
                         snack(R.string.enable_bluetooth_before_scan);
                     } else if (!isLocationEnabled()) {
@@ -248,6 +250,8 @@ public class DevicesActivity extends AppCompatActivity implements
             fabAddMapping.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    fam.collapse();
+
                     vibrate();
                     MappingDialog dialog = new MappingDialog();
                     Bundle b = new Bundle();
