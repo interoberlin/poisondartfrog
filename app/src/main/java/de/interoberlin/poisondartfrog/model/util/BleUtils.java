@@ -13,6 +13,7 @@ public class BleUtils {
     // Methods
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static UUID fromBytes(byte[] value) {
         ByteBuffer bb = ByteBuffer.wrap(value);
@@ -58,6 +59,7 @@ public class BleUtils {
         return null;
     }
 
+    /*
     public static String getCharacteristicInServicesAsString(List<BluetoothGattService> services,
                                                              String serviceUuid,
                                                              String characteristicUuid) {
@@ -67,4 +69,7 @@ public class BleUtils {
         if (characteristic == null) return "";
         return characteristic.getStringValue(0);
     }
+    */
+
+    // </editor-fold>
 }

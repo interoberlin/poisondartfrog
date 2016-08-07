@@ -23,21 +23,31 @@ import static rx.Observable.error;
 import static rx.Observable.just;
 
 public class Service {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     protected BluetoothGatt mBluetoothGatt;
     protected final BluetoothGattReceiver mBluetoothGattReceiver;
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     protected Service(BluetoothGatt gatt, BluetoothGattReceiver receiver) {
         mBluetoothGatt = gatt;
         mBluetoothGattReceiver = receiver;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public BluetoothGatt getGatt() {
         return mBluetoothGatt;
@@ -227,4 +237,6 @@ public class Service {
                     }
                 });
     }
+
+    // </editor-fold>
 }

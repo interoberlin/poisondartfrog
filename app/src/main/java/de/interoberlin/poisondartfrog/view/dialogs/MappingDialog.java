@@ -17,6 +17,8 @@ import de.interoberlin.poisondartfrog.controller.MappingController;
 import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 
 public class MappingDialog extends DialogFragment {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = MappingDialog.class.getSimpleName();
 
     // Model
@@ -27,9 +29,13 @@ public class MappingDialog extends DialogFragment {
 
     private OnCompleteListener ocListener;
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -111,9 +117,13 @@ public class MappingDialog extends DialogFragment {
         });
     }
 
+    // </editor-fold>
+
     // --------------------
     // Callback interfaces
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnCompleteListener {
         void onMappingSelected(Mapping mapping);
@@ -129,4 +139,5 @@ public class MappingDialog extends DialogFragment {
         }
     }
 
+    // </editor-fold>
 }

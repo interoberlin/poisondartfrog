@@ -18,8 +18,17 @@ import android.view.ViewGroup;
  * to be used with AppCompat.
  */
 public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private AppCompatDelegate delegate;
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,4 +119,6 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
         }
         return delegate;
     }
+
+    // </editor-fold>
 }

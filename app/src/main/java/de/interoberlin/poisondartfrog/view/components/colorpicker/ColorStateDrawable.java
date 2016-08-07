@@ -26,22 +26,32 @@ import android.graphics.drawable.LayerDrawable;
  * slightly darker color when pressed or focused.
  */
 public class ColorStateDrawable extends LayerDrawable {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private static final float PRESSED_STATE_MULTIPLIER = 0.70f;
 
     private int color;
 
-    // ----------------
+    // </editor-fold>
+
+    // --------------------
     // Constructors
-    // ----------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public ColorStateDrawable(Drawable[] layers, int color) {
         super(layers);
         this.color = color;
     }
 
-    // ----------------
-    // Methods
-    // ----------------
+    // </editor-fold>
+
+    // --------------------
+    // Constructors
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     protected boolean onStateChange(int[] states) {
@@ -76,4 +86,6 @@ public class ColorStateDrawable extends LayerDrawable {
     public boolean isStateful() {
         return true;
     }
+
+    // </editor-fold>
 }

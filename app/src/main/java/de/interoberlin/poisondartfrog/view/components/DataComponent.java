@@ -17,11 +17,17 @@ import de.interoberlin.poisondartfrog.model.parser.LightColorProx;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 
 public class DataComponent extends TableLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = DataComponent.class.getSimpleName();
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public DataComponent(Context context) {
         super(context);
@@ -84,4 +90,6 @@ public class DataComponent extends TableLayout {
             }
         }
     }
+
+    // </editor-fold>
 }

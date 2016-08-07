@@ -32,6 +32,8 @@ import de.interoberlin.poisondartfrog.R;
  * row (and the padding between the squares) is determined by the user.
  */
 public class ColorPickerPalette extends TableLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String description;
     private String descriptionSelected;
     private int swatchLength;
@@ -40,9 +42,13 @@ public class ColorPickerPalette extends TableLayout {
 
     public ColorPickerSwatch.OnColorSelectedListener ocListener;
 
-    // ------------------
+    // </editor-fold>
+
+    // --------------------
     // Constructors
-    // ------------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public ColorPickerPalette(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -52,9 +58,13 @@ public class ColorPickerPalette extends TableLayout {
         super(context);
     }
 
-    // ------------------
+    // </editor-fold>
+
+    // --------------------
     // Methods
-    // ------------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Initialize the size, columns, and listener.  Size should be a pre-defined size (SIZE_LARGE
@@ -187,4 +197,6 @@ public class ColorPickerPalette extends TableLayout {
         view.setLayoutParams(params);
         return view;
     }
+
+    // </editor-fold>
 }

@@ -1,6 +1,8 @@
 package de.interoberlin.poisondartfrog.model.config;
 
 public enum EFormat {
+    // <editor-fold defaultstate="collapsed" desc="Entries">
+
     BOOLEAN,
     STRING,
     BYTEARRAY,
@@ -15,4 +17,6 @@ public enum EFormat {
     BIT,
     FLOAT,
     RELAYR
+
+    // </editor-fold>
 }

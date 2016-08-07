@@ -30,15 +30,21 @@ import de.interoberlin.poisondartfrog.R;
  * Creates a circular swatch of a specified color.  Adds a checkmark if marked as checked.
  */
 public class ColorPickerSwatch extends FrameLayout implements View.OnClickListener {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private int color;
     private ImageView swatchImage;
     private ImageView checkmarkImage;
 
     private OnColorSelectedListener ocListener;
 
-    // ----------------
+    // </editor-fold>
+
+    // --------------------
     // Constructors
-    // ----------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public ColorPickerSwatch(Context context) {
         super(context);
@@ -58,9 +64,13 @@ public class ColorPickerSwatch extends FrameLayout implements View.OnClickListen
         setOnClickListener(this);
     }
 
-    // ----------------
+    // </editor-fold>
+
+    // --------------------
     // Methods
-    // ----------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     protected void setColor(int color) {
         Drawable[] colorDrawable = new Drawable[]
@@ -83,11 +93,17 @@ public class ColorPickerSwatch extends FrameLayout implements View.OnClickListen
         }
     }
 
-    // ----------------
+    // </editor-fold>
+
+    // --------------------
     // Callback interfaces
-    // ----------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnColorSelectedListener {
         void onColorSelected(int color);
     }
+
+    // </editor-fold>
 }

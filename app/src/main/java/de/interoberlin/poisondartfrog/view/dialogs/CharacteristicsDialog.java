@@ -15,6 +15,8 @@ import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.view.adapters.CharacteristicsAdapter;
 
 public class CharacteristicsDialog extends DialogFragment {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = CharacteristicsDialog.class.getSimpleName();
 
     // View
@@ -24,9 +26,13 @@ public class CharacteristicsDialog extends DialogFragment {
     // Controller
     private DevicesController devicesController;
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -92,9 +98,13 @@ public class CharacteristicsDialog extends DialogFragment {
         super.onDismiss(dialog);
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Updates the view
@@ -102,4 +112,6 @@ public class CharacteristicsDialog extends DialogFragment {
     public void updateView() {
         lvCharacteristics.invalidateViews();
     }
+
+    // </editor-fold>
 }

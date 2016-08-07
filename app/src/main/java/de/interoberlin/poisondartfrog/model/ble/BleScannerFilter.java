@@ -9,7 +9,7 @@ import de.interoberlin.poisondartfrog.model.service.BleDeviceManager;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
-    // <editor-fold defaultstate="expanded" desc="Members">
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private final BleDeviceManager deviceManager;
     private final BleFilteredScanCallback callback;
@@ -20,7 +20,7 @@ public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
     // Constructors
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Constructors">
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public BleScannerFilter(BleDeviceManager deviceManager, BleFilteredScanCallback callback) {
         this.deviceManager = deviceManager;
@@ -33,7 +33,7 @@ public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
     // Methods - Callbacks
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Callbacks">
+    // <editor-fold defaultstate="collapsed" desc="Callbacks">
 
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
@@ -51,7 +51,7 @@ public class BleScannerFilter implements BluetoothAdapter.LeScanCallback {
     // Callback interfaces
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface BleFilteredScanCallback {
         void onLeScan(BleDevice device, int rssi);

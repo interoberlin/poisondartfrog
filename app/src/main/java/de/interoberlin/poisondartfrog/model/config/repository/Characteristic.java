@@ -3,6 +3,8 @@ package de.interoberlin.poisondartfrog.model.config.repository;
 import de.interoberlin.poisondartfrog.model.config.EFormat;
 
 public class Characteristic {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String id;
     private String name;
     private EFormat format;
@@ -14,23 +16,29 @@ public class Characteristic {
         SUBSCRIBE,
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Methods">
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id=").append(this.getId()).append(", \n");
-        sb.append("name=").append(this.getName()).append(", \n");
-        sb.append("format=").append(this.getFormat()).append(", \n");
-        sb.append("read=").append(this.getRead()).append(", \n");
-        return sb.toString();
+        return "id=" + this.getId() + ", \n" +
+                "name=" + this.getName() + ", \n" +
+                "format=" + this.getFormat() + ", \n" +
+                "read=" + this.getRead() + ", \n";
     }
+
+    // </editor-fold>
 
     // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getId() {
         return id;
@@ -60,7 +68,11 @@ public class Characteristic {
         return read;
     }
 
+    /*
     public void setRead(ERead read) {
         this.read = read;
     }
+    */
+
+    // </editor-fold>
 }

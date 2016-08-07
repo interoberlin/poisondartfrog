@@ -3,6 +3,8 @@ package de.interoberlin.poisondartfrog.model.config;
 import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
 
 public enum ECharacteristic {
+    // <editor-fold defaultstate="collapsed" desc="Entries">
+
     DEVICE_NAME(EService.GENERIC_ACCESS, "00002a00-0000-1000-8000-00805f9b34fb"),
     APPEARANCE (EService.GENERIC_ACCESS, "00002a01-0000-1000-8000-00805f9b34fb"),
     PERIPHERAL_PREFERRED_CONNECTION_PARAMETERS(EService.GENERIC_ACCESS, "00002a04-0000-1000-8000-00805f9b34fb"),
@@ -31,24 +33,35 @@ public enum ECharacteristic {
 
     LED_COLOR(EService.SENTIENT_LIGHT, "00003001-0000-1000-8000-00805f9b34fb"),
 
-    HEART_RATE(EService.HEART_RATE, "00002a37-0000-1000-8000-00805f9b34fb"),
-    ;
+    HEART_RATE(EService.HEART_RATE, "00002a37-0000-1000-8000-00805f9b34fb");
+
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private EService service;
     private String id;
 
+    // </editor-fold>
+
     // --------------------
-    // Constructor
+    // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     ECharacteristic(EService service, String id) {
         this.service = service;
         this.id = id;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static ECharacteristic fromId(String id) {
         for (ECharacteristic c : ECharacteristic.values()) {
@@ -67,9 +80,13 @@ public enum ECharacteristic {
         return null;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public EService getService() {
         return service;
@@ -86,4 +103,6 @@ public enum ECharacteristic {
     public void setId(String id) {
         this.id = id;
     }
+
+    // </editor-fold>
 }

@@ -9,15 +9,20 @@ import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import rx.Subscriber;
 
 public class BleDeviceManager {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
-    private final Map<String, BleDevice> mDiscoveredDevices = new ConcurrentHashMap<>();
-    private final Map<Long, Subscriber<? super List<BleDevice>>> mDevicesSubscriberMap = new ConcurrentHashMap<>();
+    private final Map<String, BleDevice> discoveredDevices = new ConcurrentHashMap<>();
+    private final Map<Long, Subscriber<? super List<BleDevice>>> devicesSubscriberMap = new ConcurrentHashMap<>();
 
     private static BleDeviceManager instance;
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     private BleDeviceManager() {
     }
@@ -30,49 +35,63 @@ public class BleDeviceManager {
         return instance;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Methods">
+
     public void addSubscriber(Long key, Subscriber<? super List<BleDevice>> devicesSubscriber) {
-        mDevicesSubscriberMap.put(key, devicesSubscriber);
-        if (!mDiscoveredDevices.isEmpty()) devicesSubscriber.onNext(getDiscoveredDevices());
+        devicesSubscriberMap.put(key, devicesSubscriber);
+        if (!discoveredDevices.isEmpty()) devicesSubscriber.onNext(getDiscoveredDevices());
     }
 
-    //TODO EXTREMELY IMPORTANT METHOD
+    // TODO EXTREMELY IMPORTANT METHOD
     void addDiscoveredDevice(BleDevice device) {
-        mDiscoveredDevices.remove(device.getAddress());
-        mDiscoveredDevices.put(device.getAddress(), device);
+        discoveredDevices.remove(device.getAddress());
+        discoveredDevices.put(device.getAddress(), device);
 
-        for (Subscriber<? super List<BleDevice>> mDevicesSubscriber : mDevicesSubscriberMap.values())
-            mDevicesSubscriber.onNext(getDiscoveredDevices());
+        for (Subscriber<? super List<BleDevice>> devicesSubscriber : devicesSubscriberMap.values())
+            devicesSubscriber.onNext(getDiscoveredDevices());
     }
+
+    void clear() {
+        discoveredDevices.clear();
+    }
+
+    public void removeDevice(BleDevice device) {
+        discoveredDevices.remove(device.getAddress());
+    }
+
+    public void removeSubscriber(Long key) {
+        devicesSubscriberMap.remove(key);
+    }
+
+    // </editor-fold>
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setter">
 
     boolean isDeviceDiscovered(String address) {
-        return mDiscoveredDevices.containsKey(address);
+        return discoveredDevices.containsKey(address);
     }
 
     boolean isDeviceDiscovered(BleDevice device) {
         return isDeviceDiscovered(device.getAddress());
     }
 
-    void clear() {
-        mDiscoveredDevices.clear();
-    }
-
     List<BleDevice> getDiscoveredDevices() {
-        return new ArrayList<>(mDiscoveredDevices.values());
-    }
-
-    public void removeDevice(BleDevice device) {
-        mDiscoveredDevices.remove(device.getAddress());
-    }
-
-    public void removeSubscriber(Long key) {
-        mDevicesSubscriberMap.remove(key);
+        return new ArrayList<>(discoveredDevices.values());
     }
 
     public boolean isThereAnySubscriber() {
-        return !mDevicesSubscriberMap.isEmpty();
+        return !devicesSubscriberMap.isEmpty();
     }
+
+    // </editor-fold>
 }

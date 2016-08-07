@@ -38,6 +38,8 @@ import java.util.List;
  * given Bluetooth LE device.
  */
 public class BluetoothLeService extends Service {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
     private BluetoothManager bluetoothManager;
@@ -105,6 +107,15 @@ public class BluetoothLeService extends Service {
             broadcastUpdate(ACTION_DATA_AVAILABLE, gatt, characteristic);
         }
     };
+    private final IBinder binder = new LocalBinder();
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -134,28 +145,6 @@ public class BluetoothLeService extends Service {
 
         sendBroadcast(intent);
     }
-
-    public class LocalBinder extends Binder {
-        public BluetoothLeService getService() {
-            return BluetoothLeService.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
-        close();
-        return super.onUnbind(intent);
-    }
-
-    private final IBinder mBinder = new LocalBinder();
 
     /**
      * Initializes a reference to the local Bluetooth adapter.
@@ -262,4 +251,42 @@ public class BluetoothLeService extends Service {
 
         return mBluetoothGatt.getServices();
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods - Callbacks
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callbacks">
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        // After using a given device, you should make sure that BluetoothGatt.close() is called
+        // such that resources are cleaned up properly.  In this particular example, close() is
+        // invoked when the UI is disconnected from the Service.
+        close();
+        return super.onUnbind(intent);
+    }
+
+    // </editor-fold>
+
+    // --------------------
+    // Inner classes
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Inner classes">
+
+    public class LocalBinder extends Binder {
+        public BluetoothLeService getService() {
+            return BluetoothLeService.this;
+        }
+    }
+
+    // </editor-fold>
 }

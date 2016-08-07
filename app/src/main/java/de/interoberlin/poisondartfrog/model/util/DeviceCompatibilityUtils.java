@@ -9,6 +9,7 @@ import android.util.Log;
 import java.lang.reflect.Method;
 
 public class DeviceCompatibilityUtils {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private static final String TAG = "DeviceCompatUtils";
 
@@ -55,5 +56,5 @@ public class DeviceCompatibilityUtils {
         return false;
     }
 
-
+    // </editor-fold>
 }

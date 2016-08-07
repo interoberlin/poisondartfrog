@@ -16,23 +16,26 @@ import java.util.List;
 import java.util.Map;
 
 import de.interoberlin.poisondartfrog.App;
-import de.interoberlin.poisondartfrog.view.components.ServicesComponent;
 
 public class RepositoryMapper {
-    private static final String TAG = ServicesComponent.class.getSimpleName();
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
-    private List<Namespace> namespaces;
+    // private static final String TAG = ServicesComponent.class.getSimpleName();
+
     private Map<String, Object> idMap;
 
     private static RepositoryMapper instance;
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
+
     private RepositoryMapper() {
-        namespaces = getNamespaces();
-        idMap = createIdMap(namespaces);
+        idMap = createIdMap(getNamespaces());
     }
 
     public static RepositoryMapper getInstance() {
@@ -43,9 +46,13 @@ public class RepositoryMapper {
         return instance;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public Object getObjectById(String id) {
         return idMap.get(id);
@@ -120,4 +127,6 @@ public class RepositoryMapper {
 
         return idMap;
     }
+
+    // </editor-fold>
 }

@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, String> {
-    public static final String TAG = HttpGetTask.class.toString();
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
+    public static final String TAG = HttpGetTask.class.getSimpleName();
 
     private static final String HTTP_METHOD = "GET";
     private static final String ENCODING = "UTF-8";
@@ -23,18 +25,26 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
     private static OnCompleteListener ocListener;
     private static String url;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public HttpGetTask(OnCompleteListener ocListener, String url) {
         HttpGetTask.ocListener = ocListener;
         HttpGetTask.url = url;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
 
     @Override
     protected void onPreExecute() {
@@ -68,9 +78,13 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
         }
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      *
@@ -145,11 +159,17 @@ public class HttpGetTask extends AsyncTask<Map<EHttpParameter, String>, Void, St
         return paramString;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Callback interfaces
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
+
     public interface OnCompleteListener {
         void onHttpGetExecuted(String response);
     }
+
+    // </editor-fold>
 }

@@ -30,6 +30,8 @@ import de.interoberlin.poisondartfrog.R;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -58,6 +60,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
     };
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods - Lifecycle
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.pref_headers, target);
+    }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -89,26 +121,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean onIsMultiPane() {
         return isXLargeTablet(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
     /**
@@ -120,6 +138,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GolemTemperaturePreferenceFragment.class.getName().equals(fragmentName)
                 || ScanTimerPreferenceFragment.class.getName().equals(fragmentName);
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Inner classes
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Inner classes">
 
     /**
      * This fragment shows notification preferences only. It is used when the
@@ -189,4 +215,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
     }
+
+    // </editor-fold>
 }

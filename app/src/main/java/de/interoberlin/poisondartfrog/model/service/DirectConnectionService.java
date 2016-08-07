@@ -26,19 +26,29 @@ import static rx.Observable.error;
  * The functionality and characteristics available when a device is in DIRECT_CONNECTION mode.
  */
 public class DirectConnectionService extends BaseService {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = DirectConnectionService.class.getSimpleName();
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
+
     public DirectConnectionService(BleDevice device, BluetoothGatt gatt, BluetoothGattReceiver receiver) {
         super(device, gatt, receiver);
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static Observable<DirectConnectionService> connect(final BleDevice bleDevice,
                                                               final BluetoothDevice device) {
@@ -140,4 +150,6 @@ public class DirectConnectionService extends BaseService {
         return mBluetoothGattReceiver
                 .unsubscribeToCharacteristicChanges(mBluetoothGatt, characteristic, descriptor);
     }
+
+    // </editor-fold>
 }

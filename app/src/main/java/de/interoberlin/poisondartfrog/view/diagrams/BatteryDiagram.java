@@ -14,6 +14,8 @@ import de.interoberlin.poisondartfrog.R;
 
 
 public class BatteryDiagram extends ImageView {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = BatteryDiagram.class.getSimpleName();
 
     private int width;
@@ -26,9 +28,13 @@ public class BatteryDiagram extends ImageView {
 
     private int value;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public BatteryDiagram(Context context) {
         super(context);
@@ -82,16 +88,20 @@ public class BatteryDiagram extends ImageView {
         this.value = value;
     }
 
+    // </editor-fold>
+
+    // --------------------
+    // Methods - Callbacks
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callbacks">
+
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         this.width = w;
         this.height = h;
     }
-
-    // --------------------
-    // Methods
-    // --------------------
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -141,6 +151,14 @@ public class BatteryDiagram extends ImageView {
         // Fill
         canvas.drawRect(smallLeft, smallTop, smallRight, smallBottom, paintFill);
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Generates a paint based on a min and max color and a min and max value
@@ -192,11 +210,17 @@ public class BatteryDiagram extends ImageView {
         return (int) ((m * v) + n);
     }
 
+    // </editor-fold>
+
     // --------------------
     // Getters / Setters
     // --------------------
 
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
+
     public void setValue(int value) {
         this.value = value;
     }
+
+    // </editor-fold>
 }

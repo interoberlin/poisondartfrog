@@ -13,15 +13,21 @@ import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerPal
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerSwatch;
 
 public class SentientLightComponent extends LinearLayout implements ColorPickerSwatch.OnColorSelectedListener {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = SentientLightComponent.class.getSimpleName();
 
     private BleDevice device;
 
     private static final int COL_NUMBER = 5;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public SentientLightComponent(Context context) {
         super(context);
@@ -46,9 +52,13 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
         addView(llData);
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     public void onColorSelected(int color) {
@@ -76,4 +86,6 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
     private String debugColorComponent(String component, int value) {
         return component + ":" + value + " (" + intToHex(value) + ")";
     }
+
+    // </editor-fold>
 }

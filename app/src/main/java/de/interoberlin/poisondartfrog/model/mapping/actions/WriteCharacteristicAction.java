@@ -6,13 +6,17 @@ import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.mapping.Sink;
 
 public class WriteCharacteristicAction implements IAction {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private Object value;
+
+    // </editor-fold>
 
     // --------------------
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Performs action
@@ -39,7 +43,7 @@ public class WriteCharacteristicAction implements IAction {
     // Getters / Setters
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Getters / Setters">
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public Object getValue() {
         return value;

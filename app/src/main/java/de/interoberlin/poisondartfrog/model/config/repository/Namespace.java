@@ -3,13 +3,19 @@ package de.interoberlin.poisondartfrog.model.config.repository;
 import java.util.List;
 
 public class Namespace {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String id;
     private String name;
     private List<Service> services;
 
+    // </editor-fold>
+
     // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getId() {
         return id;
@@ -34,4 +40,6 @@ public class Namespace {
     public void setServices(List<Service> services) {
         this.services = services;
     }
+
+    // </editor-fold>
 }

@@ -12,15 +12,21 @@ import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.CircleDiagram;
 
 public class MicrophoneComponent extends TableLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     // private static final String TAG = LightProximityComponent.class.getCanonicalName();
 
     private static final String CHARA_NOISE = "noiseLevel";
     private static final float MIN_NOISE = 0.0f;
     private static final float MAX_NOISE = 1023.0f;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public MicrophoneComponent(Context context) {
         super(context);
@@ -46,4 +52,6 @@ public class MicrophoneComponent extends TableLayout {
 
         tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, R.color.colorPrimary, R.color.colorPrimaryDark, 0.0f, 1.0f, MIN_NOISE, MAX_NOISE, noi));
     }
+
+    // </editor-fold>
 }

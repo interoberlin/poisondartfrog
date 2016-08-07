@@ -20,6 +20,8 @@ import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = ScanResultFilter.class.getSimpleName();
 
     // Context
@@ -46,9 +48,13 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     private ScanResultFilter scanResultFilter;
     private final Object lock = new Object();
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public ScanResultsAdapter(Context context, OnCompleteListener ocListener, int resource, List<BleDevice> items) {
         super(context, resource, items);
@@ -63,9 +69,13 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         filter();
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     public int getCount() {
@@ -141,9 +151,13 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         return v;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Filter
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Filter">
 
     public List<BleDevice> getFilteredItems() {
         return filteredItems;
@@ -171,17 +185,25 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         return bleDevice != null;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Callback interfaces
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnCompleteListener {
         void onAttachDevice(BleDevice device);
     }
 
+    // </editor-fold>
+
     // --------------------
     // Inner classes
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Inner classes">
 
     public class ScanResultFilter extends Filter {
         @Override
@@ -224,4 +246,6 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
             }
         }
     }
+
+    // </editor-fold>
 }

@@ -1,14 +1,18 @@
 package de.interoberlin.poisondartfrog.model.mapping;
 
 public class Sink {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String address;
     private String characteristic;
+
+    // </editor-fold>
 
     // --------------------
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     public String toString() {
@@ -25,7 +29,7 @@ public class Sink {
     // Getters / Setters
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Getters / Setters">
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
 
     public String getAddress() {

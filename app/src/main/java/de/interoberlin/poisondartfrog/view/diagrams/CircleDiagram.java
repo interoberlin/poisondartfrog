@@ -10,11 +10,17 @@ import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 
 public class CircleDiagram extends ImageView {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = CircleDiagram.class.getSimpleName();
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public CircleDiagram(Context context) {
         super(context);
@@ -56,6 +62,14 @@ public class CircleDiagram extends ImageView {
 
         init(width, height, color, color, 1.0f, 1.0f, 100.0f, 100.0f, 100.0f);
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     private void init(int width, int height, int minColor, int maxColor, float minRadius, float maxRadius, float minValue, float maxValue, Float value) {
         final float MIN_VALUE = 0.05f;
@@ -145,4 +159,6 @@ public class CircleDiagram extends ImageView {
         float n = pMax - (m * vMax);
         return (int) ((m * v) + n);
     }
+
+    // </editor-fold>
 }

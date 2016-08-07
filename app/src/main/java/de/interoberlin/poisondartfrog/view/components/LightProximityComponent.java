@@ -15,6 +15,8 @@ import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.CircleDiagram;
 
 public class LightProximityComponent extends TableLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     // private static final String TAG = LightProximityComponent.class.getCanonicalName();
 
     private static final String CHARA_LUMINOSITY = "luminosity";
@@ -26,9 +28,13 @@ public class LightProximityComponent extends TableLayout {
     private static final float MIN_PROXIMITY = 0.0f;
     private static final float MAX_PROXIMITY = 150.0f; // 2047
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public LightProximityComponent(Context context) {
         super(context);
@@ -60,4 +66,6 @@ public class LightProximityComponent extends TableLayout {
         tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, R.color.md_grey_400, R.color.md_grey_400, 1.0f, 0.0f, MIN_PROXIMITY, MAX_PROXIMITY, pro));
         tr.addView(new CircleDiagram(context, diagramDimen, diagramDimen, col.toRgb()));
     }
+
+    // </editor-fold>
 }

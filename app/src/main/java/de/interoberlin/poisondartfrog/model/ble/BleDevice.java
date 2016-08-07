@@ -42,7 +42,7 @@ import rx.observables.ConnectableObservable;
  * A class representing a BLE Device
  */
 public class BleDevice extends RealmObject implements IDisplayable {
-    // <editor-fold defaultstate="expanded" desc="Members">
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     public static final String TAG = BleDevice.class.getSimpleName();
 
@@ -79,7 +79,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
     // Constructors
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Constructors">
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public BleDevice() {
         super();
@@ -113,7 +113,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Initializes a ble device object
@@ -373,10 +373,9 @@ public class BleDevice extends RealmObject implements IDisplayable {
     public void refreshCache() {
         try {
             if (gatt != null) {
-                Method localMethod = gatt.getClass().getMethod("refresh", new Class[0]);
-                if (localMethod != null) {
-                    ocListener.onCacheCleared(((Boolean) localMethod.invoke(gatt, new Object[0])).booleanValue());
-                }
+                Method localMethod = gatt.getClass().getMethod("refresh");
+                if (localMethod != null)
+                    ocListener.onCacheCleared((Boolean) localMethod.invoke(gatt));
             }
         } catch (Exception localException) {
             Log.e(TAG, "An exception occurred while refreshing device");
@@ -394,6 +393,37 @@ public class BleDevice extends RealmObject implements IDisplayable {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public BluetoothGattCharacteristic getCharacteristic(ECharacteristic characteristic) {
+        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+            if (c.getUuid().toString().equals(characteristic.getId())) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    public void setCharacteristicValue(String id, String value) {
+        for (BluetoothGattCharacteristic c : getCharacteristics()) {
+            if (c.getUuid().toString().contains(id)) {
+                c.setValue(value);
+                if (ocListener != null) ocListener.onChange(BleDevice.this);
+            }
+        }
+    }
+
+    public void save() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                Log.d(TAG, "Save device");
+                bgRealm.copyToRealmOrUpdate(BleDevice.this);
+            }
+        });
+        realm.close();
     }
 
     @Override
@@ -447,45 +477,10 @@ public class BleDevice extends RealmObject implements IDisplayable {
     // </editor-fold>
 
     // --------------------
-    // Getters
-    // --------------------
-
-    // <editor-fold defaultstate="expanded" desc="Constructors">
-
-    public BluetoothGattCharacteristic getCharacteristic(ECharacteristic characteristic) {
-        for (BluetoothGattCharacteristic c : getCharacteristics()) {
-            if (c.getUuid().toString().equals(characteristic.getId())) {
-                return c;
-            }
-        }
-
-        return null;
-    }
-
-    public void setCharacteristicValue(String id, String value) {
-        for (BluetoothGattCharacteristic c : getCharacteristics()) {
-            if (c.getUuid().toString().contains(id)) {
-                c.setValue(value);
-                if (ocListener != null) ocListener.onChange(BleDevice.this);
-            }
-        }
-    }
-
-    public void save() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm bgRealm) {
-                Log.d(TAG, "Save device");
-                bgRealm.copyToRealmOrUpdate(BleDevice.this);
-            }
-        });
-        realm.close();
-    }
-
-    // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getName() {
         return name;
@@ -503,9 +498,11 @@ public class BleDevice extends RealmObject implements IDisplayable {
         return typeName;
     }
 
+    /*
     public BluetoothGatt getGatt() {
         return gatt;
     }
+    */
 
     public void setGatt(BluetoothGatt gatt) {
         this.gatt = gatt;
@@ -553,9 +550,11 @@ public class BleDevice extends RealmObject implements IDisplayable {
         return latestReadings;
     }
 
+    /*
     public Map<ECharacteristic, Subscription> getSubscriptions() {
         return subscriptions;
     }
+    */
 
     public void setValues(Map<String, Queue<Reading>> readings) {
         this.readings = readings;
@@ -610,9 +609,13 @@ public class BleDevice extends RealmObject implements IDisplayable {
         this.ocListener = ocListener;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Callback interfaces
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnChangeListener {
         void onChange(BleDevice device);
@@ -625,4 +628,6 @@ public class BleDevice extends RealmObject implements IDisplayable {
     public void registerOnChangeListener(OnChangeListener ocListener) {
         this.ocListener = ocListener;
     }
+
+    // </editor-fold>
 }

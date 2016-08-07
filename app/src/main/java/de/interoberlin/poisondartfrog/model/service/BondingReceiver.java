@@ -20,6 +20,7 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static rx.Observable.just;
 
 class BondingReceiver {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     static class BondingFunc1 implements Func1<BluetoothGatt, Observable<? extends BluetoothGatt>> {
         @Override
@@ -38,6 +39,14 @@ class BondingReceiver {
             return bluetoothGattObservable;
         }
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     static Observable<BluetoothGatt> subscribeForBondStateChanges(final BluetoothGatt gatt) {
         return Observable.create(new Observable.OnSubscribe<BluetoothGatt>() {
@@ -70,4 +79,5 @@ class BondingReceiver {
         });
     }
 
+    // </editor-fold>
 }

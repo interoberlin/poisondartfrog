@@ -1,11 +1,12 @@
 package de.interoberlin.poisondartfrog.model.parser;
 
 public class LightColorProx {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
-    public long ts;     //"ts":1400776389653,
-    public long light;  //"light":65535,                           //format: 16 bit unsigned, range: 0-65535
-    public Color clr;   //"clr":{"r":65535,"g":65535,"b":65535}, //format: 16 bit unsigned, range: 0-65535
-    public long prox;   //"prox":65535
+    // public long ts;     //"ts":1400776389653,
+    // public long light;  //"light":65535,                           //format: 16 bit unsigned, range: 0-65535
+    // public Color clr;   //"clr":{"r":65535,"g":65535,"b":65535}, //format: 16 bit unsigned, range: 0-65535
+    // public long prox;   //"prox":65535
 
     public static class Color {
         public final int red;
@@ -51,4 +52,5 @@ public class LightColorProx {
         }
     }
 
+    // </editor-fold>
 }

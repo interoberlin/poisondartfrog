@@ -8,6 +8,8 @@ import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public abstract class BleDataParser {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = BleDataParser.class.getSimpleName();
 
     /**
@@ -49,6 +51,14 @@ public abstract class BleDataParser {
      * Characteristic value format type float (32-bit float)
      */
     public static final int FORMAT_FLOAT = 0x34;
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static String getFormattedValue(EDevice type, ECharacteristic characteristic, byte[] value) {
         if (value == null) return "";
@@ -295,4 +305,5 @@ public abstract class BleDataParser {
         }
         return new String(hexChars);
     }
+    // </editor-fold>
 }

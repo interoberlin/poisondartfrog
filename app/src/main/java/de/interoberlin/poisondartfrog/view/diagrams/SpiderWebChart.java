@@ -18,13 +18,19 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.geo.Vector2;
 
 public class SpiderWebChart extends ImageView {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = SpiderWebChart.class.getSimpleName();
 
     private final float MIN_VALUE = 0.05f;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public SpiderWebChart(Context context) {
         super(context);
@@ -119,6 +125,14 @@ public class SpiderWebChart extends ImageView {
         setImageBitmap(bmp);
     }
 
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
+
     /**
      * Retrieves two-dimensional points limiting the chart according to {@code valueCount}
      *
@@ -182,4 +196,6 @@ public class SpiderWebChart extends ImageView {
 
         return points;
     }
+
+    // </editor-fold>
 }

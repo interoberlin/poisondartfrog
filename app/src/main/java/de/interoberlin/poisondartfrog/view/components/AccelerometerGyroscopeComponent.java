@@ -16,6 +16,8 @@ import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.SpiderWebChart;
 
 public class AccelerometerGyroscopeComponent extends TableLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     // private static final String TAG = LightProximityComponent.class.getCanonicalName();
 
     private static final float MIN_ACCELERATION = 0;
@@ -23,9 +25,13 @@ public class AccelerometerGyroscopeComponent extends TableLayout {
     private static final float MIN_ANGULAR_SPEED = -250;
     private static final float MAX_ANGULAR_SPEED = 250;
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public AccelerometerGyroscopeComponent(Context context) {
         super(context);
@@ -55,9 +61,5 @@ public class AccelerometerGyroscopeComponent extends TableLayout {
         tr.addView(new SpiderWebChart(context, diagramDimen, diagramDimen, R.color.colorAccent, -MIN_ANGULAR_SPEED, MAX_ANGULAR_SPEED - MIN_ANGULAR_SPEED, Arrays.asList(ang.x, ang.y, ang.z)));
     }
 
-    // --------------------
-    // Methods
-    // --------------------
-
-
+    // </editor-fold>
 }

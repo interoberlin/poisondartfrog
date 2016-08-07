@@ -19,6 +19,8 @@ import de.interoberlin.poisondartfrog.model.config.repository.Characteristic;
 import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
 
 public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteristic> {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = CharacteristicsAdapter.class.getSimpleName();
 
     //View
@@ -37,9 +39,13 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
     // Filter
     private List<BluetoothGattCharacteristic> items = new ArrayList<>();
 
+    // </editor-fold>
+
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public CharacteristicsAdapter(Context context, int resource, List<BluetoothGattCharacteristic> items) {
         super(context, resource, items);
@@ -47,9 +53,13 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
         this.items = items;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     @Override
     public int getCount() {
@@ -83,4 +93,6 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
 
         return v;
     }
+
+    // </editor-fold>
 }

@@ -1,6 +1,8 @@
 package de.interoberlin.poisondartfrog.model.config;
 
 public enum EDevice {
+    // <editor-fold defaultstate="collapsed" desc="Entries">
+
     WUNDERBAR_HTU("ecf6cf94-cb07-43ac-a85e-dccf26b48c86", "WunderbarHTU"),
     WUNDERBAR_GYRO("173c44b5-334e-493f-8eb8-82c8cc65d29f","WunderbarGYRO"),
     WUNDERBAR_LIGHT("a7ec1b21-8582-4304-b1cf-15a1fc66d1e8","WunderbarLIGHT"),
@@ -12,17 +14,33 @@ public enum EDevice {
     NRFDUINO("e3598c73-6f6e-4be6-9861-ee6fb9378dcc","nRFduino"),
     UNKNOWN("", "");
 
-    private final String id;
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private final String name;
+    private final String id;
+
+    // </editor-fold>
+
+    // --------------------
+    // Constructors
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     EDevice(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static EDevice fromString(String name) {
         if (name != null) {
@@ -36,9 +54,13 @@ public enum EDevice {
         return EDevice.UNKNOWN;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getId() {
         return id;
@@ -47,4 +69,6 @@ public enum EDevice {
     public String getName() {
         return name;
     }
+
+    // </editor-fold>
 }

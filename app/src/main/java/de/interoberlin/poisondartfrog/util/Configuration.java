@@ -8,8 +8,18 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Configuration {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private static final String TAG = Configuration.class.getSimpleName();
     private static final String GRADLE_PROPERTIES_FILE = "frog.properties";
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static String getProperty(Context c, String property) {
         try {
@@ -25,6 +35,7 @@ public class Configuration {
         return null;
     }
 
+    @SuppressWarnings("unused")
     public static int getIntProperty(Context c, String property) {
         try {
             String propertyValue = getProperty(c, property);
@@ -34,4 +45,6 @@ public class Configuration {
             return 0;
         }
     }
+
+    // </editor-fold>
 }

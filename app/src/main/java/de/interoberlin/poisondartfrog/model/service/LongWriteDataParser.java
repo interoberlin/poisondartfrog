@@ -4,15 +4,32 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class LongWriteDataParser {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private boolean firstPackage = true;
     private int start = 0;
     private int end = 0;
     private byte[] data;
 
+    // </editor-fold>
+
+    // --------------------
+    // Constructors
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructor">
+
     public LongWriteDataParser(byte[] data) {
         this.data = data == null ? new byte[]{} : data;
     }
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public byte[] getData() {
         //if package is empty
@@ -54,4 +71,6 @@ public class LongWriteDataParser {
 
         return payload;
     }
+
+    // </editor-fold>
 }

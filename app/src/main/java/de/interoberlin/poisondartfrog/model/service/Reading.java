@@ -1,6 +1,7 @@
 package de.interoberlin.poisondartfrog.model.service;
 
 public class Reading {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     /** Timestamp - when reading is received on the platform */
     public final long received;
@@ -19,6 +20,14 @@ public class Reading {
     public final String path;
     public final Object value;
 
+    // </editor-fold>
+
+    // --------------------
+    // Constructors
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
+
     public Reading(long received, long recorded, String meaning, String path, Object value) {
         this.received = received;
         this.recorded = recorded;
@@ -28,7 +37,16 @@ public class Reading {
         this.ts = 0;
     }
 
-    @Override public String toString() {
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
+
+    @Override
+    public String toString() {
         return "Reading{" +
                 "received=" + received +
                 ", recorded=" + recorded +
@@ -37,4 +55,6 @@ public class Reading {
                 ", value=" + value +
                 '}';
     }
+
+    // </editor-fold>
 }

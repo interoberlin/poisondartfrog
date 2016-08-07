@@ -22,11 +22,17 @@ import de.interoberlin.poisondartfrog.model.parser.LightColorProx;
 import de.interoberlin.poisondartfrog.model.service.Reading;
 
 public class LineChartComponent extends LinearLayout {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = DataComponent.class.getSimpleName();
+
+    // </editor-fold>
 
     // --------------------
     // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public LineChartComponent(Context context) {
         super(context);
@@ -146,4 +152,6 @@ public class LineChartComponent extends LinearLayout {
             }
         }
     }
+
+    // </editor-fold>
 }

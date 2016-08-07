@@ -20,6 +20,8 @@ import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 public class ScanResultsDialog extends DialogFragment implements
         BleScannerFilter.BleFilteredScanCallback,
         ScanResultsAdapter.OnCompleteListener{
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = ScanResultsDialog.class.getSimpleName();
 
     // View
@@ -31,9 +33,13 @@ public class ScanResultsDialog extends DialogFragment implements
 
     private OnCompleteListener ocListener;
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -94,21 +100,13 @@ public class ScanResultsDialog extends DialogFragment implements
         devicesController.stopScan();
     }
 
-    // --------------------
-    // Methods
-    // --------------------
-
-    /**
-     * Updates the list view
-     */
-    public void updateView() {
-        scanResultsAdapter.filter();
-        lvScanResults.invalidateViews();
-    }
+    // </editor-fold>
 
     // --------------------
-    // Methods - Callback
+    // Methods - Callbacks
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callbacks">
 
     @Override
     public void onLeScan(BleDevice device, int rssi) {
@@ -125,9 +123,29 @@ public class ScanResultsDialog extends DialogFragment implements
         dismiss();
     }
 
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
+
+    /**
+     * Updates the list view
+     */
+    public void updateView() {
+        scanResultsAdapter.filter();
+        lvScanResults.invalidateViews();
+    }
+
+    // </editor-fold>
+
     // --------------------
     // Callback interfaces
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnCompleteListener {
         void onAttachDevice(BleDevice bleDevice);
@@ -142,4 +160,6 @@ public class ScanResultsDialog extends DialogFragment implements
             throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
         }
     }
+
+    // </editor-fold>
 }

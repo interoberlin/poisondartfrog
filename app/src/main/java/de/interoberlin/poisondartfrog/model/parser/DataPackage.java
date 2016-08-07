@@ -9,6 +9,7 @@ import java.util.List;
  * device via direct connection.
  */
 public class DataPackage {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     public long received;
     public String deviceId;
@@ -28,5 +29,7 @@ public class DataPackage {
             this.value = value;
         }
     }
+
+    // </editor-fold>
 }
 

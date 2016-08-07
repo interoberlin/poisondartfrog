@@ -27,7 +27,7 @@ import de.interoberlin.poisondartfrog.model.mapping.functions.IFunction;
 import de.interoberlin.poisondartfrog.model.mapping.functions.IFunctionDeserializer;
 
 public class MappingController {
-    // <editor-fold defaultstate="expanded" desc="Members">
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     public static final String TAG = MappingController.class.getSimpleName();
 
@@ -46,7 +46,7 @@ public class MappingController {
     // Constructors
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Constructors">
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     private MappingController() {
         this.existingMappings = loadMappingsFromAssets(App.getContext());
@@ -69,7 +69,7 @@ public class MappingController {
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Loads all mapping files from assets and adds them to the list
@@ -163,7 +163,7 @@ public class MappingController {
     // Getters / Setters
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Getters / Setters">
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public Map<String, Mapping> getExistingMappings() {
         return existingMappings;

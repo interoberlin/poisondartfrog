@@ -3,8 +3,17 @@ package de.interoberlin.poisondartfrog.model.service;
 import android.bluetooth.BluetoothGatt;
 
 public abstract class BluetoothGattStatus {
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     public static final int GATT_FAILURE_BINDING_REQUIRED = 133;
+
+    // </editor-fold>
+
+    // --------------------
+    // Methods
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static String toString(int status) {
         switch (status) {
@@ -61,4 +70,6 @@ public abstract class BluetoothGattStatus {
         }
     }
     */
+
+    // </editor-fold>
 }

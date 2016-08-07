@@ -13,7 +13,7 @@ import rx.Observer;
 import rx.Subscription;
 
 public class Mapping implements IDisplayable {
-    // <editor-fold defaultstate="expanded" desc="Members">
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     public static final String TAG = Mapping.class.getSimpleName();
 
@@ -36,21 +36,10 @@ public class Mapping implements IDisplayable {
     // </editor-fold>
 
     // --------------------
-    // Constructors
-    // --------------------
-
-    // <editor-fold defaultstate="expanded" desc="Methods">
-
-    public Mapping() {
-    }
-
-    // </editor-fold>
-
-    // --------------------
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Subscribes to a device
@@ -120,18 +109,22 @@ public class Mapping implements IDisplayable {
     // Getters / Setters
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Getters / Setters">
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getName() {
         return name;
     }
 
-    public Integer getDebounce() {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getDebouce() {
         return debounce;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDebounce(Integer debounce) {
+        this.debounce = debounce;
     }
 
     public Source getSource() {
@@ -204,7 +197,7 @@ public class Mapping implements IDisplayable {
     // Callback interfaces
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Callback interfaces">
+    // <editor-fold defaultstate="collapsed" desc="Callback interfaces">
 
     public interface OnChangeListener {
         void onChange(Mapping mapping);

@@ -1,12 +1,18 @@
 package de.interoberlin.poisondartfrog.model.geo;
 
 public class Vector2 {
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private Float x;
     private Float y;
 
-    // -------------------------
+    // </editor-fold>
+
+    // --------------------
     // Constructors
-    // -------------------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     public Vector2(Float x, Float y) {
         this.setX(x);
@@ -18,9 +24,13 @@ public class Vector2 {
         this.setY(0.0f);
     }
 
-    // -------------------------
+    // </editor-fold>
+
+    // --------------------
     // Methods
-    // -------------------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public Vector2 add(Vector2 v) {
         this.x += v.getX();
@@ -42,9 +52,13 @@ public class Vector2 {
         this.y = this.y * factor;
     }
 
-    // -------------------------
+    // </editor-fold>
+
+    // --------------------
     // Getters / Setters
-    // -------------------------
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public Float getX() {
         return x;
@@ -61,4 +75,6 @@ public class Vector2 {
     public void setY(Float y) {
         this.y = y;
     }
+
+    // </editor-fold>
 }

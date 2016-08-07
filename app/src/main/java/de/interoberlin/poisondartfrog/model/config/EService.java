@@ -1,6 +1,8 @@
 package de.interoberlin.poisondartfrog.model.config;
 
 public enum EService {
+    // <editor-fold defaultstate="collapsed" desc="Entries">
+
     GENERIC_ACCESS("00001800-0000-1000-8000-00805f9b34fb"),
     GENERIC_ATTRIBUTE("00001801-0000-1000-8000-00805f9b34fb"),
     DEVICE_INFORMATION("0000180a-0000-1000-8000-00805f9b34fb"),
@@ -13,19 +15,31 @@ public enum EService {
 
     SENTIENT_LIGHT("00003000-0000-1000-8000-00805f9b34fb");
 
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String id;
 
+    // </editor-fold>
+
     // --------------------
-    // Constructor
+    // Constructors
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     EService(String id) {
         this.id = id;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public static EService fromId(String id) {
         for (EService s : EService.values()) {
@@ -36,9 +50,13 @@ public enum EService {
         return null;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Getters / Setters
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
     public String getId() {
         return id;
@@ -47,4 +65,6 @@ public enum EService {
     public void setId(String id) {
         this.id = id;
     }
+
+    // </editor-fold>
 }

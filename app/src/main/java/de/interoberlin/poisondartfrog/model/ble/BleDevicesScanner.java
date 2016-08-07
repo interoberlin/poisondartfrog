@@ -23,8 +23,13 @@ import de.interoberlin.poisondartfrog.App;
 import de.interoberlin.poisondartfrog.R;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
-    // <editor-fold defaultstate="expanded" desc="Interfaces">
+public class BleDevicesScanner implements
+    // <editor-fold defaultstate="collapsed" desc="Interfaces">
+        Runnable,
+        BluetoothAdapter.LeScanCallback {
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
 
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
@@ -37,8 +42,8 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     private final LeScansPoster leScansPoster;
 
     private ScanSettings settings;
-    private ScanCallback mScanCallback;
-    private BluetoothLeScanner mLeScanner;
+    private ScanCallback scanCallback;
+    private BluetoothLeScanner leScanner;
     private List<ScanFilter> filters = new ArrayList<>();
 
     private Thread scanThread;
@@ -50,7 +55,7 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     // Constructors
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Constructors">
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public BleDevicesScanner(BluetoothAdapter adapter, BluetoothAdapter.LeScanCallback callback) {
@@ -64,9 +69,9 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
         DEVICE_SCAN_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "10"));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mLeScanner = adapter.getBluetoothLeScanner();
+            leScanner = adapter.getBluetoothLeScanner();
             settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
-            mScanCallback = new ScanCallback() {
+            scanCallback = new ScanCallback() {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
                     if (result == null || result.getScanRecord() == null) return;
@@ -94,7 +99,7 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     // Methods
     // --------------------
 
-    // <editor-fold defaultstate="expanded" desc="Methods">
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     public boolean isScanning() {
         return scanThread != null && scanThread.isAlive();
@@ -129,11 +134,11 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private synchronized void stopScan() {
         if (isBluetoothEnabled()) {
-            if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
+            if (Build.VERSION.SDK_INT < 21 || leScanner == null) {
                 bluetoothAdapter.cancelDiscovery();
             } else {
-                mLeScanner.stopScan(mScanCallback);
-                mLeScanner.flushPendingScanResults(mScanCallback);
+                leScanner.stopScan(scanCallback);
+                leScanner.flushPendingScanResults(scanCallback);
             }
         }
     }
@@ -145,10 +150,10 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
             do {
                 synchronized (this) {
                     if (isBluetoothEnabled()) {
-                        if (Build.VERSION.SDK_INT < 21 || mLeScanner == null) {
+                        if (Build.VERSION.SDK_INT < 21 || leScanner == null) {
                             bluetoothAdapter.startDiscovery();
                         } else {
-                            mLeScanner.startScan(filters, settings, mScanCallback);
+                            leScanner.startScan(filters, settings, scanCallback);
                         }
                     }
                 }

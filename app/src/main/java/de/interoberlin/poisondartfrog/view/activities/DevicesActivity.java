@@ -60,6 +60,7 @@ import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
+    // <editor-fold defaultstate="collapsed" desc="Interfaces">
         BleScannerFilter.BleFilteredScanCallback,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
@@ -68,6 +69,10 @@ public class DevicesActivity extends AppCompatActivity implements
         MappingDialog.OnCompleteListener,
         HttpGetTask.OnCompleteListener,
         LocationListener {
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     public static final String TAG = DevicesActivity.class.getSimpleName();
 
     // Context
@@ -119,9 +124,13 @@ public class DevicesActivity extends AppCompatActivity implements
     private LocationManager locationManager;
     private Location currentLocation;
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Lifecycle
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Lifecycle">
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -340,9 +349,13 @@ public class DevicesActivity extends AppCompatActivity implements
         return true;
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods - Callbacks
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Callbacks">
 
     // Callbacks from BleFilteredScanCallback
 
@@ -516,9 +529,13 @@ public class DevicesActivity extends AppCompatActivity implements
     public void onProviderDisabled(String provider) {
     }
 
+    // </editor-fold>
+
     // --------------------
     // Methods
     // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Methods">
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -700,4 +717,6 @@ public class DevicesActivity extends AppCompatActivity implements
             }
         });
     }
+
+    // </editor-fold>
 }

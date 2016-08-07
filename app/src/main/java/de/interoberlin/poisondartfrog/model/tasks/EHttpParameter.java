@@ -1,6 +1,8 @@
 package de.interoberlin.poisondartfrog.model.tasks;
 
 public enum EHttpParameter {
+    // <editor-fold defaultstate="collapsed" desc="Entries">
+
     DBG("dbg"),
     TOKEN("token"),
     CITY("city"),
@@ -11,7 +13,19 @@ public enum EHttpParameter {
     TYPE("type"),
     TEMP("temp");
 
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Members">
+
     private String param;
+
+    // </editor-fold>
+
+    // --------------------
+    // Constructors
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Constructors">
 
     EHttpParameter(String param) {
         this.param = param;
@@ -20,4 +34,6 @@ public enum EHttpParameter {
     public String getParam() {
         return param;
     }
+
+    // </editor-fold>
 }
