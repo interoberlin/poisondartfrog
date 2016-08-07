@@ -367,7 +367,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             final ViewHolderMapping viewHolder;
 
             if (v == null) {
-                v = LayoutInflater.from(getContext()).inflate(R.layout.card_device, parent, false);
+                v = LayoutInflater.from(getContext()).inflate(R.layout.card_mapping, parent, false);
                 viewHolder = new ViewHolderMapping(v);
                 v.setTag(viewHolder);
             } else {
