@@ -223,6 +223,8 @@ dependencies {
     compile 'com.github.blackfizz:eazegraph:1.2.5l@aar'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.google.guava:guava:19.0'
+    compile 'com.jakewharton:butterknife:8.2.1'
+    apt 'com.jakewharton:butterknife-compiler:8.2.1'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'commons-io:commons-io:2.4'
     compile 'de.interoberlin:mate:0.4.27@aar'

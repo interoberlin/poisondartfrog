@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.controller.MappingController;
@@ -45,32 +47,40 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     // View
     static class ViewHolderDevice {
-        private TextView tvName;
-        private TextView tvAddress;
-        private ImageView ivIcon;
-        private LinearLayout llComponents;
-        private ImageView ivConnected;
+        @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.tvAddress) TextView tvAddress;
+        @BindView(R.id.ivIcon) ImageView ivIcon;
+        @BindView(R.id.llComponents) LinearLayout llComponents;
+        @BindView(R.id.ivConnected) ImageView ivConnected;
 
-        private LinearLayout llBatteryLevel;
-        private TextView tvBatteryLevelValue;
-        private BatteryDiagram bdBattery;
+        @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
+        @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
+        @BindView(R.id.bdBattery) BatteryDiagram bdBattery;
 
-        private ImageView ivDetach;
-        private ImageView ivSubscribe;
-        private ImageView ivLedState;
-        private ImageView ivSendTemperature;
-        private ImageView ivAutoConnect;
-        private ImageView ivMore;
+        @BindView(R.id.ivDetach) ImageView ivDetach;
+        @BindView(R.id.ivSubscribeData) ImageView ivSubscribe;
+        @BindView(R.id.ivLedState) ImageView ivLedState;
+        @BindView(R.id.ivSendTemperature) ImageView ivSendTemperature;
+        @BindView(R.id.ivAutoConnect) ImageView ivAutoConnect;
+        @BindView(R.id.ivMore) ImageView ivMore;
+
+        public ViewHolderDevice(View v) {
+            ButterKnife.bind(this, v);
+        }
     }
 
     static class ViewHolderMapping {
-        private TextView tvName;
-        private ImageView ivIcon;
-        private ImageView ivTriggered;
-        private ImageView ivSource;
-        private TextView tvSource;
-        private ImageView ivSink;
-        private TextView tvSink;
+        @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.ivIcon) ImageView ivIcon;
+        @BindView(R.id.ivTriggered) ImageView ivTriggered;
+        @BindView(R.id.ivSource) ImageView ivSource;
+        @BindView(R.id.tvSource) TextView tvSource;
+        @BindView(R.id.ivSink) ImageView ivSink;
+        @BindView(R.id.tvSink) TextView tvSink;
+
+        public ViewHolderMapping(View v) {
+            ButterKnife.bind(this, v);
+        }
     }
 
     // Controller
@@ -141,34 +151,12 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             // <editor-fold defaultstate="collapsed" desc="BleDevice">
 
             final BleDevice device = (BleDevice) item;
-            ViewHolderDevice viewHolder;
 
-            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderDevice))) {
-                viewHolder = new ViewHolderDevice();
+            final ViewHolderDevice viewHolder;
 
-                // Layout inflater
-                LayoutInflater vi;
-                vi = LayoutInflater.from(getContext());
-
-                // Load views
-                v = vi.inflate(R.layout.card_device, parent, false);
-                viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
-                viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
-                viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                viewHolder.llComponents = (LinearLayout) v.findViewById(R.id.llComponents);
-                viewHolder.ivConnected = (ImageView) v.findViewById(R.id.ivConnected);
-
-                viewHolder.llBatteryLevel = (LinearLayout) v.findViewById(R.id.llBatteryLevel);
-                viewHolder.tvBatteryLevelValue = (TextView) v.findViewById(R.id.tvBatteryLevelValue);
-                viewHolder.bdBattery = (BatteryDiagram) v.findViewById(R.id.bdBattery);
-
-                viewHolder.ivDetach = (ImageView) v.findViewById(R.id.ivDetach);
-                viewHolder.ivSubscribe = (ImageView) v.findViewById(R.id.ivSubscribeData);
-                viewHolder.ivLedState = (ImageView) v.findViewById(R.id.ivLedState);
-                viewHolder.ivSendTemperature = (ImageView) v.findViewById(R.id.ivSendTemperature);
-                viewHolder.ivAutoConnect = (ImageView) v.findViewById(R.id.ivAutoConnect);
-                viewHolder.ivMore = (ImageView) v.findViewById(R.id.ivMore);
-
+            if (v == null) {
+                v = LayoutInflater.from(getContext()).inflate(R.layout.card_device, parent, false);
+                viewHolder = new ViewHolderDevice(v);
                 v.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolderDevice) v.getTag();
@@ -375,25 +363,12 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             // <editor-fold defaultstate="collapsed" desc="Mapping">
 
             final Mapping mapping = (Mapping) item;
-            ViewHolderMapping viewHolder;
 
-            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderMapping))) {
-                viewHolder = new ViewHolderMapping();
+            final ViewHolderMapping viewHolder;
 
-                // Layout inflater
-                LayoutInflater vi;
-                vi = LayoutInflater.from(getContext());
-
-                // Load views
-                v = vi.inflate(R.layout.card_mapping, parent, false);
-                viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
-                viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                viewHolder.ivTriggered = (ImageView) v.findViewById(R.id.ivTriggered);
-                viewHolder.ivSource = (ImageView) v.findViewById(R.id.ivSource);
-                viewHolder.tvSource = (TextView) v.findViewById(R.id.tvSource);
-                viewHolder.ivSink = (ImageView) v.findViewById(R.id.ivSink);
-                viewHolder.tvSink = (TextView) v.findViewById(R.id.tvSink);
-
+            if (v == null) {
+                v = LayoutInflater.from(getContext()).inflate(R.layout.card_device, parent, false);
+                viewHolder = new ViewHolderMapping(v);
                 v.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolderMapping) v.getTag();

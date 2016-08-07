@@ -39,7 +39,11 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.interoberlin.mate.lib.view.AboutActivity;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
@@ -72,6 +76,14 @@ public class DevicesActivity extends AppCompatActivity implements
 
     // Model
     private DevicesAdapter devicesAdapter;
+
+    // View
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.fam) FloatingActionsMenu fam ;
+    @BindView(R.id.fabScan) FloatingActionButton fabScan;
+    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv) StaggeredGridView sgv;
+    @BindView(R.id.lv) ListView lv;
 
     // Controller
     private DevicesController devicesController;
@@ -197,20 +209,14 @@ public class DevicesActivity extends AppCompatActivity implements
         DEVICE_SCAN_DELAY = Integer.parseInt(prefs.getString(res.getString(R.string.pref_scan_timer_delay), "60"));
         GOLEM_SEND_PERIOD = Integer.parseInt(prefs.getString(res.getString(R.string.pref_golem_temperature_send_period), "5"));
 
-        // Load layout
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        final com.getbase.floatingactionbutton.FloatingActionsMenu fam = (com.getbase.floatingactionbutton.FloatingActionsMenu) findViewById(R.id.fam);
-        final com.getbase.floatingactionbutton.FloatingActionButton fabScan = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabScan);
-        final com.getbase.floatingactionbutton.FloatingActionButton fabAddMapping = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabAddMapping);
+        ButterKnife.bind(this);
 
         if (isXLargeTablet(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            final StaggeredGridView sgv = (StaggeredGridView) findViewById(R.id.sgv);
             if (sgv != null)
                 sgv.setAdapter(devicesAdapter);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            final ListView lv = (ListView) findViewById(R.id.lv);
             if (lv != null)
                 lv.setAdapter(devicesAdapter);
         }

@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.config.repository.Characteristic;
@@ -21,8 +23,12 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
 
     //View
     static class ViewHolder {
-        private TextView tvId;
-        private TextView tvName;
+        @BindView(R.id.tvId) TextView tvId;
+        @BindView(R.id.tvName) TextView tvName;
+
+        public ViewHolder(View v) {
+            ButterKnife.bind(this, v);
+        }
     }
 
     // Controllers
@@ -59,19 +65,11 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
     public View getView(final int position, View v, ViewGroup parent) {
         final BluetoothGattCharacteristic characteristic = getItem(position);
 
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
 
         if (v == null) {
-            viewHolder = new ViewHolder();
-
-            // Layout inflater
-            LayoutInflater vi;
-            vi = LayoutInflater.from(getContext());
-
-            // Load views
-            v = vi.inflate(R.layout.item_characteristic, parent, false);
-            viewHolder.tvId = (TextView) v.findViewById(R.id.tvId);
-            viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
+            v = LayoutInflater.from(getContext()).inflate(R.layout.item_characteristic, parent, false);
+            viewHolder = new ViewHolder(v);
             v.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) v.getTag();

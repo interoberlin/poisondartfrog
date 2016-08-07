@@ -12,6 +12,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.model.ble.BleDevice;
@@ -26,9 +28,13 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
 
     // View
     static class ViewHolder {
-        private TextView tvName;
-        private TextView tvAddress;
-        private ImageView ivIcon;
+        @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.tvAddress) TextView tvAddress;
+        @BindView(R.id.ivIcon) ImageView ivIcon;
+
+        public ViewHolder(View v) {
+            ButterKnife.bind(this, v);
+        }
     }
 
     // Controllers
@@ -76,20 +82,11 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     public View getView(final int position, View v, ViewGroup parent) {
         final BleDevice device = getItem(position);
 
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
 
         if (v == null) {
-            viewHolder = new ViewHolder();
-
-        // Layout inflater
-        LayoutInflater vi;
-        vi = LayoutInflater.from(getContext());
-
-        // Load views
-        v = vi.inflate(R.layout.item_scan_result, parent, false);
-            viewHolder.tvName = (TextView) v.findViewById(R.id.tvName);
-            viewHolder.tvAddress = (TextView) v.findViewById(R.id.tvAddress);
-            viewHolder.ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+            v = LayoutInflater.from(getContext()).inflate(R.layout.item_scan_result, parent, false);
+            viewHolder = new ViewHolder(v);
             v.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) v.getTag();
