@@ -51,6 +51,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
     private String name;
     @PrimaryKey private String address;
     @Ignore private EDevice type;
+    private String typeName;
 
     @Ignore private BleDeviceManager deviceManager;
     @Ignore private Observable<? extends BaseService> serviceObservable;
@@ -90,6 +91,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
         this.name = device.getName();
         this.address = device.getAddress();
         this.type = EDevice.fromString(device.getName());
+        this.typeName = (type != null) ? type.getName() : EDevice.UNKNOWN.toString();
 
         this.deviceManager = manager;
         this.serviceObservable = DirectConnectionService.connect(this, device).cache();
@@ -498,7 +500,7 @@ public class BleDevice extends RealmObject implements IDisplayable {
     }
 
     public String getTypeName() {
-        return (type != null) ? type.toString() : EDevice.UNKNOWN.toString();
+        return typeName;
     }
 
     public BluetoothGatt getGatt() {

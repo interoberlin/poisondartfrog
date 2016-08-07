@@ -2,6 +2,8 @@ package de.interoberlin.poisondartfrog.model.mapping;
 
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
 import de.interoberlin.poisondartfrog.model.IDisplayable;
 import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.model.mapping.actions.IAction;
@@ -16,6 +18,7 @@ public class Mapping implements IDisplayable {
     public static final String TAG = Mapping.class.getSimpleName();
 
     private String name;
+    private Integer debounce;
     private Source source;
     private Sink sink;
     private IFunction function;
@@ -59,6 +62,7 @@ public class Mapping implements IDisplayable {
 
         sourceSubscribed = true;
         subscription = device.getReadingObservable()
+                .debounce(debounce, TimeUnit.MILLISECONDS)
                 .subscribe(new Observer<Reading>() {
                     @Override
                     public void onNext(Reading reading) {
@@ -120,6 +124,10 @@ public class Mapping implements IDisplayable {
 
     public String getName() {
         return name;
+    }
+
+    public Integer getDebounce() {
+        return debounce;
     }
 
     public void setName(String name) {

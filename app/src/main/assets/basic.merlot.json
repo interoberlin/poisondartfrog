@@ -8,6 +8,7 @@
     "address": "D7:76:4C:4C:04:9E",
     "characteristic": "00002013-0000-1000-8000-00805f9b34fb"
   },
+  "debounce": 100,
   "function": {
     "type": "threshold",
     "minValue": 100.0,
