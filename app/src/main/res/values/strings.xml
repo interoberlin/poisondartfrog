@@ -14,7 +14,6 @@
     <string name="cached_refreshed">cached refreshed</string>
     <string name="cancel">Cancel</string>
     <string name="characteristics">characteristics</string>
-    <string name="color">color</string>
     <string name="colorPickerCheckmark">color picker checkmark</string>
     <string name="colorPickerSwatch">color picker swatch</string>
     <string name="color_swatch_description">Color</string>
@@ -28,7 +27,6 @@
     <string name="failed_to_detach_device">Failed to detach device</string>
     <string name="failed_to_detach_mapping">Failed to detach mapping</string>
     <string name="id">id</string>
-    <string name="luminosity">luminosity</string>
     <string name="mapping">Mapping</string>
     <string name="menu_about">About</string>
     <string name="menu_settings">Settings</string>
@@ -36,14 +34,11 @@
     <string name="name">name</string>
     <string name="no_value">-</string>
     <string name="percentage">%s%%</string>
-    <string name="proximity">proximity</string>
     <string name="refresh_cache">refresh cache</string>
     <string name="scan">scan</string>
     <string name="scan_for_devices">Scan for devices</string>
     <string name="scan_result_icon">scan result icon</string>
     <string name="selectMapping">Select a mapping</string>
-    <string name="sink">sink</string>
-    <string name="source">source</string>
     <string name="started_subscription">Started subscription</string>
     <string name="stopped_subscription">Stopped subscription</string>
     <string name="title_activity_about">About</string>

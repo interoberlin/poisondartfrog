@@ -205,9 +205,9 @@ public class DevicesActivity extends AppCompatActivity implements
 
         if (isXLargeTablet(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
-            if (slv != null)
-                slv.setAdapter(devicesAdapter);
+            final StaggeredGridView sgv = (StaggeredGridView) findViewById(R.id.sgv);
+            if (sgv != null)
+                sgv.setAdapter(devicesAdapter);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             final ListView lv = (ListView) findViewById(R.id.lv);
@@ -228,7 +228,8 @@ public class DevicesActivity extends AppCompatActivity implements
             fabScan.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fam.collapse();
+                    if (fam != null)
+                        fam.collapse();
 
                     if (!isBluetoothEnabled()) {
                         snack(R.string.enable_bluetooth_before_scan);
@@ -250,7 +251,8 @@ public class DevicesActivity extends AppCompatActivity implements
             fabAddMapping.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fam.collapse();
+                    if (fam != null)
+                        fam.collapse();
 
                     vibrate();
                     MappingDialog dialog = new MappingDialog();
@@ -679,9 +681,9 @@ public class DevicesActivity extends AppCompatActivity implements
             public void run() {
                 devicesAdapter.filter();
                 if (isXLargeTablet(DevicesActivity.this)) {
-                    final StaggeredGridView slv = (StaggeredGridView) findViewById(R.id.slv);
-                    if (slv != null) {
-                        slv.invalidate();
+                    final StaggeredGridView sgv = (StaggeredGridView) findViewById(R.id.sgv);
+                    if (sgv != null) {
+                        sgv.invalidate();
                     }
                 } else {
                     final ListView lv = (ListView) findViewById(R.id.lv);

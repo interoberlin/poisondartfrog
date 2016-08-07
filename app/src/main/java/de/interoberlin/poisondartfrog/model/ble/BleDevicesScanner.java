@@ -25,6 +25,7 @@ import de.interoberlin.poisondartfrog.R;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallback {
     // <editor-fold defaultstate="expanded" desc="Interfaces">
+
     private static final String TAG = BleDevicesScanner.class.getSimpleName();
 
     // Constants
@@ -42,6 +43,7 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
 
     private Thread scanThread;
     private volatile boolean isScanning = false;
+
     // </editor-fold>
 
     // --------------------
@@ -50,6 +52,7 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
 
     // <editor-fold defaultstate="expanded" desc="Constructors">
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public BleDevicesScanner(BluetoothAdapter adapter, BluetoothAdapter.LeScanCallback callback) {
         this.bluetoothAdapter = adapter;
         this.leScansPoster = new LeScansPoster(callback);
@@ -64,14 +67,12 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
             mLeScanner = adapter.getBluetoothLeScanner();
             settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
             mScanCallback = new ScanCallback() {
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
                     if (result == null || result.getScanRecord() == null) return;
                     onLeScan(result.getDevice(), result.getRssi(), result.getScanRecord().getBytes());
                 }
 
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onBatchScanResults(List<ScanResult> results) {
                     for (ScanResult result : results) {

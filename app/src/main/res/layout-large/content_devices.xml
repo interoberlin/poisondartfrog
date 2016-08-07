@@ -10,7 +10,7 @@
     tools:showIn="@layout/activity_devices">
 
     <com.etsy.android.grid.StaggeredGridView
-        android:id="@+id/slv"
+        android:id="@+id/sgv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"

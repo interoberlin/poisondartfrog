@@ -29,16 +29,6 @@
     <bool name="pref_default_golem_temperature_dbg">true</bool>
     <string name="pref_default_golem_temperature_type">other</string>
 
-    <integer-array name="golem_temperature_dbg_titles">
-        <item>0</item>
-        <item>1</item>
-    </integer-array>
-
-    <integer-array name="golem_temperature_dbg_values">
-        <item>0</item>
-        <item>1</item>
-    </integer-array>
-
     <string-array name="golem_temperature_type_titles">
         <item>Arduino</item>
         <item>SBC</item>
