@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 
 public class IFunctionDeserializer implements JsonDeserializer<IFunction> {
@@ -15,7 +16,7 @@ public class IFunctionDeserializer implements JsonDeserializer<IFunction> {
                                  JsonDeserializationContext context) throws JsonParseException {
 
         String type = json.getAsJsonObject().get("type").getAsString();
-        Class c = EFunctionType.valueOf(type.toUpperCase()).getC();
+        Class c = EFunctionType.valueOf(type.toUpperCase(Locale.GERMAN)).getC();
 
         if (c == null)
             throw new RuntimeException("Unknown type: " + type);
