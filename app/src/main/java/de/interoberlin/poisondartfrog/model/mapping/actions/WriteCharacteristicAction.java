@@ -1,5 +1,8 @@
 package de.interoberlin.poisondartfrog.model.mapping.actions;
 
+import de.interoberlin.poisondartfrog.controller.DevicesController;
+import de.interoberlin.poisondartfrog.model.ble.BleDevice;
+import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
 import de.interoberlin.poisondartfrog.model.mapping.Sink;
 
 public class WriteCharacteristicAction implements IAction {
@@ -11,8 +14,15 @@ public class WriteCharacteristicAction implements IAction {
 
     // <editor-fold defaultstate="expanded" desc="Methods">
 
+    /**
+     * Performs action
+     *
+     * @param sink sink
+     */
     public void perform(Sink sink) {
-        // TODO
+        BleDevice device = DevicesController.getInstance().getAttachedDeviceByAddress(sink.getAddress());
+        ECharacteristic characteristic = ECharacteristic.fromId(sink.getCharacteristic());
+        device.write(characteristic.getService(), characteristic, value);
     }
 
     @Override

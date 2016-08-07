@@ -302,13 +302,21 @@ public class BleDevice extends RealmObject implements IDisplayable {
         MappingController.getInstance().flangeAll();
     }
 
-    /*
+    public Subscription write(final EService service, final ECharacteristic characteristic, final Object value) {
+        if (value instanceof Boolean) {
+            return write(service, characteristic, ((Boolean) value).booleanValue());
+        } else if (value instanceof String) {
+            return write(service, characteristic, value.toString());
+        }
+
+        return null;
+    }
+
     public Subscription write(final EService service, final ECharacteristic characteristic, final String value) {
         Log.d(TAG, "Write " + characteristic.getId() + " : " + value);
 
         return write(service, characteristic, value.getBytes());
     }
-    */
 
     public Subscription write(final EService service, final ECharacteristic characteristic, final boolean value) {
         Log.d(TAG, "Write " + characteristic.getId() + " : " + bytesToHex(value ? new byte[]{0x01} : new byte[]{0x00}));
