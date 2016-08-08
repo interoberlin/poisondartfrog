@@ -60,7 +60,7 @@ import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
-    // <editor-fold defaultstate="collapsed" desc="Interfaces">
+        // <editor-fold defaultstate="collapsed" desc="Interfaces">
         BleScannerFilter.BleFilteredScanCallback,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
@@ -83,12 +83,16 @@ public class DevicesActivity extends AppCompatActivity implements
     private DevicesAdapter devicesAdapter;
 
     // View
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.fam) FloatingActionsMenu fam ;
-    @BindView(R.id.fabScan) FloatingActionButton fabScan;
-    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
-    @BindView(R.id.sgv) StaggeredGridView sgv;
-    @BindView(R.id.lv) ListView lv;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.fam)
+    FloatingActionsMenu fam;
+    @BindView(R.id.fabScan)
+    FloatingActionButton fabScan;
+    @BindView(R.id.fabAddMapping)
+    FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv)
+    StaggeredGridView sgv;
 
     // Controller
     private DevicesController devicesController;
@@ -220,15 +224,10 @@ public class DevicesActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
 
-        if (isXLargeTablet(this)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            if (sgv != null)
-                sgv.setAdapter(devicesAdapter);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            if (lv != null)
-                lv.setAdapter(devicesAdapter);
-        }
+        setRequestedOrientation(isXLargeTablet(this) ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        if (sgv != null)
+            sgv.setAdapter(devicesAdapter);
 
         setSupportActionBar(toolbar);
 
