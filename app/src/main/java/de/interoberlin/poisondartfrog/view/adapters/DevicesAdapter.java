@@ -154,7 +154,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             final ViewHolderDevice viewHolder;
 
-            if (v == null) {
+            if (v == null || (v.getTag() != null && ! (v.getTag() instanceof ViewHolderDevice))) {
                 v = LayoutInflater.from(getContext()).inflate(R.layout.card_device, parent, false);
                 viewHolder = new ViewHolderDevice(v);
                 v.setTag(viewHolder);
@@ -366,7 +366,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             final ViewHolderMapping viewHolder;
 
-            if (v == null) {
+            if (v == null || (v.getTag() != null && ! (v.getTag() instanceof ViewHolderMapping))) {
                 v = LayoutInflater.from(getContext()).inflate(R.layout.card_mapping, parent, false);
                 viewHolder = new ViewHolderMapping(v);
                 v.setTag(viewHolder);
