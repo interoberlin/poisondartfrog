@@ -11,10 +11,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import de.interoberlin.merlot_android.controller.DevicesController;
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
 import de.interoberlin.poisondartfrog.view.adapters.ScanResultsAdapter;
 
 public class ScanResultsDialog extends DialogFragment implements
@@ -74,7 +74,7 @@ public class ScanResultsDialog extends DialogFragment implements
             }
         });
 
-        devicesController.startScan(this);
+        devicesController.startScan(getActivity(), this);
 
         return builder.create();
     }

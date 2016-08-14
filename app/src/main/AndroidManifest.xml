@@ -42,10 +42,6 @@
         <activity
             android:name="de.interoberlin.mate.lib.view.AboutActivity"
             android:label="@string/title_activity_about" />
-
-        <service
-            android:name=".model.ble.BluetoothLeService"
-            android:enabled="true" />
     </application>
 
 </manifest>

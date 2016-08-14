@@ -6,9 +6,9 @@ import android.widget.TableRow;
 
 import java.util.Map;
 
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.service.Reading;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.CircleDiagram;
 
 public class MicrophoneComponent extends TableLayout {

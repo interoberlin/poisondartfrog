@@ -13,10 +13,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.interoberlin.merlot_android.controller.DevicesController;
+import de.interoberlin.merlot_android.model.config.repository.Characteristic;
+import de.interoberlin.merlot_android.model.config.repository.RepositoryMapper;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.config.repository.Characteristic;
-import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
 
 public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteristic> {
     // <editor-fold defaultstate="collapsed" desc="Members">
@@ -85,7 +85,7 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
             viewHolder = (ViewHolder) v.getTag();
         }
 
-        Characteristic c = RepositoryMapper.getInstance().getCharacteristicById(characteristic.getUuid().toString());
+        Characteristic c = RepositoryMapper.getInstance(getContext()).getCharacteristicById(characteristic.getUuid().toString());
 
         // Set values
         viewHolder.tvId.setText(characteristic.getUuid().toString().substring(4, 8));

@@ -19,15 +19,15 @@ import java.util.Timer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.interoberlin.merlot_android.controller.DevicesController;
+import de.interoberlin.merlot_android.controller.MappingController;
+import de.interoberlin.merlot_android.model.IDisplayable;
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.config.ECharacteristic;
+import de.interoberlin.merlot_android.model.config.EDevice;
+import de.interoberlin.merlot_android.model.config.EService;
+import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.controller.MappingController;
-import de.interoberlin.poisondartfrog.model.IDisplayable;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
-import de.interoberlin.poisondartfrog.model.config.EDevice;
-import de.interoberlin.poisondartfrog.model.config.EService;
-import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComponent;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
@@ -110,7 +110,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     public DevicesAdapter(Context context, OnCompleteListener ocListener, int resource, List<IDisplayable> items) {
         super(context, resource, items);
         devicesController = DevicesController.getInstance();
-        mappingController = MappingController.getInstance();
+        mappingController = MappingController.getInstance(getContext());
 
         this.res = context.getResources();
 
@@ -286,10 +286,10 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                     public void onClick(View v) {
                         ocListener.onSubscribe();
                         if (!device.isSubscribing()) {
-                            device.subscribe(ECharacteristic.DATA);
+                            device.subscribe(context, ECharacteristic.DATA);
                             ocListener.onChange(device, R.string.started_subscription);
                         } else {
-                            device.unsubscribe(ECharacteristic.DATA);
+                            device.unsubscribe(context, ECharacteristic.DATA);
                             device.disconnect();
 
                             ocListener.onChange(device, R.string.stopped_subscription);
@@ -340,7 +340,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 @Override
                 public void onClick(View v) {
                     ocListener.onToggleAutoConnect();
-                    devicesController.toggleAutoConnect(device);
+                    devicesController.toggleAutoConnect(getContext(), device);
                 }
             });
 

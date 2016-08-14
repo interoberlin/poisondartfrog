@@ -12,9 +12,9 @@ import android.widget.TextView;
 
 import java.util.UUID;
 
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.config.repository.RepositoryMapper;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.config.repository.RepositoryMapper;
 
 public class ServicesComponent extends TableLayout {
     // --------------------
@@ -41,8 +41,8 @@ public class ServicesComponent extends TableLayout {
             TextView tvService = new TextView(context);
 
             UUID serviceId = service.getUuid();
-            if (RepositoryMapper.getInstance().isKnownService(serviceId.toString()))
-                tvService.setText(RepositoryMapper.getInstance().getServiceById(serviceId.toString()).getName());
+            if (RepositoryMapper.getInstance(context).isKnownService(serviceId.toString()))
+                tvService.setText(RepositoryMapper.getInstance(context).getServiceById(serviceId.toString()).getName());
             else
                 tvService.setText(serviceId.toString());
 
@@ -64,8 +64,8 @@ public class ServicesComponent extends TableLayout {
                 TextView tvValue = new TextView(context);
 
                 UUID characteristicId = characteristic.getUuid();
-                if (RepositoryMapper.getInstance().isKnownCharacteristic(characteristicId.toString())) {
-                    tvCharacteristic.setText(RepositoryMapper.getInstance().getCharacteristicById(characteristicId.toString()).getName());
+                if (RepositoryMapper.getInstance(context).isKnownCharacteristic(characteristicId.toString())) {
+                    tvCharacteristic.setText(RepositoryMapper.getInstance(context).getCharacteristicById(characteristicId.toString()).getName());
                 } else {
                     tvCharacteristic.setText(characteristicId.toString().substring(0, 18));
                 }

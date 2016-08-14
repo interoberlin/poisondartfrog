@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.geo.Vector2;
+import de.interoberlin.poisondartfrog.model.golem.Vector2;
 
 public class SpiderWebChart extends ImageView {
     // <editor-fold defaultstate="collapsed" desc="Members">

@@ -1,4 +1,4 @@
-package de.interoberlin.poisondartfrog.model.geo;
+package de.interoberlin.poisondartfrog.model.golem;
 
 public class Vector2 {
     // <editor-fold defaultstate="collapsed" desc="Members">

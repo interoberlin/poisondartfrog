@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import java.util.Map;
 
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.parser.AccelGyroscope;
+import de.interoberlin.merlot_android.model.parser.BleDataParser;
+import de.interoberlin.merlot_android.model.parser.LightColorProx;
+import de.interoberlin.merlot_android.model.service.Reading;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.parser.AccelGyroscope;
-import de.interoberlin.poisondartfrog.model.parser.BleDataParser;
-import de.interoberlin.poisondartfrog.model.parser.LightColorProx;
-import de.interoberlin.poisondartfrog.model.service.Reading;
 
 public class DataComponent extends TableLayout {
     // <editor-fold defaultstate="collapsed" desc="Members">

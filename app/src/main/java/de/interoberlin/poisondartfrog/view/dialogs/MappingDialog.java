@@ -12,9 +12,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import de.interoberlin.merlot_android.controller.MappingController;
+import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.MappingController;
-import de.interoberlin.poisondartfrog.model.mapping.Mapping;
 
 public class MappingDialog extends DialogFragment {
     // <editor-fold defaultstate="collapsed" desc="Members">
@@ -53,7 +53,7 @@ public class MappingDialog extends DialogFragment {
 
         // Fill views with arguments
         ArrayAdapter<String> spnnrAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item, mappingController.getInstance().getExistingMappingNames());
+                android.R.layout.simple_spinner_item, mappingController.getInstance(getActivity()).getExistingMappingNames());
         spnnrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnnrMappings.setAdapter(spnnrAdapter);
 
@@ -108,7 +108,7 @@ public class MappingDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if (selectedMapping != null) {
-                    mappingController = MappingController.getInstance();
+                    mappingController = MappingController.getInstance(getActivity());
                     Mapping mapping = mappingController.getExistingMappingByName(selectedMapping);
                     ocListener.onMappingSelected(mapping);
                 }

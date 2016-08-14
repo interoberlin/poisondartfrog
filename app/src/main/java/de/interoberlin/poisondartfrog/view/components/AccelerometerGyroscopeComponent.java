@@ -9,10 +9,10 @@ import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.Map;
 
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.parser.AccelGyroscope;
+import de.interoberlin.merlot_android.model.service.Reading;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.parser.AccelGyroscope;
-import de.interoberlin.poisondartfrog.model.service.Reading;
 import de.interoberlin.poisondartfrog.view.diagrams.SpiderWebChart;
 
 public class AccelerometerGyroscopeComponent extends TableLayout {

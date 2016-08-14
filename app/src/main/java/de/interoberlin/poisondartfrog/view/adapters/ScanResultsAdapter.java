@@ -14,10 +14,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.interoberlin.merlot_android.controller.DevicesController;
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.config.EDevice;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.config.EDevice;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     // <editor-fold defaultstate="collapsed" desc="Members">

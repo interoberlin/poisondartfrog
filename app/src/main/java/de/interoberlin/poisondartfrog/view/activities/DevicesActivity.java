@@ -34,7 +34,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -45,14 +44,15 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.interoberlin.mate.lib.view.AboutActivity;
+import de.interoberlin.merlot_android.controller.DevicesController;
+import de.interoberlin.merlot_android.controller.MappingController;
+import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
+import de.interoberlin.merlot_android.model.ble.BluetoothLeService;
+import de.interoberlin.merlot_android.model.config.ECharacteristic;
+import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
-import de.interoberlin.poisondartfrog.controller.MappingController;
-import de.interoberlin.poisondartfrog.model.ble.BleDevice;
-import de.interoberlin.poisondartfrog.model.ble.BleScannerFilter;
-import de.interoberlin.poisondartfrog.model.ble.BluetoothLeService;
-import de.interoberlin.poisondartfrog.model.config.ECharacteristic;
-import de.interoberlin.poisondartfrog.model.mapping.Mapping;
+import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
@@ -164,7 +164,7 @@ public class DevicesActivity extends AppCompatActivity implements
                 }
 
                 devicesController = DevicesController.getInstance();
-                mappingController = MappingController.getInstance();
+                mappingController = MappingController.getInstance(DevicesActivity.this);
                 updateView();
             }
 
@@ -174,7 +174,7 @@ public class DevicesActivity extends AppCompatActivity implements
                 bluetoothLeService = null;
 
                 devicesController = DevicesController.getInstance();
-                mappingController = MappingController.getInstance();
+                mappingController = MappingController.getInstance(DevicesActivity.this);
                 updateView();
             }
         };
@@ -193,7 +193,7 @@ public class DevicesActivity extends AppCompatActivity implements
                     device.setServices(bluetoothLeService.getSupportedGattServices());
                     Log.d(TAG, device.toString());
 
-                    device.init();
+                    device.init(DevicesActivity.this);
                     device.read(ECharacteristic.BATTERY_LEVEL);
                     devicesController.disconnect(bluetoothLeService, device);
 
@@ -282,7 +282,7 @@ public class DevicesActivity extends AppCompatActivity implements
         scanRunnable = new Runnable() {
             @Override
             public void run() {
-                devicesController.startScan(DevicesActivity.this);
+                devicesController.startScan(DevicesActivity.this, DevicesActivity.this);
                 if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
@@ -361,12 +361,12 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onLeScan(BleDevice device, int rssi) {
         boolean attached = devicesController.getAttachedDevices().containsKey(device.getAddress());
-        boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(device);
+        boolean autoCorrectEnabled = devicesController.isAutoConnectEnabled(this, device);
 
         if (!attached && autoCorrectEnabled) {
             device.setOnChangeListener(this);
             device.setAutoConnectEnabled(true);
-            devicesController.attach(this, bluetoothLeService, device);
+            devicesController.attach(this, this, bluetoothLeService, device);
             updateView();
             snack("Auto " + device.getAddress());
         }
@@ -380,7 +380,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
         // getSingleLocation();
 
-        if (devicesController.attach(this, bluetoothLeService, device)) {
+        if (devicesController.attach(this, this, bluetoothLeService, device)) {
             updateView();
             snack(R.string.attached_device);
         } else {
@@ -402,7 +402,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
         vibrate();
 
-        if (devicesController.detach(bluetoothLeService, device)) {
+        if (devicesController.detach(this, bluetoothLeService, device)) {
             updateView();
             snack(R.string.detached_device);
         } else {
@@ -417,7 +417,7 @@ public class DevicesActivity extends AppCompatActivity implements
         sendLocationRunnable = new Runnable() {
             @Override
             public void run() {
-                devicesController.sendLocation(DevicesActivity.this, DevicesActivity.this, device, currentLocation);
+                GolemTemperatureSender.sendLocation(DevicesActivity.this, DevicesActivity.this, device, currentLocation);
 
                 // Re-run
                 scanHandler.postDelayed(this, GOLEM_SEND_PERIOD * 60 * 1000);
@@ -702,16 +702,9 @@ public class DevicesActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 devicesAdapter.filter();
-                if (isXLargeTablet(DevicesActivity.this)) {
-                    final StaggeredGridView sgv = (StaggeredGridView) findViewById(R.id.sgv);
-                    if (sgv != null) {
-                        sgv.invalidate();
-                    }
-                } else {
-                    final ListView lv = (ListView) findViewById(R.id.lv);
-                    if (lv != null) {
-                        lv.invalidateViews();
-                    }
+                final StaggeredGridView sgv = (StaggeredGridView) findViewById(R.id.sgv);
+                if (sgv != null) {
+                    sgv.invalidate();
                 }
             }
         });

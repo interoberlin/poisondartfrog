@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.controller.DevicesController;
 import de.interoberlin.poisondartfrog.view.adapters.CharacteristicsAdapter;
 
 public class CharacteristicsDialog extends DialogFragment {
