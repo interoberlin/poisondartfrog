@@ -59,12 +59,6 @@ public class CollapsableLinearLayout extends LinearLayout implements ICollapsabl
         } finally {
             a.recycle();
         }
-
-        if (collapsed) {
-            this.setVisibility(View.GONE);
-            this.getLayoutParams().height = 0;
-            this.requestLayout();
-        }
     }
 
     /*
@@ -134,6 +128,18 @@ public class CollapsableLinearLayout extends LinearLayout implements ICollapsabl
         a.setDuration(expandTime);
 
         startAnimation(a);
+    }
+
+    // </editor-fold>
+
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
+    // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
+
+    private boolean isCollapsed() {
+        return collapsed;
     }
 
     // </editor-fold>

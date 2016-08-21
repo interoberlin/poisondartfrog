@@ -54,8 +54,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
         @BindView(R.id.cllComponents) CollapsableLinearLayout cllComponents;
         @BindView(R.id.ivConnected) ImageView ivConnected;
 
-        @BindView(R.id.llShowMore) LinearLayout llShowMore;
-        @BindView(R.id.tvShowMore) TextView tvShowMore;
+        @BindView(R.id.llShowLess) LinearLayout llShowLess;
+        @BindView(R.id.tvShowLess) TextView tvShowLess;
 
         @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
         @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
@@ -224,16 +224,16 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             }
 
             // Show more
-            viewHolder.tvShowMore.setOnClickListener(new View.OnClickListener() {
+            viewHolder.tvShowLess.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (collapsed) {
                         viewHolder.cllComponents.expandVertically();
-                        viewHolder.tvShowMore.setText(R.string.show_less);
+                        viewHolder.tvShowLess.setText(R.string.show_less);
                         collapsed = false;
                     } else {
                         viewHolder.cllComponents.collapseVertically();
-                        viewHolder.tvShowMore.setText(R.string.show_more);
+                        viewHolder.tvShowLess.setText(R.string.show_more);
                         collapsed = true;
                     }
                 }
@@ -318,6 +318,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
                             if (timer != null) timer.cancel();
                         }
+
+                        viewHolder.tvShowLess.setVisibility(View.VISIBLE);
                     }
                 });
             } else {
