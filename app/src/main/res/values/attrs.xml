@@ -5,4 +5,10 @@
         <attr name="maxColor" format="integer" />
         <attr name="value" format="integer" />
     </declare-styleable>
+
+    <declare-styleable name="CollapsableLinearLayout">
+        <attr name="collapsed" format="boolean" />
+        <attr name="collapseTime" format="integer" />
+        <attr name="expandTime" format="integer" />
+    </declare-styleable>
 </resources>

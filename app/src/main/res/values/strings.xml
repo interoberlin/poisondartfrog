@@ -39,6 +39,8 @@
     <string name="scan_for_devices">Scan for devices</string>
     <string name="scan_result_icon">scan result icon</string>
     <string name="selectMapping">Select a mapping</string>
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
     <string name="started_subscription">Started subscription</string>
     <string name="stopped_subscription">Stopped subscription</string>
     <string name="title_activity_about">About</string>

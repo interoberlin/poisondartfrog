@@ -35,6 +35,7 @@ import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
 import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
 import de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram;
+import de.interoberlin.poisondartfrog.view.layouts.CollapsableLinearLayout;
 
 public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     // <editor-fold defaultstate="extended" desc="Members">
@@ -50,8 +51,11 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
         @BindView(R.id.tvName) TextView tvName;
         @BindView(R.id.tvAddress) TextView tvAddress;
         @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.llComponents) LinearLayout llComponents;
+        @BindView(R.id.cllComponents) CollapsableLinearLayout cllComponents;
         @BindView(R.id.ivConnected) ImageView ivConnected;
+
+        @BindView(R.id.llShowMore) LinearLayout llShowMore;
+        @BindView(R.id.tvShowMore) TextView tvShowMore;
 
         @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
         @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
@@ -72,7 +76,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     static class ViewHolderMapping {
         @BindView(R.id.tvName) TextView tvName;
         @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.ivTriggered) ImageView ivTriggered;
+        @BindView(R.id.ivTriggered)  ImageView ivTriggered;
         @BindView(R.id.ivSource) ImageView ivSource;
         @BindView(R.id.tvSource) TextView tvSource;
         @BindView(R.id.ivSink) ImageView ivSink;
@@ -82,6 +86,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             ButterKnife.bind(this, v);
         }
     }
+
+    private boolean collapsed;
 
     // Controller
     private DevicesController devicesController;
@@ -154,7 +160,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             final ViewHolderDevice viewHolder;
 
-            if (v == null || (v.getTag() != null && ! (v.getTag() instanceof ViewHolderDevice))) {
+            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderDevice))) {
                 v = LayoutInflater.from(getContext()).inflate(R.layout.card_device, parent, false);
                 viewHolder = new ViewHolderDevice(v);
                 v.setTag(viewHolder);
@@ -176,7 +182,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             if (device.getName() == null || device.getName().isEmpty())
                 viewHolder.tvName.setText(R.string.unknown_device);
 
-            viewHolder.llComponents.removeAllViews();
+            viewHolder.cllComponents.removeAllViews();
 
             if (EDevice.fromString(device.getName()) != null) {
                 switch (EDevice.fromString(device.getName())) {
@@ -217,6 +223,22 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                     viewHolder.ivConnected.setVisibility(View.GONE);
             }
 
+            // Show more
+            viewHolder.tvShowMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (collapsed) {
+                        viewHolder.cllComponents.expandVertically();
+                        viewHolder.tvShowMore.setText(R.string.show_less);
+                        collapsed = false;
+                    } else {
+                        viewHolder.cllComponents.collapseVertically();
+                        viewHolder.tvShowMore.setText(R.string.show_more);
+                        collapsed = true;
+                    }
+                }
+            });
+
             // Battery level
             if (device.containsCharacteristic(ECharacteristic.BATTERY_LEVEL)) {
                 String value = device.getCharacteristic(ECharacteristic.BATTERY_LEVEL).getStringValue(0);
@@ -240,28 +262,28 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
 
             if (!device.getReadings().isEmpty()) {
-                viewHolder.llComponents.addView(new DataComponent(context, device));
+                viewHolder.cllComponents.addView(new DataComponent(context, device));
 
                 switch (EDevice.fromString(device.getName())) {
                     case WUNDERBAR_LIGHT: {
-                        viewHolder.llComponents.addView(new LightProximityComponent(context, device));
+                        viewHolder.cllComponents.addView(new LightProximityComponent(context, device));
                         break;
                     }
                     case WUNDERBAR_GYRO: {
-                        viewHolder.llComponents.addView(new AccelerometerGyroscopeComponent(context, device));
+                        viewHolder.cllComponents.addView(new AccelerometerGyroscopeComponent(context, device));
                         break;
                     }
                     case WUNDERBAR_MIC: {
-                        viewHolder.llComponents.addView(new MicrophoneComponent(context, device));
-                        viewHolder.llComponents.addView(new LineChartComponent(context, device));
+                        viewHolder.cllComponents.addView(new MicrophoneComponent(context, device));
+                        viewHolder.cllComponents.addView(new LineChartComponent(context, device));
                         break;
                     }
                     case INTEROBERLIN_SENTIENT_LIGHT: {
-                        viewHolder.llComponents.addView(new SentientLightComponent(context, device));
+                        viewHolder.cllComponents.addView(new SentientLightComponent(context, device));
                         break;
                     }
                     default: {
-                        viewHolder.llComponents.addView(new LineChartComponent(context, device));
+                        viewHolder.cllComponents.addView(new LineChartComponent(context, device));
                         break;
                     }
                 }
@@ -366,7 +388,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
             final ViewHolderMapping viewHolder;
 
-            if (v == null || (v.getTag() != null && ! (v.getTag() instanceof ViewHolderMapping))) {
+            if (v == null || (v.getTag() != null && !(v.getTag() instanceof ViewHolderMapping))) {
                 v = LayoutInflater.from(getContext()).inflate(R.layout.card_mapping, parent, false);
                 viewHolder = new ViewHolderMapping(v);
                 v.setTag(viewHolder);
