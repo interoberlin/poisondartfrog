@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +65,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
         @BindView(R.id.ivDetach) ImageView ivDetach;
         @BindView(R.id.ivSubscribeData) ImageView ivSubscribe;
         @BindView(R.id.ivLedState) ImageView ivLedState;
+        @BindView(R.id.ivInteroberlinUART) ImageView ivInteroberlinUART;
         @BindView(R.id.ivSendTemperature) ImageView ivSendTemperature;
         @BindView(R.id.ivAutoConnect) ImageView ivAutoConnect;
         @BindView(R.id.ivMore) ImageView ivMore;
@@ -203,7 +205,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                         break;
                     }
                     case NRFDUINO: {
-                        viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
+                        viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_36dp);
                         break;
                     }
                     default: {
@@ -339,6 +341,23 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             } else {
                 viewHolder.ivLedState.setVisibility(View.GONE);
             }
+
+            if (device.containsCharacteristic(ECharacteristic.INTEROBERLIN_UART_TX)) {
+                viewHolder.ivInteroberlinUART.setVisibility(View.VISIBLE);
+                viewHolder.ivInteroberlinUART.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i(TAG, "hello");
+                        ocListener.onSend();
+                        device.write(EService.INTEROBERLIN_UART, ECharacteristic.INTEROBERLIN_UART_TX, "Hello");
+                    }
+                });
+            } else {
+                viewHolder.ivInteroberlinUART.setVisibility(View.GONE);
+            }
+
+
+
 
             // Send temperature
             if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)

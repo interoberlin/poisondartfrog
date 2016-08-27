@@ -127,7 +127,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
                     break;
                 }
                 case NRFDUINO : {
-                    viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_48dp);
+                    viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_36dp);
                     break;
                 }
                 default: {
