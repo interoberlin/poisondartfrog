@@ -6,8 +6,8 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
-import de.interoberlin.merlot_android.model.config.EService;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerPalette;
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerSwatch;
@@ -68,7 +68,7 @@ public class SentientLightComponent extends LinearLayout implements ColorPickerS
 
         Log.d(TAG, debugColorComponent("r",r) + ", " + debugColorComponent("g",g) + ", " + debugColorComponent("b",b) + ", ");
 
-        device.write(EService.SENTIENT_LIGHT, ECharacteristic.LED_COLOR, new byte[]{intToByte(r), intToByte(g), intToByte(b)});
+        device.write(EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_TX, new byte[]{intToByte(r), intToByte(g), intToByte(b)});
     }
 
     private byte intToByte(int value) {

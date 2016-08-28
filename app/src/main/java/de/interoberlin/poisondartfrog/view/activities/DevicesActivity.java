@@ -49,8 +49,8 @@ import de.interoberlin.merlot_android.controller.MappingController;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
 import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
 import de.interoberlin.merlot_android.model.ble.BluetoothLeService;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
@@ -475,6 +475,11 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onChange(BleDevice device) {
         updateView();
+    }
+
+    @Override
+    public void onChange(BleDevice bleDevice, String characteristic, String value) {
+        snack(characteristic + " : " + value);
     }
 
     @Override

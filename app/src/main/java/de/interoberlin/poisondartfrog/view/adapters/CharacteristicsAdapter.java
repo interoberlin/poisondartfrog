@@ -14,7 +14,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.interoberlin.merlot_android.controller.DevicesController;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
 import de.interoberlin.poisondartfrog.R;
 
 public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteristic> {
@@ -24,8 +24,10 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
 
     //View
     static class ViewHolder {
-        @BindView(R.id.tvId) TextView tvId;
         @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.tvUuid) TextView tvUuid;
+        @BindView(R.id.tvProperties) TextView tvProperties;
+        @BindView(R.id.tvPermissions) TextView tvPermissions;
 
         public ViewHolder(View v) {
             ButterKnife.bind(this, v);
@@ -84,14 +86,42 @@ public class CharacteristicsAdapter extends ArrayAdapter<BluetoothGattCharacteri
             viewHolder = (ViewHolder) v.getTag();
         }
 
-        //Characteristic c = RepositoryMapper.getInstance(getContext()).getCharacteristicById(characteristic.getUuid().toString());
         ECharacteristic c = ECharacteristic.fromId(characteristic.getUuid().toString());
 
+        int properties = characteristic.getProperties();
+        int permissions = characteristic.getPermissions();
+
+        StringBuilder sbProperties = new StringBuilder();
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_BROADCAST)) sbProperties.append(", BROADCAST");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS)) sbProperties.append(", EXTENDED PROPS");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_INDICATE)) sbProperties.append(", INDICATE");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_NOTIFY)) sbProperties.append(", NOTIFY");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_READ)) sbProperties.append(", READ");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE)) sbProperties.append(", SIGNED WRITE");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_WRITE)) sbProperties.append(", WRITE");
+        if (matchesMask(properties, BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) sbProperties.append(", WRITE NO RESPONSE");
+
+        StringBuilder sbPermissions = new StringBuilder();
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_READ)) sbPermissions.append(", READ");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED)) sbPermissions.append(", READ ENCRYPTED");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM)) sbPermissions.append(", READ ENCRYPTED MITM");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_WRITE)) sbPermissions.append(", WRITE");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED)) sbPermissions.append(", WRITE ENCRYPTED");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM)) sbPermissions.append(", WRITE ENCRYPTED MITM");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED)) sbPermissions.append(", WRITE SIGNED");
+        if (matchesMask(permissions, BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM)) sbPermissions.append(", WRITE SIGNED MITM");
+
         // Set values
-        viewHolder.tvId.setText(characteristic.getUuid().toString().substring(4, 8));
-        viewHolder.tvName.setText(c != null ? c.toString() : getContext().getString(R.string.unknown_characteristic));
+        viewHolder.tvName.setText(c != null ? c.getName() : getContext().getString(R.string.unknown_characteristic));
+        viewHolder.tvUuid.setText(characteristic.getUuid().toString().substring(4, 8));
+        viewHolder.tvProperties.setText(sbProperties.toString().replaceFirst(", ", ""));
+        viewHolder.tvPermissions.setText(sbPermissions.toString().replaceFirst(", ", ""));
 
         return v;
+    }
+
+    private boolean matchesMask(int properties, int mask) {
+        return (properties & mask) == mask;
     }
 
     // </editor-fold>

@@ -13,7 +13,8 @@ import android.widget.TextView;
 import java.util.UUID;
 
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.repository.RepositoryMapper;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 
 public class ServicesComponent extends TableLayout {
@@ -35,17 +36,15 @@ public class ServicesComponent extends TableLayout {
         setLayoutParams(lp);
 
         for (BluetoothGattService service : device.getServices()) {
+            UUID serviceId = service.getUuid();
+            EService s = EService.fromId(serviceId.toString());
+
             TableRow trService = new TableRow(context);
             trService.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
             TextView tvService = new TextView(context);
 
-            UUID serviceId = service.getUuid();
-            if (RepositoryMapper.getInstance(context).isKnownService(serviceId.toString()))
-                tvService.setText(RepositoryMapper.getInstance(context).getServiceById(serviceId.toString()).getName());
-            else
-                tvService.setText(serviceId.toString());
-
+            tvService.setText(s != null ? s.getName() : serviceId.toString());
             tvService.setPadding(0, 15, 0, 0);
             tvService.setTypeface(null, Typeface.BOLD);
             tvService.setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
@@ -57,18 +56,16 @@ public class ServicesComponent extends TableLayout {
             addView(trService);
 
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                UUID characteristicId = characteristic.getUuid();
+                ECharacteristic c = ECharacteristic.fromId(characteristicId.toString());
+
                 TableRow trCharacteristic = new TableRow(context);
                 trCharacteristic.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
                 TextView tvCharacteristic = new TextView(context);
                 TextView tvValue = new TextView(context);
 
-                UUID characteristicId = characteristic.getUuid();
-                if (RepositoryMapper.getInstance(context).isKnownCharacteristic(characteristicId.toString())) {
-                    tvCharacteristic.setText(RepositoryMapper.getInstance(context).getCharacteristicById(characteristicId.toString()).getName());
-                } else {
-                    tvCharacteristic.setText(characteristicId.toString().substring(0, 18));
-                }
+                tvCharacteristic.setText(c != null ? c.getName() : characteristicId.toString());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     tvCharacteristic.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
                     tvCharacteristic.setTextAppearance(android.R.style.TextAppearance_Small);

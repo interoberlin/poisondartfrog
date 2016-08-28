@@ -231,7 +231,7 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'commons-io:commons-io:2.4'
     compile 'de.interoberlin:mate:0.4.27@aar'
-    compile 'de.interoberlin:merlot-android:0.1.15@aar'
+    compile 'de.interoberlin:merlot-android:0.2.40@aar'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.1.0'
     compile 'org.apache.commons:commons-lang3:3.0'

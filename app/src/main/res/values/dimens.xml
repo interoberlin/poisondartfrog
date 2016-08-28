@@ -36,4 +36,7 @@
 
     <!-- Line Chart -->
     <dimen name="linechart_height">180dp</dimen>
+
+    <!-- Dialog -->
+    <dimen name="attribute_padding">20dp</dimen>
 </resources>
