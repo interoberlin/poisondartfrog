@@ -16,7 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.EDevice;
+import de.interoberlin.merlot_android.model.repository.EDevice;
 import de.interoberlin.poisondartfrog.R;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
@@ -32,6 +32,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
     static class ViewHolder {
         @BindView(R.id.tvName) TextView tvName;
         @BindView(R.id.tvAddress) TextView tvAddress;
+        @BindView(R.id.tvRssi) TextView tvRssi;
         @BindView(R.id.ivIcon) ImageView ivIcon;
 
         public ViewHolder(View v) {
@@ -105,6 +106,7 @@ public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
         // Set values
         viewHolder.tvName.setText(device.getName());
         viewHolder.tvAddress.setText(device.getAddress());
+        viewHolder.tvRssi.setText(String.format("-%sdBm", device.getRssi()));
 
         if (device.getName() == null || device.getName().isEmpty())
             viewHolder.tvName.setText(R.string.unknown_device);
