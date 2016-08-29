@@ -7,7 +7,7 @@
     android:theme="@style/Theme.AppCompat.Light.Dialog">
 
     <ListView
-        android:id="@+id/lvCharacteristics"
+        android:id="@+id/lvServices"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" />

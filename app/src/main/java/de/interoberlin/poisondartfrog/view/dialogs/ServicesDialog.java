@@ -12,16 +12,16 @@ import android.widget.ListView;
 
 import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.poisondartfrog.R;
-import de.interoberlin.poisondartfrog.view.adapters.CharacteristicsAdapter;
+import de.interoberlin.poisondartfrog.view.adapters.ServicesAdapter;
 
-public class CharacteristicsDialog extends DialogFragment {
+public class ServicesDialog extends DialogFragment {
     // <editor-fold defaultstate="collapsed" desc="Members">
 
-    public static final String TAG = CharacteristicsDialog.class.getSimpleName();
+    public static final String TAG = ServicesDialog.class.getSimpleName();
 
     // View
-    private CharacteristicsAdapter characteristcsAdapter;
-    private ListView lvCharacteristics;
+    private ServicesAdapter servicesAdapter;
+    private ListView lvServices;
 
     // Controller
     private DevicesController devicesController;
@@ -43,9 +43,9 @@ public class CharacteristicsDialog extends DialogFragment {
         final Resources res = getActivity().getResources();
 
         // Load layout
-        final View v = View.inflate(getActivity(), R.layout.dialog_characteristics, null);
+        final View v = View.inflate(getActivity(), R.layout.dialog_services, null);
 
-        lvCharacteristics = (ListView) v.findViewById(R.id.lvCharacteristics);
+        lvServices = (ListView) v.findViewById(R.id.lvServices);
 
         // Get arguments
         Bundle bundle = this.getArguments();
@@ -56,8 +56,8 @@ public class CharacteristicsDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(v);
         builder.setTitle(dialogTitle);
-        characteristcsAdapter = new CharacteristicsAdapter(getActivity(), R.layout.item_characteristic, devicesController.getAttachedDevices().get(deviceAddress).getCharacteristics());
-        lvCharacteristics.setAdapter(characteristcsAdapter);
+        servicesAdapter = new ServicesAdapter(getActivity(), R.layout.item_characteristic, devicesController.getAttachedDeviceByAddress(deviceAddress), devicesController.getAttachedDevices().get(deviceAddress).getServices());
+        lvServices.setAdapter(servicesAdapter);
 
         // Add negative button
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -110,7 +110,7 @@ public class CharacteristicsDialog extends DialogFragment {
      * Updates the view
      */
     public void updateView() {
-        lvCharacteristics.invalidateViews();
+        lvServices.invalidateViews();
     }
 
     // </editor-fold>

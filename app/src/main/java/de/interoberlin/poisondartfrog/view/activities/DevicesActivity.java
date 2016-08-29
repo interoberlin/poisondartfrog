@@ -55,7 +55,7 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
-import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.ServicesDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
@@ -430,7 +430,7 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onOpenCharacteristicsDialog(BleDevice device) {
         vibrate();
-        CharacteristicsDialog dialog = new CharacteristicsDialog();
+        ServicesDialog dialog = new ServicesDialog();
         Bundle b = new Bundle();
         b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.characteristics));
         b.putCharSequence(getResources().getString(R.string.bundle_device_address), device.getAddress());
