@@ -6,8 +6,8 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
-import de.interoberlin.merlot_android.model.config.EService;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerPalette;
 import de.interoberlin.poisondartfrog.view.components.colorpicker.ColorPickerSwatch;

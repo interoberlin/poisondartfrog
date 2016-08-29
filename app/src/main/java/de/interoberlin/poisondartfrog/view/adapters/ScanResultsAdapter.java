@@ -16,7 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.EDevice;
+import de.interoberlin.merlot_android.model.repository.EDevice;
 import de.interoberlin.poisondartfrog.R;
 
 public class ScanResultsAdapter extends ArrayAdapter<BleDevice> {
