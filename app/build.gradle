@@ -11,6 +11,9 @@ buildscript {
         jcenter()
         mavenLocal()
         mavenCentral()
+        flatDir {
+            dirs '../../merlot-android/lib/build/outputs/aar'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
@@ -231,7 +234,7 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'commons-io:commons-io:2.4'
     compile 'de.interoberlin:mate:0.4.27@aar'
-    compile 'de.interoberlin:merlot-android:0.2.41@aar'
+    compile 'de.interoberlin:merlot-android:0.2.46@aar'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava:1.1.0'
     compile 'org.apache.commons:commons-lang3:3.0'

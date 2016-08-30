@@ -49,26 +49,45 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     // View
     static class ViewHolderDevice {
-        @BindView(R.id.tvName) TextView tvName;
-        @BindView(R.id.tvAddress) TextView tvAddress;
-        @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.cllComponents) CollapsableLinearLayout cllComponents;
-        @BindView(R.id.ivConnected) ImageView ivConnected;
+        @BindView(R.id.tvName)
+        TextView tvName;
+        @BindView(R.id.tvAddress)
+        TextView tvAddress;
+        @BindView(R.id.ivIcon)
+        ImageView ivIcon;
+        @BindView(R.id.cllComponents)
+        CollapsableLinearLayout cllComponents;
+        @BindView(R.id.ivConnected)
+        ImageView ivConnected;
 
-        @BindView(R.id.llShowLess) LinearLayout llShowLess;
-        @BindView(R.id.tvShowLess) TextView tvShowLess;
+        @BindView(R.id.llShowLess)
+        LinearLayout llShowLess;
+        @BindView(R.id.tvShowLess)
+        TextView tvShowLess;
 
-        @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
-        @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
-        @BindView(R.id.bdBattery) BatteryDiagram bdBattery;
+        @BindView(R.id.llBatteryLevel)
+        LinearLayout llBatteryLevel;
+        @BindView(R.id.tvBatteryLevelValue)
+        TextView tvBatteryLevelValue;
+        @BindView(R.id.bdBattery)
+        BatteryDiagram bdBattery;
 
-        @BindView(R.id.ivDetach) ImageView ivDetach;
-        @BindView(R.id.ivSubscribeData) ImageView ivSubscribe;
-        @BindView(R.id.ivLedState) ImageView ivLedState;
-        @BindView(R.id.ivInteroberlinUART) ImageView ivInteroberlinUART;
-        @BindView(R.id.ivSendTemperature) ImageView ivSendTemperature;
-        @BindView(R.id.ivAutoConnect) ImageView ivAutoConnect;
-        @BindView(R.id.ivMore) ImageView ivMore;
+        @BindView(R.id.ivDetach)
+        ImageView ivDetach;
+        @BindView(R.id.ivSubscribeData)
+        ImageView ivSubscribe;
+        @BindView(R.id.ivLedState)
+        ImageView ivLedState;
+        @BindView(R.id.ivInteroberlinUartRx)
+        ImageView ivInteroberlinUartRx;
+        @BindView(R.id.ivInteroberlinUartTx)
+        ImageView ivInteroberlinUartTx;
+        @BindView(R.id.ivSendTemperature)
+        ImageView ivSendTemperature;
+        @BindView(R.id.ivAutoConnect)
+        ImageView ivAutoConnect;
+        @BindView(R.id.ivMore)
+        ImageView ivMore;
 
         public ViewHolderDevice(View v) {
             ButterKnife.bind(this, v);
@@ -76,13 +95,20 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     }
 
     static class ViewHolderMapping {
-        @BindView(R.id.tvName) TextView tvName;
-        @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.ivTriggered)  ImageView ivTriggered;
-        @BindView(R.id.ivSource) ImageView ivSource;
-        @BindView(R.id.tvSource) TextView tvSource;
-        @BindView(R.id.ivSink) ImageView ivSink;
-        @BindView(R.id.tvSink) TextView tvSink;
+        @BindView(R.id.tvName)
+        TextView tvName;
+        @BindView(R.id.ivIcon)
+        ImageView ivIcon;
+        @BindView(R.id.ivTriggered)
+        ImageView ivTriggered;
+        @BindView(R.id.ivSource)
+        ImageView ivSource;
+        @BindView(R.id.tvSource)
+        TextView tvSource;
+        @BindView(R.id.ivSink)
+        ImageView ivSink;
+        @BindView(R.id.tvSink)
+        TextView tvSink;
 
         public ViewHolderMapping(View v) {
             ButterKnife.bind(this, v);
@@ -262,6 +288,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             }
 
             viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+            viewHolder.ivInteroberlinUartRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
 
             if (!device.getReadings().isEmpty()) {
                 viewHolder.cllComponents.addView(new DataComponent(context, device));
@@ -302,12 +329,13 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                                                    }
             );
 
-            // Subscribe data
+            // <editor-fold defaultstate="extended" desc="Subscribe DATA">
             if (device.containsCharacteristic(ECharacteristic.DATA)) {
                 viewHolder.ivSubscribe.setVisibility(View.VISIBLE);
                 viewHolder.ivSubscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Log.d(TAG, "Clicked subscribe");
                         ocListener.onSubscribe();
                         if (!device.isSubscribing()) {
                             device.subscribe(context, ECharacteristic.DATA);
@@ -327,8 +355,9 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             } else {
                 viewHolder.ivSubscribe.setVisibility(View.GONE);
             }
+            // </editor-fold>
 
-            // LED state
+            // <editor-fold defaultstate="extended" desc="Write LED">
             if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
                 viewHolder.ivLedState.setVisibility(View.VISIBLE);
                 viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
@@ -341,23 +370,52 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             } else {
                 viewHolder.ivLedState.setVisibility(View.GONE);
             }
+            // </editor-fold>
 
-            if (device.containsCharacteristic(ECharacteristic.INTEROBERLIN_UART_TX)) {
-                viewHolder.ivInteroberlinUART.setVisibility(View.VISIBLE);
-                viewHolder.ivInteroberlinUART.setOnClickListener(new View.OnClickListener() {
+            // <editor-fold defaultstate="extended" desc="Subscribe Interoberlin UART RX">
+            if (device.containsCharacteristic(ECharacteristic.INTEROBERLIN_UART_RX)) {
+                viewHolder.ivInteroberlinUartRx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivInteroberlinUartRx.setVisibility(View.VISIBLE);
+                viewHolder.ivInteroberlinUartRx.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.i(TAG, "hello");
+                        ocListener.onSubscribe();
+
+                        if (!device.isSubscribing()) {
+                            device.subscribe(context, ECharacteristic.INTEROBERLIN_UART_RX, true);
+                            ocListener.onChange(device, R.string.started_subscription);
+                        } else {
+                            device.unsubscribe(context, ECharacteristic.INTEROBERLIN_UART_RX);
+                            device.disconnect();
+
+                            ocListener.onChange(device, R.string.stopped_subscription);
+
+                            if (timer != null) timer.cancel();
+                        }
+
+                        viewHolder.tvShowLess.setVisibility(View.VISIBLE);
+                    }
+                });
+            } else {
+                viewHolder.ivInteroberlinUartRx.setVisibility(View.GONE);
+            }
+            // </editor-fold>
+
+            // <editor-fold defaultstate="extended" desc="Write Interoberlin UART TX">
+            if (device.containsCharacteristic(ECharacteristic.INTEROBERLIN_UART_TX)) {
+                viewHolder.ivInteroberlinUartTx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivInteroberlinUartTx.setVisibility(View.VISIBLE);
+                viewHolder.ivInteroberlinUartTx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         ocListener.onSend();
                         device.write(EService.INTEROBERLIN_UART, ECharacteristic.INTEROBERLIN_UART_TX, "Hello");
                     }
                 });
             } else {
-                viewHolder.ivInteroberlinUART.setVisibility(View.GONE);
+                viewHolder.ivInteroberlinUartTx.setVisibility(View.GONE);
             }
-
-
-
+            // </editor-fold>
 
             // Send temperature
             if ((EDevice.fromString(device.getName()) != null) && EDevice.fromString(device.getName()).equals(EDevice.WUNDERBAR_HTU)

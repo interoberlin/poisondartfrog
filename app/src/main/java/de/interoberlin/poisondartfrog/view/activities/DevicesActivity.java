@@ -51,6 +51,7 @@ import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
 import de.interoberlin.merlot_android.model.ble.BluetoothLeService;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
@@ -60,7 +61,7 @@ import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
-        // <editor-fold defaultstate="collapsed" desc="Interfaces">
+    // <editor-fold defaultstate="collapsed" desc="Interfaces">
         BleScannerFilter.BleFilteredScanCallback,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
@@ -83,16 +84,11 @@ public class DevicesActivity extends AppCompatActivity implements
     private DevicesAdapter devicesAdapter;
 
     // View
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.fam)
-    FloatingActionsMenu fam;
-    @BindView(R.id.fabScan)
-    FloatingActionButton fabScan;
-    @BindView(R.id.fabAddMapping)
-    FloatingActionButton fabAddMapping;
-    @BindView(R.id.sgv)
-    StaggeredGridView sgv;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.fam) FloatingActionsMenu fam;
+    @BindView(R.id.fabScan) FloatingActionButton fabScan;
+    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv) StaggeredGridView sgv;
 
     // Controller
     private DevicesController devicesController;
@@ -370,6 +366,9 @@ public class DevicesActivity extends AppCompatActivity implements
             updateView();
             snack("Auto " + device.getAddress());
         }
+
+        BleDeviceManager bluetoothDeviceManager = BleDeviceManager.getInstance();
+        bluetoothDeviceManager.addDiscoveredDevice(device);
     }
 
     // Callbacks from ScanResulstDialog

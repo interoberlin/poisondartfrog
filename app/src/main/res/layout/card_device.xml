@@ -217,9 +217,18 @@
                             android:padding="@dimen/icon_padding"
                             android:src="@drawable/ic_lightbulb_outline_black_36dp" />
 
-                        <!-- Interoberlin UART -->
+                        <!-- Interoberlin UART RX -->
                         <ImageView
-                            android:id="@+id/ivInteroberlinUART"
+                            android:id="@+id/ivInteroberlinUartRx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_play_arrow_black_36dp" />
+
+                        <!-- Interoberlin UART TX -->
+                        <ImageView
+                            android:id="@+id/ivInteroberlinUartTx"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/scan"
