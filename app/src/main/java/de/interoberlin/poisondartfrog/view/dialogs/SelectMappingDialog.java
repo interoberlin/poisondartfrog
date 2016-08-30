@@ -16,10 +16,10 @@ import de.interoberlin.merlot_android.controller.MappingController;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.poisondartfrog.R;
 
-public class MappingDialog extends DialogFragment {
+public class SelectMappingDialog extends DialogFragment {
     // <editor-fold defaultstate="collapsed" desc="Members">
 
-    public static final String TAG = MappingDialog.class.getSimpleName();
+    public static final String TAG = SelectMappingDialog.class.getSimpleName();
 
     // Model
     private String selectedMapping;
@@ -44,7 +44,7 @@ public class MappingDialog extends DialogFragment {
         final Resources res = getActivity().getResources();
 
         // Load layout
-        final View v = View.inflate(getActivity(), R.layout.dialog_mapping, null);
+        final View v = View.inflate(getActivity(), R.layout.dialog_select_mapping, null);
         Spinner spnnrMappings = (Spinner) v.findViewById(R.id.spnnrMappings);
 
         // Get arguments

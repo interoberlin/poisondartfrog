@@ -49,15 +49,16 @@ import de.interoberlin.merlot_android.controller.MappingController;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
 import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
 import de.interoberlin.merlot_android.model.ble.BluetoothLeService;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
+import de.interoberlin.poisondartfrog.view.dialogs.AddMappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.CharacteristicsDialog;
-import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.SelectMappingDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
         // <editor-fold defaultstate="collapsed" desc="Interfaces">
@@ -66,7 +67,7 @@ public class DevicesActivity extends AppCompatActivity implements
         BleDevice.OnChangeListener,
         Mapping.OnChangeListener,
         ScanResultsDialog.OnCompleteListener,
-        MappingDialog.OnCompleteListener,
+        SelectMappingDialog.OnCompleteListener,
         HttpGetTask.OnCompleteListener,
         LocationListener {
     // </editor-fold>
@@ -83,16 +84,12 @@ public class DevicesActivity extends AppCompatActivity implements
     private DevicesAdapter devicesAdapter;
 
     // View
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.fam)
-    FloatingActionsMenu fam;
-    @BindView(R.id.fabScan)
-    FloatingActionButton fabScan;
-    @BindView(R.id.fabAddMapping)
-    FloatingActionButton fabAddMapping;
-    @BindView(R.id.sgv)
-    StaggeredGridView sgv;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.fam) FloatingActionsMenu fam;
+    @BindView(R.id.fabScan) FloatingActionButton fabScan;
+    @BindView(R.id.fabSelectMapping) FloatingActionButton fabSelectMapping;
+    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv) StaggeredGridView sgv;
 
     // Controller
     private DevicesController devicesController;
@@ -261,6 +258,23 @@ public class DevicesActivity extends AppCompatActivity implements
             });
         }
 
+        if (fabSelectMapping != null) {
+            fabSelectMapping.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (fam != null)
+                        fam.collapse();
+
+                    vibrate();
+                    SelectMappingDialog dialog = new SelectMappingDialog();
+                    Bundle b = new Bundle();
+                    b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.select_mapping));
+                    dialog.setArguments(b);
+                    dialog.show(getFragmentManager(), SelectMappingDialog.TAG);
+                }
+            });
+        }
+
         if (fabAddMapping != null) {
             fabAddMapping.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -269,11 +283,11 @@ public class DevicesActivity extends AppCompatActivity implements
                         fam.collapse();
 
                     vibrate();
-                    MappingDialog dialog = new MappingDialog();
+                    AddMappingDialog dialog = new AddMappingDialog();
                     Bundle b = new Bundle();
                     b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.mapping));
                     dialog.setArguments(b);
-                    dialog.show(getFragmentManager(), ScanResultsDialog.TAG);
+                    dialog.show(getFragmentManager(), AddMappingDialog.TAG);
                 }
             });
         }
@@ -475,6 +489,11 @@ public class DevicesActivity extends AppCompatActivity implements
     @Override
     public void onChange(BleDevice device) {
         updateView();
+    }
+
+    @Override
+    public void onChange(BleDevice bleDevice, String c, String v) {
+        snack(c + " :" + v);
     }
 
     @Override

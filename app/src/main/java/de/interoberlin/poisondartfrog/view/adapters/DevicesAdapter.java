@@ -23,10 +23,10 @@ import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.merlot_android.controller.MappingController;
 import de.interoberlin.merlot_android.model.IDisplayable;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.ECharacteristic;
-import de.interoberlin.merlot_android.model.config.EDevice;
-import de.interoberlin.merlot_android.model.config.EService;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EDevice;
+import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.view.components.AccelerometerGyroscopeComponent;
 import de.interoberlin.poisondartfrog.view.components.DataComponent;
@@ -303,7 +303,7 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
             }
 
             // LED state
-            if (device.containsCharacteristic(ECharacteristic.LED_STATE)) {
+            if (device.containsCharacteristic(ECharacteristic.HEART_RATE)) {
                 viewHolder.ivLedState.setVisibility(View.VISIBLE);
                 viewHolder.ivLedState.setOnClickListener(new View.OnClickListener() {
                     @Override

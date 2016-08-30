@@ -10,10 +10,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.UUID;
-
 import de.interoberlin.merlot_android.model.ble.BleDevice;
-import de.interoberlin.merlot_android.model.config.repository.RepositoryMapper;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 
 public class ServicesComponent extends TableLayout {
@@ -40,11 +39,8 @@ public class ServicesComponent extends TableLayout {
 
             TextView tvService = new TextView(context);
 
-            UUID serviceId = service.getUuid();
-            if (RepositoryMapper.getInstance(context).isKnownService(serviceId.toString()))
-                tvService.setText(RepositoryMapper.getInstance(context).getServiceById(serviceId.toString()).getName());
-            else
-                tvService.setText(serviceId.toString());
+            EService s = EService.fromId(service.getUuid().toString());
+            tvService.setText(s != null ? s.getName() : service.getUuid().toString());
 
             tvService.setPadding(0, 15, 0, 0);
             tvService.setTypeface(null, Typeface.BOLD);
@@ -63,12 +59,9 @@ public class ServicesComponent extends TableLayout {
                 TextView tvCharacteristic = new TextView(context);
                 TextView tvValue = new TextView(context);
 
-                UUID characteristicId = characteristic.getUuid();
-                if (RepositoryMapper.getInstance(context).isKnownCharacteristic(characteristicId.toString())) {
-                    tvCharacteristic.setText(RepositoryMapper.getInstance(context).getCharacteristicById(characteristicId.toString()).getName());
-                } else {
-                    tvCharacteristic.setText(characteristicId.toString().substring(0, 18));
-                }
+                ECharacteristic c = ECharacteristic.fromId(characteristic.getUuid().toString());
+                tvCharacteristic.setText(c != null ? c.getName() : characteristic.getUuid().toString());
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     tvCharacteristic.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
                     tvCharacteristic.setTextAppearance(android.R.style.TextAppearance_Small);

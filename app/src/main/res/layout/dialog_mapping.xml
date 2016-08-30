@@ -9,10 +9,84 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/selectMapping" />
+        android:text="@string/name"
+        android:textAppearance="@android:style/TextAppearance.Material.Small" />
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/function_type"
+        android:textAppearance="@android:style/TextAppearance.Material.Small" />
 
     <Spinner
-        android:id="@+id/spnnrMappings"
+        android:id="@+id/spnnrFunctionTypes"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/llFunctionParametersThreshold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/parameter_padding">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/min_value"
+            android:textAppearance="@android:style/TextAppearance.Material.Small" />
+
+        <EditText
+            android:id="@+id/etParameterThresholdMinValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/max_value"
+            android:textAppearance="@android:style/TextAppearance.Material.Small" />
+
+        <EditText
+            android:id="@+id/etParameterThresholdMaxValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_type"
+        android:textAppearance="@android:style/TextAppearance.Material.Small" />
+
+    <Spinner
+        android:id="@+id/spnnrActionTypes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/llActionParametersWriteCharacteristic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/min_value"
+            android:textAppearance="@android:style/TextAppearance.Material.Small" />
+
+        <EditText
+            android:id="@+id/etParameterWriteCharacteristicValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </LinearLayout>
 </LinearLayout>

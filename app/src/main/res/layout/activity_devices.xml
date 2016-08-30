@@ -46,13 +46,22 @@
             fab:fab_title="@string/scan_for_devices" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddMapping"
+            android:id="@+id/fabSelectMapping"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_settings_input_component_black_36dp"
             fab:fab_colorNormal="@color/white"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_title="@string/addMapping" />
+            fab:fab_title="@string/select_mapping" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddMapping"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_black_36dp"
+            fab:fab_colorNormal="@color/white"
+            fab:fab_colorPressed="@color/white_pressed"
+            fab:fab_title="@string/add_mapping" />
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
