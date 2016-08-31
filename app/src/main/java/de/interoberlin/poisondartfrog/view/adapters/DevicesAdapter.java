@@ -60,8 +60,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
         @BindView(R.id.ivConnected)
         ImageView ivConnected;
 
-        @BindView(R.id.llShowLess)
-        LinearLayout llShowLess;
         @BindView(R.id.tvShowLess)
         TextView tvShowLess;
 
@@ -408,8 +406,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 viewHolder.ivInteroberlinUartTx.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ocListener.onSend();
-                        device.write(EService.INTEROBERLIN_UART, ECharacteristic.INTEROBERLIN_UART_TX, "Hello");
+                        ocListener.onOpenSendValueDialog(device, EService.INTEROBERLIN_UART, ECharacteristic.INTEROBERLIN_UART_TX);
+
                     }
                 });
             } else {
@@ -567,6 +565,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
         void onToggleAutoConnect();
 
         void onDetachMapping(Mapping mapping);
+
+        void onOpenSendValueDialog(BleDevice device, EService service, ECharacteristic characteristic);
     }
 
     // </editor-fold>

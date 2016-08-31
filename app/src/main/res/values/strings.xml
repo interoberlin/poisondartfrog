@@ -1,6 +1,6 @@
 <resources>
     <string name="add">Add</string>
-    <string name="addMapping">Add mapping</string>
+    <string name="add_mapping">Add mapping</string>
     <string name="address">address</string>
     <string name="app_name">Poison Dart Frog</string>
     <string name="attached_device">Attached device</string>
@@ -14,8 +14,8 @@
     <string name="cached_refreshed">cached refreshed</string>
     <string name="cancel">Cancel</string>
     <string name="characteristics">characteristics</string>
-    <string name="colorPickerCheckmark">color picker checkmark</string>
-    <string name="colorPickerSwatch">color picker swatch</string>
+    <string name="color_picker_checkmark">color picker checkmark</string>
+    <string name="color_picker_swatch">color picker swatch</string>
     <string name="color_swatch_description">Color</string>
     <string name="color_swatch_description_selected">Color selected</string>
     <string name="detached_device">Detached device</string>
@@ -38,7 +38,9 @@
     <string name="scan">scan</string>
     <string name="scan_for_devices">Scan for devices</string>
     <string name="scan_result_icon">scan result icon</string>
-    <string name="selectMapping">Select a mapping</string>
+    <string name="select_mapping">Select a mapping</string>
+    <string name="send">Send</string>
+    <string name="send_value">Send value</string>
     <string name="show_less">Show less</string>
     <string name="show_more">Show more</string>
     <string name="started_subscription">Started subscription</string>
