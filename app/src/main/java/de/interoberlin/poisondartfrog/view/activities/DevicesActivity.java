@@ -182,6 +182,8 @@ public class DevicesActivity extends AppCompatActivity implements
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();
                 final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
+                final String errorCode = intent.getStringExtra(BluetoothLeService.EXTRA_ERROR_CODE);
+
                 if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                     Log.d(TAG, "Gatt connected to " + deviceAddress);
                 } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -197,6 +199,10 @@ public class DevicesActivity extends AppCompatActivity implements
                     devicesController.disconnect(bluetoothLeService, device);
 
                     updateView();
+                } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERY_FAILED.equals(action)) {
+                    Log.e(TAG, "Gatt services discovery failed");
+
+                    toast("Service discovery failed : " + errorCode);
                 }
             }
         };
@@ -246,8 +252,8 @@ public class DevicesActivity extends AppCompatActivity implements
 
                     if (!isBluetoothEnabled()) {
                         snack(R.string.enable_bluetooth_before_scan);
-                    } else if (!isLocationEnabled()) {
-                        snack(R.string.enable_location_before_scan);
+                    /*} else if (!isLocationEnabled()) {
+                        snack(R.string.enable_location_before_scan);*/
                     } else {
                         vibrate();
                         ScanResultsDialog dialog = new ScanResultsDialog();
@@ -281,6 +287,7 @@ public class DevicesActivity extends AppCompatActivity implements
         scanRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "Auto scan (next in " + DEVICE_SCAN_DELAY + " seconds)");
                 devicesController.startScan(DevicesActivity.this, DevicesActivity.this);
                 if (Looper.myLooper() == null) {
                     Looper.prepare();

@@ -110,6 +110,7 @@ public class SendValueDialog extends DialogFragment {
                 ECharacteristic c = ECharacteristic.fromId(characteristicId);
 
                 ocListener.onSendValue(d, s, c, etValue.getText().toString());
+                dismiss();
             }
         });
     }
