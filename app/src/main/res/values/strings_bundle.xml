@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="bundle_characteristic_id" translatable="false">bundle_characteristic_id</string>
     <string name="bundle_device_address" translatable="false">bundle_device_id</string>
     <string name="bundle_dialog_title" translatable="false">bundle_dialog_title</string>
+    <string name="bundle_service_id" translatable="false">bundle_service_id</string>
 </resources>

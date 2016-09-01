@@ -51,6 +51,8 @@ import de.interoberlin.merlot_android.model.ble.BleScannerFilter;
 import de.interoberlin.merlot_android.model.ble.BluetoothLeService;
 import de.interoberlin.merlot_android.model.mapping.Mapping;
 import de.interoberlin.merlot_android.model.repository.ECharacteristic;
+import de.interoberlin.merlot_android.model.repository.EService;
+import de.interoberlin.merlot_android.model.service.BleDeviceManager;
 import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
@@ -58,14 +60,16 @@ import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
 import de.interoberlin.poisondartfrog.view.dialogs.ServicesDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.SendValueDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
-        // <editor-fold defaultstate="collapsed" desc="Interfaces">
+    // <editor-fold defaultstate="collapsed" desc="Interfaces">
         BleScannerFilter.BleFilteredScanCallback,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
         Mapping.OnChangeListener,
         ScanResultsDialog.OnCompleteListener,
+        SendValueDialog.OnCompleteListener,
         MappingDialog.OnCompleteListener,
         HttpGetTask.OnCompleteListener,
         LocationListener {
@@ -83,16 +87,11 @@ public class DevicesActivity extends AppCompatActivity implements
     private DevicesAdapter devicesAdapter;
 
     // View
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.fam)
-    FloatingActionsMenu fam;
-    @BindView(R.id.fabScan)
-    FloatingActionButton fabScan;
-    @BindView(R.id.fabAddMapping)
-    FloatingActionButton fabAddMapping;
-    @BindView(R.id.sgv)
-    StaggeredGridView sgv;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.fam) FloatingActionsMenu fam;
+    @BindView(R.id.fabScan) FloatingActionButton fabScan;
+    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv) StaggeredGridView sgv;
 
     // Controller
     private DevicesController devicesController;
@@ -183,6 +182,8 @@ public class DevicesActivity extends AppCompatActivity implements
             public void onReceive(Context context, Intent intent) {
                 final String action = intent.getAction();
                 final String deviceAddress = intent.getStringExtra(BluetoothLeService.EXTRA_DEVICE_ADDRESS);
+                final String errorCode = intent.getStringExtra(BluetoothLeService.EXTRA_ERROR_CODE);
+
                 if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                     Log.d(TAG, "Gatt connected to " + deviceAddress);
                 } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -198,6 +199,10 @@ public class DevicesActivity extends AppCompatActivity implements
                     devicesController.disconnect(bluetoothLeService, device);
 
                     updateView();
+                } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERY_FAILED.equals(action)) {
+                    Log.e(TAG, "Gatt services discovery failed");
+
+                    toast("Service discovery failed : " + errorCode);
                 }
             }
         };
@@ -247,8 +252,8 @@ public class DevicesActivity extends AppCompatActivity implements
 
                     if (!isBluetoothEnabled()) {
                         snack(R.string.enable_bluetooth_before_scan);
-                    } else if (!isLocationEnabled()) {
-                        snack(R.string.enable_location_before_scan);
+                    /*} else if (!isLocationEnabled()) {
+                        snack(R.string.enable_location_before_scan);*/
                     } else {
                         vibrate();
                         ScanResultsDialog dialog = new ScanResultsDialog();
@@ -282,6 +287,7 @@ public class DevicesActivity extends AppCompatActivity implements
         scanRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "Auto scan (next in " + DEVICE_SCAN_DELAY + " seconds)");
                 devicesController.startScan(DevicesActivity.this, DevicesActivity.this);
                 if (Looper.myLooper() == null) {
                     Looper.prepare();
@@ -370,9 +376,12 @@ public class DevicesActivity extends AppCompatActivity implements
             updateView();
             snack("Auto " + device.getAddress());
         }
+
+        BleDeviceManager bluetoothDeviceManager = BleDeviceManager.getInstance();
+        bluetoothDeviceManager.addDiscoveredDevice(device);
     }
 
-    // Callbacks from ScanResulstDialog
+    // Callbacks from ScanResultsDialog
 
     @Override
     public void onAttachDevice(BleDevice device) {
@@ -388,6 +397,12 @@ public class DevicesActivity extends AppCompatActivity implements
         }
     }
 
+    // Callbacks from SendValueDialog
+
+    public void onSendValue(BleDevice device, EService service, ECharacteristic characteristic, String value) {
+        device.write(service, characteristic, value);
+    }
+
     // Callbacks from DevicesAdapter
 
     @Override
@@ -398,7 +413,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
     @Override
     public void onDetachDevice(BleDevice device) {
-        Log.d(TAG, "onDetachDevice " + device.getName());
+        Log.d(TAG, "Attach " + device.getName());
 
         vibrate();
 
@@ -470,6 +485,18 @@ public class DevicesActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onOpenSendValueDialog(BleDevice device, EService service, ECharacteristic characteristic) {
+        SendValueDialog dialog = new SendValueDialog();
+        Bundle b = new Bundle();
+        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.send_value));
+        b.putCharSequence(getResources().getString(R.string.bundle_device_address), device.getAddress());
+        b.putCharSequence(getResources().getString(R.string.bundle_service_id), service.getId());
+        b.putCharSequence(getResources().getString(R.string.bundle_characteristic_id), characteristic.getId());
+        dialog.setArguments(b);
+        dialog.show(getFragmentManager(), SendValueDialog.TAG);
+    }
+
     // Callbacks from BleDevice
 
     @Override
@@ -498,7 +525,7 @@ public class DevicesActivity extends AppCompatActivity implements
 
     @Override
     public void onMappingSelected(Mapping mapping) {
-        Log.d(TAG, "onMappingSelected " + mapping.toString());
+        Log.d(TAG, "Mapping selected " + mapping.toString());
 
         vibrate();
         mappingController.activateMapping(this, mapping);
