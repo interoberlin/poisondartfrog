@@ -57,13 +57,13 @@ import de.interoberlin.poisondartfrog.R;
 import de.interoberlin.poisondartfrog.model.golem.GolemTemperatureSender;
 import de.interoberlin.poisondartfrog.model.tasks.HttpGetTask;
 import de.interoberlin.poisondartfrog.view.adapters.DevicesAdapter;
-import de.interoberlin.poisondartfrog.view.dialogs.ServicesDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.MappingDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.ScanResultsDialog;
 import de.interoberlin.poisondartfrog.view.dialogs.SendValueDialog;
+import de.interoberlin.poisondartfrog.view.dialogs.ServicesDialog;
 
 public class DevicesActivity extends AppCompatActivity implements
-    // <editor-fold defaultstate="collapsed" desc="Interfaces">
+        // <editor-fold defaultstate="collapsed" desc="Interfaces">
         BleScannerFilter.BleFilteredScanCallback,
         DevicesAdapter.OnCompleteListener,
         BleDevice.OnChangeListener,
@@ -87,11 +87,16 @@ public class DevicesActivity extends AppCompatActivity implements
     private DevicesAdapter devicesAdapter;
 
     // View
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.fam) FloatingActionsMenu fam;
-    @BindView(R.id.fabScan) FloatingActionButton fabScan;
-    @BindView(R.id.fabAddMapping) FloatingActionButton fabAddMapping;
-    @BindView(R.id.sgv) StaggeredGridView sgv;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.fam)
+    FloatingActionsMenu fam;
+    @BindView(R.id.fabScan)
+    FloatingActionButton fabScan;
+    @BindView(R.id.fabAddMapping)
+    FloatingActionButton fabAddMapping;
+    @BindView(R.id.sgv)
+    StaggeredGridView sgv;
 
     // Controller
     private DevicesController devicesController;
@@ -252,8 +257,8 @@ public class DevicesActivity extends AppCompatActivity implements
 
                     if (!isBluetoothEnabled()) {
                         snack(R.string.enable_bluetooth_before_scan);
-                    /*} else if (!isLocationEnabled()) {
-                        snack(R.string.enable_location_before_scan);*/
+                    } else if (!isXLargeTablet(DevicesActivity.this) && !isLocationEnabled()) {
+                        snack(R.string.enable_location_before_scan);
                     } else {
                         vibrate();
                         ScanResultsDialog dialog = new ScanResultsDialog();

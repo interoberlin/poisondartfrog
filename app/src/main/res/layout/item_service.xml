@@ -24,13 +24,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="@dimen/label_padding"
             android:text="@string/uuid" />
 
         <TextView
             android:id="@+id/tvUuid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingEnd="@dimen/label_padding"
+            android:paddingStart="@dimen/label_padding"
             android:text="@string/uuid"
             android:textColor="@color/md_black_1000" />
     </LinearLayout>
@@ -43,13 +44,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="@dimen/label_padding"
             android:text="@string/type" />
 
         <TextView
             android:id="@+id/tvType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingEnd="@dimen/label_padding"
+            android:paddingStart="@dimen/label_padding"
             android:text="@string/type"
             android:textColor="@color/md_black_1000" />
     </LinearLayout>

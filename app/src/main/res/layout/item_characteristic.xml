@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/icon_margin"
         android:layout_marginStart="@dimen/icon_margin"
+        android:contentDescription="@string/characteristic_icon"
         android:src="@drawable/ic_label_outline_black_18dp" />
 
     <LinearLayout
@@ -34,13 +35,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingEnd="@dimen/label_padding"
                 android:text="@string/uuid" />
 
             <TextView
                 android:id="@+id/tvUuid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/label_padding"
+                android:paddingStart="@dimen/label_padding"
                 android:text="@string/uuid"
                 android:textColor="@color/md_black_1000" />
         </LinearLayout>
@@ -53,13 +55,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingEnd="@dimen/label_padding"
                 android:text="@string/properties" />
 
             <TextView
                 android:id="@+id/tvProperties"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/label_padding"
+                android:paddingStart="@dimen/label_padding"
                 android:text="@string/properties"
                 android:textColor="@color/md_black_1000" />
 
@@ -74,13 +77,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingEnd="@dimen/label_padding"
                 android:text="@string/permissions" />
 
             <TextView
                 android:id="@+id/tvPermissions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/label_padding"
+                android:paddingStart="@dimen/label_padding"
                 android:text="@string/permissions"
                 android:textColor="@color/md_black_1000" />
 
@@ -99,13 +103,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="@dimen/label_padding"
                     android:text="@string/value" />
 
                 <TextView
                     android:id="@+id/tvValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingEnd="@dimen/label_padding"
+                    android:paddingStart="@dimen/label_padding"
                     android:text="@string/value"
                     android:textColor="@color/md_black_1000" />
 
@@ -121,6 +126,7 @@
                     android:id="@+id/ivRead"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/read"
                     android:paddingEnd="@dimen/icon_padding"
                     android:paddingStart="@dimen/icon_padding"
                     android:src="@drawable/ic_file_download_black_18dp" />
@@ -129,6 +135,7 @@
                     android:id="@+id/ivWrite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/write"
                     android:paddingEnd="@dimen/icon_padding"
                     android:paddingStart="@dimen/icon_padding"
                     android:src="@drawable/ic_file_upload_black_18dp" />
@@ -137,6 +144,7 @@
                     android:id="@+id/ivSubscribe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/subscribe"
                     android:paddingEnd="@dimen/icon_padding"
                     android:paddingStart="@dimen/icon_padding"
                     android:src="@drawable/ic_play_arrow_black_18dp" />
