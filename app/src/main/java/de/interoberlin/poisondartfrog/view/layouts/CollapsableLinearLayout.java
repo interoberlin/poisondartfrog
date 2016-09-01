@@ -138,7 +138,7 @@ public class CollapsableLinearLayout extends LinearLayout implements ICollapsabl
 
     // <editor-fold defaultstate="collapsed" desc="Getters / Setters">
 
-    private boolean isCollapsed() {
+    public boolean isCollapsed() {
         return collapsed;
     }
 

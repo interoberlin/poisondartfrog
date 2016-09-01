@@ -13,6 +13,7 @@
     <string name="cached_refresh_failed">cached refresh failed</string>
     <string name="cached_refreshed">cached refreshed</string>
     <string name="cancel">Cancel</string>
+    <string name="characteristic_icon">characteristic icon</string>
     <string name="characteristics">characteristics</string>
     <string name="color_picker_checkmark">color picker checkmark</string>
     <string name="color_picker_swatch">color picker swatch</string>
@@ -44,6 +45,7 @@
     <string name="select_mapping">Select a mapping</string>
     <string name="send">Send</string>
     <string name="send_value">Send value</string>
+    <string name="services">Services</string>
     <string name="show_less">Show less</string>
     <string name="show_more">Show more</string>
     <string name="started_subscription">Started subscription</string>

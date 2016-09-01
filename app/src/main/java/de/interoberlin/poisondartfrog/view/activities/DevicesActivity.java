@@ -447,7 +447,7 @@ public class DevicesActivity extends AppCompatActivity implements
         vibrate();
         ServicesDialog dialog = new ServicesDialog();
         Bundle b = new Bundle();
-        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.characteristics));
+        b.putCharSequence(getResources().getString(R.string.bundle_dialog_title), getResources().getString(R.string.services));
         b.putCharSequence(getResources().getString(R.string.bundle_device_address), device.getAddress());
         dialog.setArguments(b);
         dialog.show(getFragmentManager(), ScanResultsDialog.TAG);

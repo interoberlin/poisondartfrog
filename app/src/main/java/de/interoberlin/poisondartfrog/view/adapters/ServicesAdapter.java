@@ -1,11 +1,13 @@
 package de.interoberlin.poisondartfrog.view.adapters;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.interoberlin.merlot_android.controller.DevicesController;
 import de.interoberlin.merlot_android.model.ble.BleDevice;
+import de.interoberlin.merlot_android.model.repository.ECharacteristic;
 import de.interoberlin.merlot_android.model.repository.EService;
 import de.interoberlin.poisondartfrog.R;
 
@@ -30,10 +33,14 @@ public class ServicesAdapter extends ArrayAdapter<BluetoothGattService> {
 
     //View
     static class ViewHolder {
-        @BindView(R.id.tvName) TextView tvName;
-        @BindView(R.id.tvUuid) TextView tvUuid;
-        @BindView(R.id.tvType) TextView tvType;
-        @BindView(R.id.llCharacteristics) LinearLayout llCharacteristics;
+        @BindView(R.id.tvName)
+        TextView tvName;
+        @BindView(R.id.tvUuid)
+        TextView tvUuid;
+        @BindView(R.id.tvType)
+        TextView tvType;
+        @BindView(R.id.llCharacteristics)
+        LinearLayout llCharacteristics;
 
         public ViewHolder(View v) {
             ButterKnife.bind(this, v);
@@ -106,14 +113,13 @@ public class ServicesAdapter extends ArrayAdapter<BluetoothGattService> {
         viewHolder.tvType.setText(sbType.toString().replaceFirst(", ", ""));
         viewHolder.llCharacteristics.removeAllViews();
 
-        /*
         for (final BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
             View vCharacteristic = LayoutInflater.from(getContext()).inflate(R.layout.item_characteristic, parent, false);
 
             TextView tvName = (TextView) vCharacteristic.findViewById(R.id.tvName);
-            TextView tvUuid = (TextView) vCharacteristic.findViewById(R.id.tvName);
-            TextView tvProperties = (TextView) vCharacteristic.findViewById(R.id.tvName);
-            TextView tvPermissions = (TextView) vCharacteristic.findViewById(R.id.tvName);
+            TextView tvUuid = (TextView) vCharacteristic.findViewById(R.id.tvUuid);
+            TextView tvProperties = (TextView) vCharacteristic.findViewById(R.id.tvProperties);
+            TextView tvPermissions = (TextView) vCharacteristic.findViewById(R.id.tvPermissions);
             ImageView ivRead = (ImageView) vCharacteristic.findViewById(R.id.ivRead);
             ImageView ivWrite = (ImageView) vCharacteristic.findViewById(R.id.ivWrite);
             ImageView ivSubscribe = (ImageView) vCharacteristic.findViewById(R.id.ivSubscribe);
@@ -182,7 +188,9 @@ public class ServicesAdapter extends ArrayAdapter<BluetoothGattService> {
                 ivWrite.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        device.write(s, c, "hello");
+                        if (c != null) {
+                            device.write(s, c, "hello");
+                        }
                     }
                 });
             } else {
@@ -201,9 +209,8 @@ public class ServicesAdapter extends ArrayAdapter<BluetoothGattService> {
             }
 
 
-            viewHolder.llCharacteristics.addView(v);
+            viewHolder.llCharacteristics.addView(vCharacteristic);
         }
-        */
 
         return v;
     }

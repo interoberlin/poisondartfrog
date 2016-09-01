@@ -265,10 +265,10 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 viewHolder.llBatteryLevel.setVisibility(View.GONE);
             }
 
-            viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
-            viewHolder.ivInteroberlinUartRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
-            viewHolder.ivSentientLightFloorSensorRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
-            viewHolder.ivSentientLightLedRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
+            viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+            viewHolder.ivInteroberlinUartRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+            viewHolder.ivSentientLightFloorSensorRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+            viewHolder.ivSentientLightLedRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
 
             if (!device.getReadings().isEmpty()) {
                 viewHolder.cllComponents.addView(new DataComponent(context, device));
