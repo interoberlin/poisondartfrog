@@ -224,7 +224,7 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/scan"
                             android:padding="@dimen/icon_padding"
-                            android:src="@drawable/ic_play_arrow_black_36dp" />
+                            android:src="@drawable/ic_file_download_black_36dp" />
 
                         <!-- Interoberlin UART TX -->
                         <ImageView
@@ -233,7 +233,43 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/scan"
                             android:padding="@dimen/icon_padding"
-                            android:src="@drawable/ic_panorama_fish_eye_black_36dp" />
+                            android:src="@drawable/ic_file_upload_black_36dp" />
+
+                        <!-- Sentient light floor sensor RX -->
+                        <ImageView
+                            android:id="@+id/ivSentientLightFloorSensorRx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_file_download_black_36dp" />
+
+                        <!-- Sentient light floor sensor TX -->
+                        <ImageView
+                            android:id="@+id/ivSentientLightFloorSensorTx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_file_upload_black_36dp" />
+
+                        <!-- Sentient light LED RX -->
+                        <ImageView
+                            android:id="@+id/ivSentientLightLedRx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_file_download_black_36dp" />
+
+                        <!-- Sentient light LED TX -->
+                        <ImageView
+                            android:id="@+id/ivSentientLightLedTx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/scan"
+                            android:padding="@dimen/icon_padding"
+                            android:src="@drawable/ic_file_upload_black_36dp" />
 
                     </LinearLayout>
 

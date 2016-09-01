@@ -49,43 +49,30 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     // View
     static class ViewHolderDevice {
-        @BindView(R.id.tvName)
-        TextView tvName;
-        @BindView(R.id.tvAddress)
-        TextView tvAddress;
-        @BindView(R.id.ivIcon)
-        ImageView ivIcon;
-        @BindView(R.id.cllComponents)
-        CollapsableLinearLayout cllComponents;
-        @BindView(R.id.ivConnected)
-        ImageView ivConnected;
+        @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.tvAddress) TextView tvAddress;
+        @BindView(R.id.ivIcon) ImageView ivIcon;
+        @BindView(R.id.cllComponents) CollapsableLinearLayout cllComponents;
+        @BindView(R.id.ivConnected) ImageView ivConnected;
 
-        @BindView(R.id.tvShowLess)
-        TextView tvShowLess;
+        @BindView(R.id.tvShowLess) TextView tvShowLess;
 
-        @BindView(R.id.llBatteryLevel)
-        LinearLayout llBatteryLevel;
-        @BindView(R.id.tvBatteryLevelValue)
-        TextView tvBatteryLevelValue;
-        @BindView(R.id.bdBattery)
-        BatteryDiagram bdBattery;
+        @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
+        @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
+        @BindView(R.id.bdBattery) BatteryDiagram bdBattery;
 
-        @BindView(R.id.ivDetach)
-        ImageView ivDetach;
-        @BindView(R.id.ivSubscribeData)
-        ImageView ivSubscribe;
-        @BindView(R.id.ivLedState)
-        ImageView ivLedState;
-        @BindView(R.id.ivInteroberlinUartRx)
-        ImageView ivInteroberlinUartRx;
-        @BindView(R.id.ivInteroberlinUartTx)
-        ImageView ivInteroberlinUartTx;
-        @BindView(R.id.ivSendTemperature)
-        ImageView ivSendTemperature;
-        @BindView(R.id.ivAutoConnect)
-        ImageView ivAutoConnect;
-        @BindView(R.id.ivMore)
-        ImageView ivMore;
+        @BindView(R.id.ivDetach) ImageView ivDetach;
+        @BindView(R.id.ivSubscribeData) ImageView ivSubscribe;
+        @BindView(R.id.ivLedState) ImageView ivLedState;
+        @BindView(R.id.ivInteroberlinUartRx) ImageView ivInteroberlinUartRx;
+        @BindView(R.id.ivInteroberlinUartTx) ImageView ivInteroberlinUartTx;
+        @BindView(R.id.ivSentientLightFloorSensorRx) ImageView ivSentientLightFloorSensorRx;
+        @BindView(R.id.ivSentientLightFloorSensorTx) ImageView ivSentientLightFloorSensorTx;
+        @BindView(R.id.ivSentientLightLedRx) ImageView ivSentientLightLedRx;
+        @BindView(R.id.ivSentientLightLedTx) ImageView ivSentientLightLedTx;
+        @BindView(R.id.ivSendTemperature) ImageView ivSendTemperature;
+        @BindView(R.id.ivAutoConnect) ImageView ivAutoConnect;
+        @BindView(R.id.ivMore) ImageView ivMore;
 
         public ViewHolderDevice(View v) {
             ButterKnife.bind(this, v);
@@ -93,20 +80,13 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     }
 
     static class ViewHolderMapping {
-        @BindView(R.id.tvName)
-        TextView tvName;
-        @BindView(R.id.ivIcon)
-        ImageView ivIcon;
-        @BindView(R.id.ivTriggered)
-        ImageView ivTriggered;
-        @BindView(R.id.ivSource)
-        ImageView ivSource;
-        @BindView(R.id.tvSource)
-        TextView tvSource;
-        @BindView(R.id.ivSink)
-        ImageView ivSink;
-        @BindView(R.id.tvSink)
-        TextView tvSink;
+        @BindView(R.id.tvName) TextView tvName;
+        @BindView(R.id.ivIcon) ImageView ivIcon;
+        @BindView(R.id.ivTriggered) ImageView ivTriggered;
+        @BindView(R.id.ivSource) ImageView ivSource;
+        @BindView(R.id.tvSource) TextView tvSource;
+        @BindView(R.id.ivSink) ImageView ivSink;
+        @BindView(R.id.tvSink) TextView tvSink;
 
         public ViewHolderMapping(View v) {
             ButterKnife.bind(this, v);
@@ -285,8 +265,10 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 viewHolder.llBatteryLevel.setVisibility(View.GONE);
             }
 
-            viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
-            viewHolder.ivInteroberlinUartRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_play_arrow_black_36dp));
+            viewHolder.ivSubscribe.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
+            viewHolder.ivInteroberlinUartRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
+            viewHolder.ivSentientLightFloorSensorRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
+            viewHolder.ivSentientLightLedRx.setImageDrawable(device.isSubscribing() ? ContextCompat.getDrawable(context, R.drawable.ic_pause_black_36dp) : ContextCompat.getDrawable(context, R.drawable.ic_file_download_black_36dp));
 
             if (!device.getReadings().isEmpty()) {
                 viewHolder.cllComponents.addView(new DataComponent(context, device));
@@ -391,7 +373,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                             if (timer != null) timer.cancel();
                         }
 
-                        viewHolder.tvShowLess.setVisibility(View.VISIBLE);
                     }
                 });
             } else {
@@ -412,6 +393,90 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                 });
             } else {
                 viewHolder.ivInteroberlinUartTx.setVisibility(View.GONE);
+            }
+            // </editor-fold>
+
+            // <editor-fold defaultstate="extended" desc="Subscribe Sentient Light floor sensor RX">
+            if (device.containsCharacteristic(ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_RX)) {
+                viewHolder.ivSentientLightFloorSensorRx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivSentientLightFloorSensorRx.setVisibility(View.VISIBLE);
+                viewHolder.ivSentientLightFloorSensorRx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onSubscribe();
+
+                        if (!device.isSubscribing()) {
+                            device.subscribe(context, ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_RX, true);
+                            ocListener.onChange(device, R.string.started_subscription);
+                        } else {
+                            device.unsubscribe(context, ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_RX);
+                            device.disconnect();
+
+                            ocListener.onChange(device, R.string.stopped_subscription);
+
+                            if (timer != null) timer.cancel();
+                        }
+                    }
+                });
+            } else {
+                viewHolder.ivSentientLightFloorSensorRx.setVisibility(View.GONE);
+            }
+            // </editor-fold>
+
+            // <editor-fold defaultstate="extended" desc="Write Sentient Light floor sensor TX">
+            if (device.containsCharacteristic(ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_TX)) {
+                viewHolder.ivSentientLightFloorSensorTx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivSentientLightFloorSensorTx.setVisibility(View.VISIBLE);
+                viewHolder.ivSentientLightFloorSensorTx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onOpenSendValueDialog(device, EService.SENTIENT_LIGHT_FLOOR_SENSOR, ECharacteristic.SENTIENT_LIGHT_FLOOR_SENSOR_TX);
+                    }
+                });
+            } else {
+                viewHolder.ivSentientLightFloorSensorTx.setVisibility(View.GONE);
+            }
+            // </editor-fold>
+
+            // <editor-fold defaultstate="extended" desc="Subscribe Sentient Light LED RX">
+            if (device.containsCharacteristic(ECharacteristic.SENTIENT_LIGHT_LED_RX)) {
+                viewHolder.ivSentientLightLedRx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivSentientLightLedRx.setVisibility(View.VISIBLE);
+                viewHolder.ivSentientLightLedRx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onSubscribe();
+
+                        if (!device.isSubscribing()) {
+                            device.subscribe(context, ECharacteristic.SENTIENT_LIGHT_LED_RX, true);
+                            ocListener.onChange(device, R.string.started_subscription);
+                        } else {
+                            device.unsubscribe(context, ECharacteristic.SENTIENT_LIGHT_LED_RX);
+                            device.disconnect();
+
+                            ocListener.onChange(device, R.string.stopped_subscription);
+
+                            if (timer != null) timer.cancel();
+                        }
+                    }
+                });
+            } else {
+                viewHolder.ivSentientLightLedRx.setVisibility(View.GONE);
+            }
+            // </editor-fold>
+
+            // <editor-fold defaultstate="extended" desc="Write Sentient Light LED TX">
+            if (device.containsCharacteristic(ECharacteristic.SENTIENT_LIGHT_LED_TX)) {
+                viewHolder.ivSentientLightLedTx.getDrawable().setTint(ContextCompat.getColor(context, R.color.colorAccent));
+                viewHolder.ivSentientLightLedTx.setVisibility(View.VISIBLE);
+                viewHolder.ivSentientLightLedTx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ocListener.onOpenSendValueDialog(device, EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_LED_TX);
+                    }
+                });
+            } else {
+                viewHolder.ivSentientLightLedTx.setVisibility(View.GONE);
             }
             // </editor-fold>
 
