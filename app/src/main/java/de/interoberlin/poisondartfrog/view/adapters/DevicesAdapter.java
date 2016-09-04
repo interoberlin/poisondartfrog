@@ -617,6 +617,11 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> implements
         device.write(EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_LED_TX, value);
     }
 
+    @Override
+    public void onDebug(String value) {
+        ocListener.onDebug(value);
+    }
+
     // </editor-fold>
 
     // --------------------
@@ -660,6 +665,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> implements
     // <editor-fold defaultstate="extended" desc="Callback interfaces">
 
     public interface OnCompleteListener {
+        void onDebug(String value);
+
         void onChange(BleDevice device, int text);
 
         void onDetachDevice(BleDevice device);

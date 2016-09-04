@@ -3,6 +3,7 @@ package de.interoberlin.poisondartfrog.view.components;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +88,10 @@ public class SentientLightLedComponent extends LinearLayout {
         tvSend.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                String json = getJson(tl);
-                ocListener.onSendSentientLightLedValue(device, EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_LED_TX, json);
+                Log.d(TAG, getJson(tl, true));
+
+                // ocListener.onDebug(json);
+                ocListener.onSendSentientLightLedValue(device, EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_LED_TX, getJson(tl));
             }
         });
     }
@@ -202,41 +206,57 @@ public class SentientLightLedComponent extends LinearLayout {
     private void validate(EditText et) {
         String text = et.getText().toString();
 
-        if (Integer.parseInt(text) < 0 || Integer.parseInt(text) > 255) {
+        if (!text.isEmpty() && Integer.parseInt(text) < 0 || Integer.parseInt(text) > 255) {
             et.setError(getContext().getResources().getString(R.string.value_must_be_between_0_and_255));
         }
     }
 
     private String getJson(TableLayout tl) {
+        return getJson(tl, false);
+    }
+
+    private String getJson(TableLayout tl, boolean pretty) {
         SentientLightLED slLED = new SentientLightLED();
 
         if (tl != null) {
-            for (int i = 0; i < tl.getChildCount(); i++) {
+            for (int i = 1; i < tl.getChildCount(); i++) {
                 View tr = tl.getChildAt(i);
 
                 if (tr != null && tr instanceof TableRow) {
-                    if (((TableRow) tr).getChildAt(0) instanceof Spinner &&
-                            ((TableRow) tr).getChildAt(1) instanceof EditText &&
-                            ((TableRow) tr).getChildAt(2) instanceof EditText &&
-                            ((TableRow) tr).getChildAt(2) instanceof EditText) {
-                        Spinner spnnr = (Spinner) ((TableRow) tr).getChildAt(0);
-                        EditText etComponentOne = (EditText) ((TableRow) tr).getChildAt(1);
-                        EditText etComponentTwo = (EditText) ((TableRow) tr).getChildAt(2);
-                        EditText etComponentThree = (EditText) ((TableRow) tr).getChildAt(3);
+                    View ll = ((TableRow) tr).getChildAt(0);
 
-                        int index = Integer.parseInt(spnnr.getSelectedItem().toString());
-                        int value1 = Integer.parseInt(etComponentOne.getText().toString());
-                        int value2 = Integer.parseInt(etComponentTwo.getText().toString());
-                        int value3 = Integer.parseInt(etComponentThree.getText().toString());
+                    if (ll != null && ll instanceof LinearLayout) {
+                        if (((LinearLayout) ll).getChildAt(0) instanceof Spinner &&
+                                ((LinearLayout) ll).getChildAt(1) instanceof EditText &&
+                                ((LinearLayout) ll).getChildAt(2) instanceof EditText &&
+                                ((LinearLayout) ll).getChildAt(3) instanceof EditText) {
+                            Spinner spnnr = (Spinner) ((LinearLayout) ll).getChildAt(0);
+                            EditText etComponentOne = (EditText) ((LinearLayout) ll).getChildAt(1);
+                            EditText etComponentTwo = (EditText) ((LinearLayout) ll).getChildAt(2);
+                            EditText etComponentThree = (EditText) ((LinearLayout) ll).getChildAt(3);
 
-                        slLED.getLeds().add(new SentientLightLED().new LED(index, value1, value2, value3));
+                            int index = Integer.parseInt(spnnr.getSelectedItem().toString());
+                            int value1 = Integer.parseInt(etComponentOne.getText().toString());
+                            int value2 = Integer.parseInt(etComponentTwo.getText().toString());
+                            int value3 = Integer.parseInt(etComponentThree.getText().toString());
 
+                            slLED.getLeds().add(new SentientLightLED().new LED(index, value1, value2, value3));
+
+                        }
                     }
                 }
             }
         }
 
-        return new Gson().toJson(slLED);
+
+        Gson gson;
+        if (pretty) {
+            gson = new GsonBuilder().setPrettyPrinting().create();
+        } else {
+            gson = new GsonBuilder().create();
+        }
+
+        return gson.toJson(slLED);
     }
 
     // </editor-fold>
@@ -249,6 +269,8 @@ public class SentientLightLedComponent extends LinearLayout {
 
     public interface OnCompleteListener {
         void onSendSentientLightLedValue(BleDevice device, EService service, ECharacteristic characteristic, String value);
+
+        void onDebug(String value);
     }
 
     // </editor-fold>

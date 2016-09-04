@@ -411,6 +411,11 @@ public class DevicesActivity extends AppCompatActivity implements
     // Callbacks from DevicesAdapter
 
     @Override
+    public void onDebug(String value) {
+        toast(value);
+    }
+
+    @Override
     public void onChange(BleDevice device, int text) {
         snack(text, Snackbar.LENGTH_SHORT);
         updateView();
