@@ -3,7 +3,7 @@ package de.interoberlin.poisondartfrog.view.components;
 import android.content.Context;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -23,9 +23,8 @@ public class SentientLightLedComponent extends LinearLayout {
     public static final String TAG = SentientLightLedComponent.class.getSimpleName();
 
     private BleDevice device;
-    private int ledCount;
-
     private OnCompleteListener ocListener;
+    private int ledCount;
 
     // </editor-fold>
 
@@ -39,7 +38,7 @@ public class SentientLightLedComponent extends LinearLayout {
         super(context);
     }
 
-    public SentientLightLedComponent(Context context, final OnCompleteListener ocListener, final BleDevice device) {
+    public SentientLightLedComponent(final Context context, final OnCompleteListener ocListener, final BleDevice device) {
         super(context);
         this.ocListener = ocListener;
         this.device = device;
@@ -48,13 +47,31 @@ public class SentientLightLedComponent extends LinearLayout {
         // Load layout
         inflate(context, R.layout.component_sentient_light_led, this);
 
-        TableLayout tl = (TableLayout) findViewById(R.id.tl);
-        TextView tvSend = (TextView) findViewById(R.id.tvSend);
+        final TableLayout tl = (TableLayout) findViewById(R.id.tl);
+        final TextView tvClear = (TextView) findViewById(R.id.tvClear);
+        final TextView tvAddLine = (TextView) findViewById(R.id.tvAddLine);
+        final TextView tvSend = (TextView) findViewById(R.id.tvSend);
 
         tl.addView(getTableHead(context));
-        tl.addView(getTableRow(context));
+        tl.addView(getTableRow(context, tl));
 
         // Add actions
+        tvClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tl.removeAllViews();
+                tl.addView(getTableHead(context));
+                tl.addView(getTableRow(context, tl));
+            }
+        });
+
+        tvAddLine.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tl.addView(getTableRow(context, tl));
+            }
+        });
+
         tvSend.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,15 +107,15 @@ public class SentientLightLedComponent extends LinearLayout {
         return row;
     }
 
-    private View getTableRow(Context context) {
-        View row = inflate(context, R.layout.component_sentient_light_led_row, null);
+    private View getTableRow(final Context context, final TableLayout tl) {
+        final View row = inflate(context, R.layout.component_sentient_light_led_row, null);
 
         // Load layout
-        Spinner spnnr = (Spinner) row.findViewById(R.id.spnnrLedID);
-        EditText etComponentOne = (EditText) row.findViewById(R.id.etComponentOne);
-        EditText etComponentTwo = (EditText) row.findViewById(R.id.etComponentOne);
-        EditText etComponentThree = (EditText) row.findViewById(R.id.etComponentOne);
-
+        final Spinner spnnr = (Spinner) row.findViewById(R.id.spnnrLedID);
+        // final EditText etComponentOne = (EditText) row.findViewById(R.id.etComponentOne);
+        // final EditText etComponentTwo = (EditText) row.findViewById(R.id.etComponentOne);
+        // final EditText etComponentThree = (EditText) row.findViewById(R.id.etComponentOne);
+        final ImageView ivRemove = (ImageView) row.findViewById(R.id.ivRemove);
 
         List<String> list = new ArrayList<>();
         for (int i = 0; i < ledCount; i++) {
@@ -107,6 +124,14 @@ public class SentientLightLedComponent extends LinearLayout {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_spinner_item, list);
         spnnr.setAdapter(adapter);
+
+        // Add actions
+        ivRemove.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tl.removeView(row);
+            }
+        });
 
         return row;
     }

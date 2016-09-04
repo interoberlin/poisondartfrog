@@ -5,7 +5,7 @@
     <!-- Dialog -->
     <dimen name="dialog_padding">15dp</dimen>
     <dimen name="label_padding">5dp</dimen>
-    <dimen name="input_field_padding">15dp</dimen>
+    <dimen name="input_field_padding">10dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="item_margin">6dp</dimen>

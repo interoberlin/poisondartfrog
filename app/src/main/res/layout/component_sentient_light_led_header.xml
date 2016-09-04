@@ -5,6 +5,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -13,25 +14,38 @@
             android:id="@+id/tvID"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="0.75"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
 
         <TextView
             android:id="@+id/tvComponentOne"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
 
         <TextView
             android:id="@+id/tvComponentTwo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
 
         <TextView
             android:id="@+id/tvComponentThree"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.75" />
 
     </LinearLayout>
 

@@ -13,7 +13,7 @@
             android:id="@+id/spnnrLedID"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.75"
             android:paddingEnd="@dimen/label_padding"
             android:paddingStart="@dimen/label_padding" />
 
@@ -43,6 +43,14 @@
             android:inputType="number"
             android:paddingEnd="@dimen/input_field_padding"
             android:paddingStart="@dimen/input_field_padding" />
+
+        <ImageView
+            android:id="@+id/ivRemove"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.75"
+            android:paddingTop="@dimen/input_field_padding"
+            android:src="@drawable/ic_remove_circle_outline_black_18dp" />
 
     </LinearLayout>
 
