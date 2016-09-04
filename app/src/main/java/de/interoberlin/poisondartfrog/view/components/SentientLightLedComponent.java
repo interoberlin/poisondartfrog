@@ -1,8 +1,11 @@
 package de.interoberlin.poisondartfrog.view.components;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -81,7 +84,6 @@ public class SentientLightLedComponent extends LinearLayout {
     }
 
 
-
     // </editor-fold>
 
     // --------------------
@@ -112,9 +114,9 @@ public class SentientLightLedComponent extends LinearLayout {
 
         // Load layout
         final Spinner spnnr = (Spinner) row.findViewById(R.id.spnnrLedID);
-        // final EditText etComponentOne = (EditText) row.findViewById(R.id.etComponentOne);
-        // final EditText etComponentTwo = (EditText) row.findViewById(R.id.etComponentOne);
-        // final EditText etComponentThree = (EditText) row.findViewById(R.id.etComponentOne);
+        final EditText etComponentOne = (EditText) row.findViewById(R.id.etComponentOne);
+        final EditText etComponentTwo = (EditText) row.findViewById(R.id.etComponentOne);
+        final EditText etComponentThree = (EditText) row.findViewById(R.id.etComponentOne);
         final ImageView ivRemove = (ImageView) row.findViewById(R.id.ivRemove);
 
         List<String> list = new ArrayList<>();
@@ -125,15 +127,76 @@ public class SentientLightLedComponent extends LinearLayout {
                 android.R.layout.simple_spinner_item, list);
         spnnr.setAdapter(adapter);
 
-        // Add actions
+        // Add actions and listeners
+
+        // <editor-fold defaultstate="collapsed" desc="Listeners">
+
         ivRemove.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 tl.removeView(row);
             }
         });
+        etComponentOne.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                validate(etComponentOne);
+            }
+        });
+        etComponentTwo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                validate(etComponentTwo);
+            }
+        });
+        etComponentThree.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                validate(etComponentThree);
+            }
+        });
+
+        // </editor-fold>
 
         return row;
+    }
+
+    private void validate(EditText et) {
+        String text = et.getText().toString();
+
+        if (Integer.parseInt(text) < 0 || Integer.parseInt(text) > 255) {
+            et.setError(getContext().getResources().getString(R.string.value_must_be_between_0_and_255));
+        }
     }
 
     // </editor-fold>

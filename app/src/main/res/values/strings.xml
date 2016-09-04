@@ -65,6 +65,7 @@
     <string name="unknown_service">unknown service</string>
     <string name="uuid">UUID</string>
     <string name="value">Value</string>
+    <string name="value_must_be_between_0_and_255">value must be between 0 and 255</string>
     <string name="warm">warm</string>
     <string name="write">write</string>
 </resources>
