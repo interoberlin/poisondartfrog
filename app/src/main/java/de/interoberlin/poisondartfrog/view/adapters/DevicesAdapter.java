@@ -240,7 +240,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> implements
                         viewHolder.ivIcon.setImageResource(R.drawable.ic_mic_black_48dp);
                         break;
                     }
-                    case NRFDUINO: {
+                    case SENTIENT_LIGHT_LED:
+                    case SENTIENT_LIGHT_FLOOR_SENSOR: {
                         viewHolder.ivIcon.setImageResource(R.drawable.ic_panorama_fish_eye_black_36dp);
                         break;
                     }
@@ -329,9 +330,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> implements
                     }
                 }
             }
-
-            // TODO remove
-            viewHolder.cllComponents.addView(new SentientLightLedComponent(context, this, device));
 
             // Add actions
             viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
