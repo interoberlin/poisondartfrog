@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/spnnrLedID"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingEnd="@dimen/label_padding"
+            android:paddingStart="@dimen/label_padding" />
+
+        <EditText
+            android:id="@+id/etComponentOne"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
+
+        <EditText
+            android:id="@+id/etComponentTwo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
+
+        <EditText
+            android:id="@+id/etComponentThree"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:paddingEnd="@dimen/input_field_padding"
+            android:paddingStart="@dimen/input_field_padding" />
+
+    </LinearLayout>
+
+</TableRow>

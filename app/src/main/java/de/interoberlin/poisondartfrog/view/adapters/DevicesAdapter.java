@@ -34,11 +34,15 @@ import de.interoberlin.poisondartfrog.view.components.DataComponent;
 import de.interoberlin.poisondartfrog.view.components.LightProximityComponent;
 import de.interoberlin.poisondartfrog.view.components.LineChartComponent;
 import de.interoberlin.poisondartfrog.view.components.MicrophoneComponent;
-import de.interoberlin.poisondartfrog.view.components.SentientLightComponent;
+import de.interoberlin.poisondartfrog.view.components.SentientLightLedComponent;
 import de.interoberlin.poisondartfrog.view.diagrams.BatteryDiagram;
 import de.interoberlin.poisondartfrog.view.layouts.CollapsableLinearLayout;
 
-public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
+public class DevicesAdapter extends ArrayAdapter<IDisplayable> implements
+        // <editor-fold defaultstate="extended" desc="Members">
+        SentientLightLedComponent.OnCompleteListener {
+    // </editor-fold>
+
     // <editor-fold defaultstate="extended" desc="Members">
 
     public static final String TAG = DevicesAdapter.class.getSimpleName();
@@ -49,30 +53,51 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
 
     // View
     static class ViewHolderDevice {
-        @BindView(R.id.tvName) TextView tvName;
-        @BindView(R.id.tvAddress) TextView tvAddress;
-        @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.cllComponents) CollapsableLinearLayout cllComponents;
-        @BindView(R.id.ivConnected) ImageView ivConnected;
+        @BindView(R.id.tvName)
+        TextView tvName;
+        @BindView(R.id.tvAddress)
+        TextView tvAddress;
+        @BindView(R.id.ivIcon)
+        ImageView ivIcon;
+        @BindView(R.id.cllComponents)
+        CollapsableLinearLayout cllComponents;
+        @BindView(R.id.ivConnected)
+        ImageView ivConnected;
 
-        @BindView(R.id.tvShowLess) TextView tvShowLess;
+        @BindView(R.id.tvShowLess)
+        TextView tvShowLess;
 
-        @BindView(R.id.llBatteryLevel) LinearLayout llBatteryLevel;
-        @BindView(R.id.tvBatteryLevelValue) TextView tvBatteryLevelValue;
-        @BindView(R.id.bdBattery) BatteryDiagram bdBattery;
+        @BindView(R.id.llBatteryLevel)
+        LinearLayout llBatteryLevel;
+        @BindView(R.id.tvBatteryLevelValue)
+        TextView tvBatteryLevelValue;
+        @BindView(R.id.bdBattery)
+        BatteryDiagram bdBattery;
 
-        @BindView(R.id.ivDetach) ImageView ivDetach;
-        @BindView(R.id.ivSubscribeData) ImageView ivSubscribe;
-        @BindView(R.id.ivLedState) ImageView ivLedState;
-        @BindView(R.id.ivInteroberlinUartRx) ImageView ivInteroberlinUartRx;
-        @BindView(R.id.ivInteroberlinUartTx) ImageView ivInteroberlinUartTx;
-        @BindView(R.id.ivSentientLightFloorSensorRx) ImageView ivSentientLightFloorSensorRx;
-        @BindView(R.id.ivSentientLightFloorSensorTx) ImageView ivSentientLightFloorSensorTx;
-        @BindView(R.id.ivSentientLightLedRx) ImageView ivSentientLightLedRx;
-        @BindView(R.id.ivSentientLightLedTx) ImageView ivSentientLightLedTx;
-        @BindView(R.id.ivSendTemperature) ImageView ivSendTemperature;
-        @BindView(R.id.ivAutoConnect) ImageView ivAutoConnect;
-        @BindView(R.id.ivMore) ImageView ivMore;
+        @BindView(R.id.ivDetach)
+        ImageView ivDetach;
+        @BindView(R.id.ivSubscribeData)
+        ImageView ivSubscribe;
+        @BindView(R.id.ivLedState)
+        ImageView ivLedState;
+        @BindView(R.id.ivInteroberlinUartRx)
+        ImageView ivInteroberlinUartRx;
+        @BindView(R.id.ivInteroberlinUartTx)
+        ImageView ivInteroberlinUartTx;
+        @BindView(R.id.ivSentientLightFloorSensorRx)
+        ImageView ivSentientLightFloorSensorRx;
+        @BindView(R.id.ivSentientLightFloorSensorTx)
+        ImageView ivSentientLightFloorSensorTx;
+        @BindView(R.id.ivSentientLightLedRx)
+        ImageView ivSentientLightLedRx;
+        @BindView(R.id.ivSentientLightLedTx)
+        ImageView ivSentientLightLedTx;
+        @BindView(R.id.ivSendTemperature)
+        ImageView ivSendTemperature;
+        @BindView(R.id.ivAutoConnect)
+        ImageView ivAutoConnect;
+        @BindView(R.id.ivMore)
+        ImageView ivMore;
 
         public ViewHolderDevice(View v) {
             ButterKnife.bind(this, v);
@@ -80,13 +105,20 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     }
 
     static class ViewHolderMapping {
-        @BindView(R.id.tvName) TextView tvName;
-        @BindView(R.id.ivIcon) ImageView ivIcon;
-        @BindView(R.id.ivTriggered) ImageView ivTriggered;
-        @BindView(R.id.ivSource) ImageView ivSource;
-        @BindView(R.id.tvSource) TextView tvSource;
-        @BindView(R.id.ivSink) ImageView ivSink;
-        @BindView(R.id.tvSink) TextView tvSink;
+        @BindView(R.id.tvName)
+        TextView tvName;
+        @BindView(R.id.ivIcon)
+        ImageView ivIcon;
+        @BindView(R.id.ivTriggered)
+        ImageView ivTriggered;
+        @BindView(R.id.ivSource)
+        ImageView ivSource;
+        @BindView(R.id.tvSource)
+        TextView tvSource;
+        @BindView(R.id.ivSink)
+        ImageView ivSink;
+        @BindView(R.id.tvSink)
+        TextView tvSink;
 
         public ViewHolderMapping(View v) {
             ButterKnife.bind(this, v);
@@ -287,8 +319,8 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                         viewHolder.cllComponents.addView(new LineChartComponent(context, device));
                         break;
                     }
-                    case INTEROBERLIN_SENTIENT_LIGHT: {
-                        viewHolder.cllComponents.addView(new SentientLightComponent(context, device));
+                    case SENTIENT_LIGHT_LED: {
+                        viewHolder.cllComponents.addView(new SentientLightLedComponent(context, this, device));
                         break;
                     }
                     default: {
@@ -297,6 +329,9 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
                     }
                 }
             }
+
+            // TODO remove
+            viewHolder.cllComponents.addView(new SentientLightLedComponent(context, this, device));
 
             // Add actions
             viewHolder.ivDetach.setOnClickListener(new View.OnClickListener() {
@@ -571,6 +606,20 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     // </editor-fold>
 
     // --------------------
+    // Methods - Callbacks
+    // --------------------
+
+    // <editor-fold defaultstate="extended" desc="Callbacks">
+
+    @Override
+    public void onSendSentientLightLedValue(BleDevice device, EService service, ECharacteristic characteristic, String value) {
+        ocListener.onSend();
+        device.write(EService.SENTIENT_LIGHT_LED, ECharacteristic.SENTIENT_LIGHT_LED_TX, value);
+    }
+
+    // </editor-fold>
+
+    // --------------------
     // Methods - Filter
     // --------------------
 
@@ -603,8 +652,6 @@ public class DevicesAdapter extends ArrayAdapter<IDisplayable> {
     protected boolean filterBluetoothDeviceReading(IDisplayable displayable) {
         return displayable != null;
     }
-
-    // </editor-fold>
 
     // --------------------
     // Callback interfaces
